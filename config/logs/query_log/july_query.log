@@ -162,3 +162,294 @@
 
 2026/07/14 20:33:46 C:/Dev/tedx-be/database/migrations.go:9
 [4.155ms] [rows:0] CREATE INDEX IF NOT EXISTS "idx_todos_user_id" ON "todos" ("user_id")
+
+2026/07/14 20:40:27 C:/Dev/tedx-be/config/database.go:13
+[10.084ms] [rows:0] CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+2026/07/14 20:40:27 C:/Dev/tedx-be/database/migrations.go:9
+[55.137ms] [rows:1] SELECT count(*) FROM information_schema.tables WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'users' AND table_type = 'BASE TABLE'
+
+2026/07/14 20:40:27 C:/Dev/tedx-be/database/migrations.go:9
+[0.833ms] [rows:1] SELECT CURRENT_DATABASE()
+
+2026/07/14 20:40:27 C:/Dev/tedx-be/database/migrations.go:9
+[75.759ms] [rows:-] SELECT c.column_name, c.is_nullable = 'YES', c.udt_name, c.character_maximum_length, c.numeric_precision, c.numeric_precision_radix, c.numeric_scale, c.datetime_precision, 8 * typlen, c.column_default, pd.description, c.identity_increment FROM information_schema.columns AS c JOIN pg_type AS pgt ON c.udt_name = pgt.typname LEFT JOIN pg_catalog.pg_description as pd ON pd.objsubid = c.ordinal_position AND pd.objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = c.table_name AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = c.table_schema)) where table_catalog = 'tedx_db' AND table_schema = CURRENT_SCHEMA() AND table_name = 'users'
+
+2026/07/14 20:40:27 C:/Dev/tedx-be/database/migrations.go:9
+[4.943ms] [rows:-] SELECT * FROM "users" LIMIT 5
+
+2026/07/14 20:40:27 C:/Dev/tedx-be/database/migrations.go:9
+[26.392ms] [rows:-] SELECT constraint_name FROM information_schema.table_constraints tc JOIN information_schema.constraint_column_usage AS ccu USING (constraint_schema, constraint_catalog, table_name, constraint_name) JOIN information_schema.columns AS c ON c.table_schema = tc.constraint_schema AND tc.table_name = c.table_name AND ccu.column_name = c.column_name WHERE constraint_type IN ('PRIMARY KEY', 'UNIQUE') AND c.table_catalog = 'tedx_db' AND c.table_schema = CURRENT_SCHEMA() AND c.table_name = 'users' AND constraint_type = 'UNIQUE'
+
+2026/07/14 20:40:27 C:/Dev/tedx-be/database/migrations.go:9
+[19.147ms] [rows:-] SELECT c.column_name, constraint_name, constraint_type FROM information_schema.table_constraints tc JOIN information_schema.constraint_column_usage AS ccu USING (constraint_schema, constraint_catalog, table_name, constraint_name) JOIN information_schema.columns AS c ON c.table_schema = tc.constraint_schema AND tc.table_name = c.table_name AND ccu.column_name = c.column_name WHERE constraint_type IN ('PRIMARY KEY', 'UNIQUE') AND c.table_catalog = 'tedx_db' AND c.table_schema = CURRENT_SCHEMA() AND c.table_name = 'users'
+
+2026/07/14 20:40:27 C:/Dev/tedx-be/database/migrations.go:9
+[2.280ms] [rows:-] SELECT a.attname as column_name, format_type(a.atttypid, a.atttypmod) AS data_type
+		FROM pg_attribute a JOIN pg_class b ON a.attrelid = b.oid AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA())
+		WHERE a.attnum > 0 -- hide internal columns
+		AND NOT a.attisdropped -- hide deleted columns
+		AND b.relname = 'users'
+
+2026/07/14 20:40:27 C:/Dev/tedx-be/database/migrations.go:9
+[5.167ms] [rows:0] SELECT description FROM pg_catalog.pg_description WHERE objsubid = (SELECT ordinal_position FROM information_schema.columns WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'users' AND column_name = 'id') AND objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = 'users' AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA()))
+
+2026/07/14 20:40:27 C:/Dev/tedx-be/database/migrations.go:9
+[5.863ms] [rows:0] SELECT description FROM pg_catalog.pg_description WHERE objsubid = (SELECT ordinal_position FROM information_schema.columns WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'users' AND column_name = 'name') AND objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = 'users' AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA()))
+
+2026/07/14 20:40:27 C:/Dev/tedx-be/database/migrations.go:9
+[4.041ms] [rows:0] SELECT description FROM pg_catalog.pg_description WHERE objsubid = (SELECT ordinal_position FROM information_schema.columns WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'users' AND column_name = 'email') AND objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = 'users' AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA()))
+
+2026/07/14 20:40:27 C:/Dev/tedx-be/database/migrations.go:9
+[4.646ms] [rows:0] SELECT description FROM pg_catalog.pg_description WHERE objsubid = (SELECT ordinal_position FROM information_schema.columns WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'users' AND column_name = 'password') AND objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = 'users' AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA()))
+
+2026/07/14 20:40:27 C:/Dev/tedx-be/database/migrations.go:9
+[7.069ms] [rows:0] SELECT description FROM pg_catalog.pg_description WHERE objsubid = (SELECT ordinal_position FROM information_schema.columns WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'users' AND column_name = 'telp_number') AND objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = 'users' AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA()))
+
+2026/07/14 20:40:27 C:/Dev/tedx-be/database/migrations.go:9
+[4.927ms] [rows:0] SELECT description FROM pg_catalog.pg_description WHERE objsubid = (SELECT ordinal_position FROM information_schema.columns WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'users' AND column_name = 'role') AND objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = 'users' AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA()))
+
+2026/07/14 20:40:27 C:/Dev/tedx-be/database/migrations.go:9
+[4.021ms] [rows:0] SELECT description FROM pg_catalog.pg_description WHERE objsubid = (SELECT ordinal_position FROM information_schema.columns WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'users' AND column_name = 'profile_image_url') AND objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = 'users' AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA()))
+
+2026/07/14 20:40:27 C:/Dev/tedx-be/database/migrations.go:9
+[4.607ms] [rows:0] SELECT description FROM pg_catalog.pg_description WHERE objsubid = (SELECT ordinal_position FROM information_schema.columns WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'users' AND column_name = 'is_verified') AND objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = 'users' AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA()))
+
+2026/07/14 20:40:27 C:/Dev/tedx-be/database/migrations.go:9
+[4.366ms] [rows:0] SELECT description FROM pg_catalog.pg_description WHERE objsubid = (SELECT ordinal_position FROM information_schema.columns WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'users' AND column_name = 'verification_code') AND objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = 'users' AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA()))
+
+2026/07/14 20:40:27 C:/Dev/tedx-be/database/migrations.go:9
+[4.409ms] [rows:0] SELECT description FROM pg_catalog.pg_description WHERE objsubid = (SELECT ordinal_position FROM information_schema.columns WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'users' AND column_name = 'verification_expiry') AND objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = 'users' AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA()))
+
+2026/07/14 20:40:27 C:/Dev/tedx-be/database/migrations.go:9
+[4.226ms] [rows:0] SELECT description FROM pg_catalog.pg_description WHERE objsubid = (SELECT ordinal_position FROM information_schema.columns WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'users' AND column_name = 'created_at') AND objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = 'users' AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA()))
+
+2026/07/14 20:40:27 C:/Dev/tedx-be/database/migrations.go:9
+[6.925ms] [rows:0] SELECT description FROM pg_catalog.pg_description WHERE objsubid = (SELECT ordinal_position FROM information_schema.columns WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'users' AND column_name = 'updated_at') AND objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = 'users' AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA()))
+
+2026/07/14 20:40:27 C:/Dev/tedx-be/database/migrations.go:9
+[9.028ms] [rows:1] SELECT count(*) FROM pg_indexes WHERE tablename = 'users' AND indexname = 'idx_users_email' AND schemaname = CURRENT_SCHEMA()
+
+2026/07/14 20:40:27 C:/Dev/tedx-be/database/migrations.go:9
+[1.200ms] [rows:1] SELECT count(*) FROM pg_indexes WHERE tablename = 'users' AND indexname = 'idx_users_telp_number' AND schemaname = CURRENT_SCHEMA()
+
+2026/07/14 20:40:27 C:/Dev/tedx-be/database/migrations.go:9
+[3.333ms] [rows:1] SELECT count(*) FROM information_schema.tables WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'refresh_tokens' AND table_type = 'BASE TABLE'
+
+2026/07/14 20:40:27 C:/Dev/tedx-be/database/migrations.go:9
+[0.000ms] [rows:1] SELECT CURRENT_DATABASE()
+
+2026/07/14 20:40:27 C:/Dev/tedx-be/database/migrations.go:9
+[10.322ms] [rows:-] SELECT c.column_name, c.is_nullable = 'YES', c.udt_name, c.character_maximum_length, c.numeric_precision, c.numeric_precision_radix, c.numeric_scale, c.datetime_precision, 8 * typlen, c.column_default, pd.description, c.identity_increment FROM information_schema.columns AS c JOIN pg_type AS pgt ON c.udt_name = pgt.typname LEFT JOIN pg_catalog.pg_description as pd ON pd.objsubid = c.ordinal_position AND pd.objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = c.table_name AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = c.table_schema)) where table_catalog = 'tedx_db' AND table_schema = CURRENT_SCHEMA() AND table_name = 'refresh_tokens'
+
+2026/07/14 20:40:27 C:/Dev/tedx-be/database/migrations.go:9
+[5.235ms] [rows:-] SELECT * FROM "refresh_tokens" LIMIT 5
+
+2026/07/14 20:40:27 C:/Dev/tedx-be/database/migrations.go:9
+[13.301ms] [rows:-] SELECT constraint_name FROM information_schema.table_constraints tc JOIN information_schema.constraint_column_usage AS ccu USING (constraint_schema, constraint_catalog, table_name, constraint_name) JOIN information_schema.columns AS c ON c.table_schema = tc.constraint_schema AND tc.table_name = c.table_name AND ccu.column_name = c.column_name WHERE constraint_type IN ('PRIMARY KEY', 'UNIQUE') AND c.table_catalog = 'tedx_db' AND c.table_schema = CURRENT_SCHEMA() AND c.table_name = 'refresh_tokens' AND constraint_type = 'UNIQUE'
+
+2026/07/14 20:40:27 C:/Dev/tedx-be/database/migrations.go:9
+[14.211ms] [rows:-] SELECT c.column_name, constraint_name, constraint_type FROM information_schema.table_constraints tc JOIN information_schema.constraint_column_usage AS ccu USING (constraint_schema, constraint_catalog, table_name, constraint_name) JOIN information_schema.columns AS c ON c.table_schema = tc.constraint_schema AND tc.table_name = c.table_name AND ccu.column_name = c.column_name WHERE constraint_type IN ('PRIMARY KEY', 'UNIQUE') AND c.table_catalog = 'tedx_db' AND c.table_schema = CURRENT_SCHEMA() AND c.table_name = 'refresh_tokens'
+
+2026/07/14 20:40:27 C:/Dev/tedx-be/database/migrations.go:9
+[2.059ms] [rows:-] SELECT a.attname as column_name, format_type(a.atttypid, a.atttypmod) AS data_type
+		FROM pg_attribute a JOIN pg_class b ON a.attrelid = b.oid AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA())
+		WHERE a.attnum > 0 -- hide internal columns
+		AND NOT a.attisdropped -- hide deleted columns
+		AND b.relname = 'refresh_tokens'
+
+2026/07/14 20:40:27 C:/Dev/tedx-be/database/migrations.go:9
+[4.571ms] [rows:0] SELECT description FROM pg_catalog.pg_description WHERE objsubid = (SELECT ordinal_position FROM information_schema.columns WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'refresh_tokens' AND column_name = 'id') AND objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = 'refresh_tokens' AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA()))
+
+2026/07/14 20:40:27 C:/Dev/tedx-be/database/migrations.go:9
+[4.447ms] [rows:0] SELECT description FROM pg_catalog.pg_description WHERE objsubid = (SELECT ordinal_position FROM information_schema.columns WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'refresh_tokens' AND column_name = 'user_id') AND objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = 'refresh_tokens' AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA()))
+
+2026/07/14 20:40:27 C:/Dev/tedx-be/database/migrations.go:9
+[4.465ms] [rows:0] SELECT description FROM pg_catalog.pg_description WHERE objsubid = (SELECT ordinal_position FROM information_schema.columns WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'refresh_tokens' AND column_name = 'token') AND objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = 'refresh_tokens' AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA()))
+
+2026/07/14 20:40:27 C:/Dev/tedx-be/database/migrations.go:9
+[7.698ms] [rows:0] SELECT description FROM pg_catalog.pg_description WHERE objsubid = (SELECT ordinal_position FROM information_schema.columns WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'refresh_tokens' AND column_name = 'expires_at') AND objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = 'refresh_tokens' AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA()))
+
+2026/07/14 20:40:27 C:/Dev/tedx-be/database/migrations.go:9
+[4.372ms] [rows:0] SELECT description FROM pg_catalog.pg_description WHERE objsubid = (SELECT ordinal_position FROM information_schema.columns WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'refresh_tokens' AND column_name = 'created_at') AND objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = 'refresh_tokens' AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA()))
+
+2026/07/14 20:40:27 C:/Dev/tedx-be/database/migrations.go:9
+[4.348ms] [rows:0] SELECT description FROM pg_catalog.pg_description WHERE objsubid = (SELECT ordinal_position FROM information_schema.columns WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'refresh_tokens' AND column_name = 'updated_at') AND objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = 'refresh_tokens' AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA()))
+
+2026/07/14 20:40:27 C:/Dev/tedx-be/database/migrations.go:9
+[3.063ms] [rows:1] SELECT count(*) FROM INFORMATION_SCHEMA.table_constraints WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'refresh_tokens' AND constraint_name = 'fk_refresh_tokens_user'
+
+2026/07/14 20:40:27 C:/Dev/tedx-be/database/migrations.go:9
+[1.520ms] [rows:1] SELECT count(*) FROM pg_indexes WHERE tablename = 'refresh_tokens' AND indexname = 'idx_refresh_tokens_token' AND schemaname = CURRENT_SCHEMA()
+
+2026/07/14 20:40:27 C:/Dev/tedx-be/database/migrations.go:9
+[1.757ms] [rows:1] SELECT count(*) FROM information_schema.tables WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'todos' AND table_type = 'BASE TABLE'
+
+2026/07/14 20:40:27 C:/Dev/tedx-be/database/migrations.go:9
+[0.000ms] [rows:1] SELECT CURRENT_DATABASE()
+
+2026/07/14 20:40:27 C:/Dev/tedx-be/database/migrations.go:9
+[9.517ms] [rows:-] SELECT c.column_name, c.is_nullable = 'YES', c.udt_name, c.character_maximum_length, c.numeric_precision, c.numeric_precision_radix, c.numeric_scale, c.datetime_precision, 8 * typlen, c.column_default, pd.description, c.identity_increment FROM information_schema.columns AS c JOIN pg_type AS pgt ON c.udt_name = pgt.typname LEFT JOIN pg_catalog.pg_description as pd ON pd.objsubid = c.ordinal_position AND pd.objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = c.table_name AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = c.table_schema)) where table_catalog = 'tedx_db' AND table_schema = CURRENT_SCHEMA() AND table_name = 'todos'
+
+2026/07/14 20:40:27 C:/Dev/tedx-be/database/migrations.go:9
+[7.312ms] [rows:-] SELECT * FROM "todos" LIMIT 5
+
+2026/07/14 20:40:27 C:/Dev/tedx-be/database/migrations.go:9
+[14.381ms] [rows:-] SELECT constraint_name FROM information_schema.table_constraints tc JOIN information_schema.constraint_column_usage AS ccu USING (constraint_schema, constraint_catalog, table_name, constraint_name) JOIN information_schema.columns AS c ON c.table_schema = tc.constraint_schema AND tc.table_name = c.table_name AND ccu.column_name = c.column_name WHERE constraint_type IN ('PRIMARY KEY', 'UNIQUE') AND c.table_catalog = 'tedx_db' AND c.table_schema = CURRENT_SCHEMA() AND c.table_name = 'todos' AND constraint_type = 'UNIQUE'
+
+2026/07/14 20:40:27 C:/Dev/tedx-be/database/migrations.go:9
+[15.326ms] [rows:-] SELECT c.column_name, constraint_name, constraint_type FROM information_schema.table_constraints tc JOIN information_schema.constraint_column_usage AS ccu USING (constraint_schema, constraint_catalog, table_name, constraint_name) JOIN information_schema.columns AS c ON c.table_schema = tc.constraint_schema AND tc.table_name = c.table_name AND ccu.column_name = c.column_name WHERE constraint_type IN ('PRIMARY KEY', 'UNIQUE') AND c.table_catalog = 'tedx_db' AND c.table_schema = CURRENT_SCHEMA() AND c.table_name = 'todos'
+
+2026/07/14 20:40:27 C:/Dev/tedx-be/database/migrations.go:9
+[1.506ms] [rows:-] SELECT a.attname as column_name, format_type(a.atttypid, a.atttypmod) AS data_type
+		FROM pg_attribute a JOIN pg_class b ON a.attrelid = b.oid AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA())
+		WHERE a.attnum > 0 -- hide internal columns
+		AND NOT a.attisdropped -- hide deleted columns
+		AND b.relname = 'todos'
+
+2026/07/14 20:40:27 C:/Dev/tedx-be/database/migrations.go:9
+[4.398ms] [rows:0] SELECT description FROM pg_catalog.pg_description WHERE objsubid = (SELECT ordinal_position FROM information_schema.columns WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'todos' AND column_name = 'id') AND objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = 'todos' AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA()))
+
+2026/07/14 20:40:27 C:/Dev/tedx-be/database/migrations.go:9
+[4.805ms] [rows:0] SELECT description FROM pg_catalog.pg_description WHERE objsubid = (SELECT ordinal_position FROM information_schema.columns WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'todos' AND column_name = 'user_id') AND objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = 'todos' AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA()))
+
+2026/07/14 20:40:27 C:/Dev/tedx-be/database/migrations.go:9
+[5.997ms] [rows:0] SELECT description FROM pg_catalog.pg_description WHERE objsubid = (SELECT ordinal_position FROM information_schema.columns WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'todos' AND column_name = 'name') AND objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = 'todos' AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA()))
+
+2026/07/14 20:40:27 C:/Dev/tedx-be/database/migrations.go:9
+[4.519ms] [rows:0] SELECT description FROM pg_catalog.pg_description WHERE objsubid = (SELECT ordinal_position FROM information_schema.columns WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'todos' AND column_name = 'category') AND objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = 'todos' AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA()))
+
+2026/07/14 20:40:27 C:/Dev/tedx-be/database/migrations.go:9
+[4.495ms] [rows:0] SELECT description FROM pg_catalog.pg_description WHERE objsubid = (SELECT ordinal_position FROM information_schema.columns WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'todos' AND column_name = 'is_done') AND objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = 'todos' AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA()))
+
+2026/07/14 20:40:27 C:/Dev/tedx-be/database/migrations.go:9
+[5.996ms] [rows:0] SELECT description FROM pg_catalog.pg_description WHERE objsubid = (SELECT ordinal_position FROM information_schema.columns WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'todos' AND column_name = 'created_at') AND objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = 'todos' AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA()))
+
+2026/07/14 20:40:27 C:/Dev/tedx-be/database/migrations.go:9
+[4.371ms] [rows:0] SELECT description FROM pg_catalog.pg_description WHERE objsubid = (SELECT ordinal_position FROM information_schema.columns WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'todos' AND column_name = 'updated_at') AND objoid = (SELECT oid FROM pg_catalog.pg_class WHERE relname = 'todos' AND relnamespace = (SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = CURRENT_SCHEMA()))
+
+2026/07/14 20:40:27 C:/Dev/tedx-be/database/migrations.go:9
+[1.460ms] [rows:1] SELECT count(*) FROM INFORMATION_SCHEMA.table_constraints WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'todos' AND constraint_name = 'fk_users_todo'
+
+2026/07/14 20:40:27 C:/Dev/tedx-be/database/migrations.go:9
+[1.518ms] [rows:1] SELECT count(*) FROM pg_indexes WHERE tablename = 'todos' AND indexname = 'idx_todos_user_id' AND schemaname = CURRENT_SCHEMA()
+
+2026/07/14 20:40:50 C:/Dev/tedx-be/modules/user/repository/user_repository.go:76 record not found
+[1.733ms] [rows:0] SELECT * FROM "users" WHERE email = 'dejongfrenkie26@gmail.com' LIMIT 1
+
+2026/07/14 20:40:50 C:/Dev/tedx-be/modules/user/repository/user_repository.go:37
+[10.784ms] [rows:1] INSERT INTO "users" ("name","email","password","telp_number","role","profile_image_url","is_verified","verification_code","verification_expiry","created_at","updated_at","id") VALUES ('Frenkie','dejongfrenkie26@gmail.com','$2a$10$szK.fEWgvAl7pGUz5oF7zufJZMMuu49bqlbO7i7fYzM0dvUV.9aRW',NULL,'user',NULL,false,'',NULL,'2026-07-14 20:40:50.943','2026-07-14 20:40:50.943','98538f81-ba95-4311-bd80-6d8669364638') RETURNING "id"
+
+2026/07/14 20:40:50 C:/Dev/tedx-be/modules/user/repository/user_repository.go:63
+[1.449ms] [rows:1] SELECT * FROM "users" WHERE email = 'dejongfrenkie26@gmail.com' LIMIT 1
+
+2026/07/14 20:40:50 C:/Dev/tedx-be/modules/auth/service/auth_service.go:186
+[4.393ms] [rows:1] UPDATE "users" SET "verification_code"='331958',"verification_expiry"='2026-07-14 20:55:50.955',"updated_at"='2026-07-14 20:40:50.955' WHERE "id" = '98538f81-ba95-4311-bd80-6d8669364638'
+
+2026/07/14 20:41:54 C:/Dev/tedx-be/modules/user/repository/user_repository.go:63
+[7.296ms] [rows:1] SELECT * FROM "users" WHERE email = 'dejongfrenkie26@gmail.com' LIMIT 1
+
+2026/07/14 20:41:54 C:/Dev/tedx-be/modules/auth/service/auth_service.go:186
+[7.722ms] [rows:1] UPDATE "users" SET "verification_code"='188028',"verification_expiry"='2026-07-14 20:56:54.802',"updated_at"='2026-07-14 20:41:54.805' WHERE "id" = '98538f81-ba95-4311-bd80-6d8669364638'
+
+2026/07/14 20:43:53 C:/Dev/tedx-be/modules/user/repository/user_repository.go:63
+[4.002ms] [rows:1] SELECT * FROM "users" WHERE email = 'dejongfrenkie26@gmail.com' LIMIT 1
+
+2026/07/14 20:43:53 C:/Dev/tedx-be/modules/auth/service/auth_service.go:186
+[4.842ms] [rows:1] UPDATE "users" SET "verification_code"='151432',"verification_expiry"='2026-07-14 20:58:53.258',"updated_at"='2026-07-14 20:43:53.26' WHERE "id" = '98538f81-ba95-4311-bd80-6d8669364638'
+
+2026/07/14 20:44:42 C:/Dev/tedx-be/modules/user/repository/user_repository.go:63
+[11.365ms] [rows:1] SELECT * FROM "users" WHERE email = 'dejongfrenkie26@gmail.com' LIMIT 1
+
+2026/07/14 20:44:42 C:/Dev/tedx-be/modules/auth/service/auth_service.go:186
+[6.276ms] [rows:1] UPDATE "users" SET "verification_code"='678685',"verification_expiry"='2026-07-14 20:59:42.853',"updated_at"='2026-07-14 20:44:42.856' WHERE "id" = '98538f81-ba95-4311-bd80-6d8669364638'
+
+2026/07/14 20:44:59 C:/Dev/tedx-be/modules/user/repository/user_repository.go:76
+[0.000ms] [rows:1] SELECT * FROM "users" WHERE email = 'dejongfrenkie26@gmail.com' LIMIT 1
+
+2026/07/14 20:45:10 C:/Dev/tedx-be/modules/user/repository/user_repository.go:76 record not found
+[6.786ms] [rows:0] SELECT * FROM "users" WHERE email = 'zhafirliban339@gmail.com' LIMIT 1
+
+2026/07/14 20:45:11 C:/Dev/tedx-be/modules/user/repository/user_repository.go:37
+[10.301ms] [rows:1] INSERT INTO "users" ("name","email","password","telp_number","role","profile_image_url","is_verified","verification_code","verification_expiry","created_at","updated_at","id") VALUES ('Frenkie','zhafirliban339@gmail.com','$2a$10$CtfNaNsHXerWzQTQVdvt9.KmVyvNYElD/hz8IJhueMBU9IQxJEYvG',NULL,'user',NULL,false,'',NULL,'2026-07-14 20:45:11.374','2026-07-14 20:45:11.374','f7b91092-63be-4538-8624-f7dd2bbe4950') RETURNING "id"
+
+2026/07/14 20:45:11 C:/Dev/tedx-be/modules/user/repository/user_repository.go:63
+[0.566ms] [rows:1] SELECT * FROM "users" WHERE email = 'zhafirliban339@gmail.com' LIMIT 1
+
+2026/07/14 20:45:11 C:/Dev/tedx-be/modules/auth/service/auth_service.go:186
+[1.910ms] [rows:1] UPDATE "users" SET "verification_code"='912125',"verification_expiry"='2026-07-14 21:00:11.387',"updated_at"='2026-07-14 20:45:11.388' WHERE "id" = 'f7b91092-63be-4538-8624-f7dd2bbe4950'
+
+2026/07/14 20:46:49 C:/Dev/tedx-be/modules/user/repository/user_repository.go:76 record not found
+[11.430ms] [rows:0] SELECT * FROM "users" WHERE email = 'muhamadrizalnurohman072005@gmail.com' LIMIT 1
+
+2026/07/14 20:46:49 C:/Dev/tedx-be/modules/user/repository/user_repository.go:37
+[2.497ms] [rows:1] INSERT INTO "users" ("name","email","password","telp_number","role","profile_image_url","is_verified","verification_code","verification_expiry","created_at","updated_at","id") VALUES ('Frenkie','muhamadrizalnurohman072005@gmail.com','$2a$10$Xk55vzuGngC/JiGfeO96QuXa7C420G26RJZWZ.7KNhdZcGz1HPJXq',NULL,'user',NULL,false,'',NULL,'2026-07-14 20:46:49.641','2026-07-14 20:46:49.641','a08bf179-56bc-480d-a12b-8322b7c720a2') RETURNING "id"
+
+2026/07/14 20:46:49 C:/Dev/tedx-be/modules/user/repository/user_repository.go:63
+[1.431ms] [rows:1] SELECT * FROM "users" WHERE email = 'muhamadrizalnurohman072005@gmail.com' LIMIT 1
+
+2026/07/14 20:46:49 C:/Dev/tedx-be/modules/auth/service/auth_service.go:186
+[0.764ms] [rows:1] UPDATE "users" SET "verification_code"='333060',"verification_expiry"='2026-07-14 21:01:49.646',"updated_at"='2026-07-14 20:46:49.646' WHERE "id" = 'a08bf179-56bc-480d-a12b-8322b7c720a2'
+
+2026/07/14 20:49:41 C:/Dev/tedx-be/modules/user/repository/user_repository.go:63
+[55.923ms] [rows:1] SELECT * FROM "users" WHERE email = 'dejongfrenkie26@gmail.com' LIMIT 1
+
+2026/07/14 20:49:41 C:/Dev/tedx-be/modules/auth/service/auth_service.go:186
+[13.321ms] [rows:1] UPDATE "users" SET "verification_code"='239771',"verification_expiry"='2026-07-14 21:04:41.471',"updated_at"='2026-07-14 20:49:41.477' WHERE "id" = '98538f81-ba95-4311-bd80-6d8669364638'
+
+2026/07/14 20:52:05 C:/Dev/tedx-be/modules/user/repository/user_repository.go:63
+[1.698ms] [rows:1] SELECT * FROM "users" WHERE email = 'dejongfrenkie26@gmail.com' LIMIT 1
+
+2026/07/14 20:52:05 C:/Dev/tedx-be/modules/auth/service/auth_service.go:186
+[2.305ms] [rows:1] UPDATE "users" SET "verification_code"='171914',"verification_expiry"='2026-07-14 21:07:05.261',"updated_at"='2026-07-14 20:52:05.261' WHERE "id" = '98538f81-ba95-4311-bd80-6d8669364638'
+
+2026/07/14 20:54:26 C:/Dev/tedx-be/config/database.go:13
+[533.203ms] [rows:0] CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+2026/07/14 20:54:26 C:/Dev/tedx-be/database/migrations.go:9
+[169.476ms] [rows:1] SELECT count(*) FROM information_schema.tables WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'users' AND table_type = 'BASE TABLE'
+
+2026/07/14 20:54:26 C:/Dev/tedx-be/database/migrations.go:9
+[188.329ms] [rows:0] CREATE TABLE "users" ("id" text DEFAULT uuid_generate_v4(),"name" varchar(150) NOT NULL,"email" varchar(225) NOT NULL,"password" varchar(225) NOT NULL,"telp_number" varchar(13),"role" varchar(50) NOT NULL DEFAULT 'user',"profile_image_url" varchar(255),"is_verified" boolean DEFAULT false,"verification_code" varchar(6),"verification_expiry" timestamp with time zone,"created_at" timestamp with time zone,"updated_at" timestamp with time zone,PRIMARY KEY ("id"))
+
+2026/07/14 20:54:26 C:/Dev/tedx-be/database/migrations.go:9
+[9.230ms] [rows:0] CREATE INDEX IF NOT EXISTS "idx_users_telp_number" ON "users" ("telp_number")
+
+2026/07/14 20:54:26 C:/Dev/tedx-be/database/migrations.go:9
+[12.435ms] [rows:0] CREATE UNIQUE INDEX IF NOT EXISTS "idx_users_email" ON "users" ("email")
+
+2026/07/14 20:54:26 C:/Dev/tedx-be/database/migrations.go:9
+[9.274ms] [rows:1] SELECT count(*) FROM information_schema.tables WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'refresh_tokens' AND table_type = 'BASE TABLE'
+
+2026/07/14 20:54:27 C:/Dev/tedx-be/database/migrations.go:9
+[26.547ms] [rows:0] CREATE TABLE "refresh_tokens" ("id" uuid DEFAULT uuid_generate_v4(),"user_id" text NOT NULL,"token" varchar(255) NOT NULL,"expires_at" timestamp with time zone NOT NULL,"created_at" timestamp with time zone,"updated_at" timestamp with time zone,PRIMARY KEY ("id"),CONSTRAINT "fk_refresh_tokens_user" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE)
+
+2026/07/14 20:54:27 C:/Dev/tedx-be/database/migrations.go:9
+[2.842ms] [rows:0] CREATE UNIQUE INDEX IF NOT EXISTS "idx_refresh_tokens_token" ON "refresh_tokens" ("token")
+
+2026/07/14 20:54:27 C:/Dev/tedx-be/database/migrations.go:9
+[3.698ms] [rows:1] SELECT count(*) FROM information_schema.tables WHERE table_schema = CURRENT_SCHEMA() AND table_name = 'todos' AND table_type = 'BASE TABLE'
+
+2026/07/14 20:54:27 C:/Dev/tedx-be/database/migrations.go:9
+[7.220ms] [rows:0] CREATE TABLE "todos" ("id" text DEFAULT uuid_generate_v4(),"user_id" text NOT NULL,"name" varchar(100) NOT NULL,"category" varchar(100) NOT NULL,"is_done" boolean DEFAULT false,"created_at" timestamp with time zone,"updated_at" timestamp with time zone,PRIMARY KEY ("id"),CONSTRAINT "fk_users_todo" FOREIGN KEY ("user_id") REFERENCES "users"("id"))
+
+2026/07/14 20:54:27 C:/Dev/tedx-be/database/migrations.go:9
+[3.015ms] [rows:0] CREATE INDEX IF NOT EXISTS "idx_todos_user_id" ON "todos" ("user_id")
+
+2026/07/14 20:54:32 C:/Dev/tedx-be/modules/user/repository/user_repository.go:76 record not found
+[6.015ms] [rows:0] SELECT * FROM "users" WHERE email = 'muhamadrizalnurohman072005@gmail.com' LIMIT 1
+
+2026/07/14 20:54:32 C:/Dev/tedx-be/modules/user/repository/user_repository.go:37
+[3.888ms] [rows:1] INSERT INTO "users" ("name","email","password","telp_number","role","profile_image_url","is_verified","verification_code","verification_expiry","created_at","updated_at","id") VALUES ('Frenkie','muhamadrizalnurohman072005@gmail.com','$2a$10$E1S1jWM74dUe/x858C6o9.QEm6a6Hzt.duJs2ldrSlB1k6h1vFHja',NULL,'user',NULL,false,'',NULL,'2026-07-14 20:54:32.318','2026-07-14 20:54:32.318','639f67f9-2f02-449e-9b6b-359350b8d08a') RETURNING "id"
+
+2026/07/14 20:54:32 C:/Dev/tedx-be/modules/user/repository/user_repository.go:63
+[1.124ms] [rows:1] SELECT * FROM "users" WHERE email = 'muhamadrizalnurohman072005@gmail.com' LIMIT 1
+
+2026/07/14 20:54:32 C:/Dev/tedx-be/modules/auth/service/auth_service.go:186
+[7.067ms] [rows:1] UPDATE "users" SET "verification_code"='455685',"verification_expiry"='2026-07-14 21:09:32.322',"updated_at"='2026-07-14 20:54:32.322' WHERE "id" = '639f67f9-2f02-449e-9b6b-359350b8d08a'
+
+2026/07/14 20:55:08 C:/Dev/tedx-be/modules/user/repository/user_repository.go:63
+[1.052ms] [rows:1] SELECT * FROM "users" WHERE email = 'muhamadrizalnurohman072005@gmail.com' LIMIT 1
+
+2026/07/14 20:55:08 C:/Dev/tedx-be/modules/auth/service/auth_service.go:186
+[0.547ms] [rows:1] UPDATE "users" SET "verification_code"='782891',"verification_expiry"='2026-07-14 21:10:08.427',"updated_at"='2026-07-14 20:55:08.427' WHERE "id" = '639f67f9-2f02-449e-9b6b-359350b8d08a'

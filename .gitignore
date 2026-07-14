@@ -4,4 +4,4 @@ assets/
 volumes/
 .idea/
 tmp/
-logs/
+logs/*
