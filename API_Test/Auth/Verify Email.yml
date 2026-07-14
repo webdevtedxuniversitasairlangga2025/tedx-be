@@ -1,0 +1,31 @@
+info:
+  name: Verify Email
+  type: http
+  seq: 6
+
+http:
+  method: POST
+  url: "{{base_url}}/auth/verify-email"
+  body:
+    type: json
+    data: |-
+      {
+        "email": "{{email}}",
+        "code": "{{verification_code}}"
+      }
+  auth: inherit
+
+runtime:
+  variables:
+    - name: base_url
+      value: http://localhost:8888/api/v1
+    - name: email
+      value: dejongfrenkie26@gmail.com
+    - name: verification_code
+      value: ""
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

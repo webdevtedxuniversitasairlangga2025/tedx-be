@@ -1,0 +1,25 @@
+info:
+  name: Delete Todo
+  type: http
+  seq: 5
+
+http:
+  method: DELETE
+  url: "{{base_url}}/todos/{{todo_id}}"
+  auth:
+    type: bearer
+    bearer:
+      token: "{{access_token}}"
+
+runtime:
+  variables:
+    - name: base_url
+      value: http://localhost:8888/api/v1
+    - name: todo_id
+      value: ""
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

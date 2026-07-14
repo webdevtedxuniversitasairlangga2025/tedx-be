@@ -1,0 +1,33 @@
+info:
+  name: Register
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{base_url}}/auth/register"
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Frenkie",
+        "email": "{{email}}",
+        "role": "user",
+        "password": "{{password}}"
+      }
+  auth: inherit
+
+runtime:
+  variables:
+    - name: base_url
+      value: http://localhost:8888/api/v1
+    - name: email
+      value: dejongfrenkie26@gmail.com
+    - name: password
+      value: abrisam123
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

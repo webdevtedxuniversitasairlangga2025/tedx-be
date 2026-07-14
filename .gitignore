@@ -1,0 +1,6 @@
+*.env
+storage/
+assets/
+volumes/
+.idea/
+tmp/

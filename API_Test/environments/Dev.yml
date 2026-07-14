@@ -1,0 +1,4 @@
+name: Dev
+variables:
+  - name: base_url
+    value: http://localhost:8888/api/v1
