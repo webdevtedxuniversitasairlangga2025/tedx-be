@@ -7,7 +7,7 @@ type Todo struct {
 	UserID					uuid.UUID						`gorm:"not null;index"`
 	Name						string							`gorm:"size:100;not null"`
 	Category 				string							`gorm:"size:100;not null"`
-	IsDone					bool								`gorm:"default:'false'"`
+	IsDone					bool								`gorm:"default:false"`
 
 	User						User								`gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE;OnDelete:CASCADE"`
 
