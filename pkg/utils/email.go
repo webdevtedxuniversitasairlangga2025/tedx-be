@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"html/template"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -55,10 +56,11 @@ func SendMail(toEmail string, subject string, body string) error {
 	}
 	defer res.Body.Close()
 
+	b, _ := io.ReadAll(res.Body)
 	if res.StatusCode >= 300 {
-		b, _ := io.ReadAll(res.Body)
 		return fmt.Errorf("Brevo: status %d - %s", res.StatusCode, b)
 	}
 
+	log.Printf("Brevo accepted email to %s: status %d - %s", toEmail, res.StatusCode, b)
 	return nil
 }

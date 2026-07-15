@@ -1,3 +1,6 @@
+.claude
+graphify-out
+
 *.env
 storage/
 assets/
@@ -6,3 +9,5 @@ volumes/
 tmp/
 config/logs/**
 *.log
+
+CLAUDE.md
