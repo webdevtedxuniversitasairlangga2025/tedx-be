@@ -199,7 +199,6 @@ Menyimpan akun pengguna (pembeli maupun admin/panitia).
 | `password` | varchar | Hash password (jangan simpan plaintext). |
 | `telp_number` | varchar, nullable | Nomor telepon opsional. |
 | `role` | varchar | `admin` atau `user`. Menentukan hak akses. |
-| `is_active` | boolean | Admin dapat menonaktifkan akun tanpa menghapus data. |
 | `is_verified` | boolean | Status verifikasi email. |
 | `verification_code` | varchar | Kode OTP verifikasi email. |
 | `verification_expiry` | timestamptz | Kedaluwarsa kode verifikasi. |
