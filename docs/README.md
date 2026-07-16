@@ -17,6 +17,7 @@ dirawat seiring tim bertumbuh.
 |---------|-----|
 | [Development Workflow](./development-workflow.md) | Cara kerja harian: setup lokal, arsitektur request, alur Git & Pull Request, testing, dan penggunaan graph pengetahuan. |
 | [SOP Membuat Modul CRUD](./sop-create-crud-module.md) | Langkah baku membuat fitur baru dengan endpoint Create, GetAll, GetByID, Update, Delete — mengikuti pola modul `todo`. |
+| [Skema Database](./database-schema.md) | Arsitektur database dan relasi antarentitas sebagai fondasi project |
 
 ## Prinsip utama
 
