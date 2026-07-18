@@ -109,12 +109,12 @@ Register also fires a verification email asynchronously.
 2. Refresh tokens are random opaque strings, 7 day TTL, stored in DB and rotated on `/refresh`.
 3. Protected routes send `Authorization: Bearer <access_token>`; the middleware validates and injects `user_id` into the context.
 
-## Testing the API
+### 🧪 API Testing
 
-Import `API_Test/opencollection.yml` (OpenCollection format) into a compatible
-client for ready-made Auth and Todo requests with environment variables.
-
-Run the Go unit tests:
+Project memakai **Bruno** (collection file-based di folder `API_Test/` pada repo backend).
+Sudah berisi request untuk Auth & Todo. Setiap modul API baru **wajib menambahkan
+folder request-nya** ke `API_Test/`, mengikuti pola folder `Todo/`. Collection ikut
+di-commit dan di-review di branch `be`.
 
 ```bash
 go test ./...
