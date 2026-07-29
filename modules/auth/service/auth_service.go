@@ -8,6 +8,7 @@ import (
 	"math/big"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/webdevtedxuniversitasairlangga/database/entities"
 	"github.com/webdevtedxuniversitasairlangga/modules/auth/dto"
 	authRepo "github.com/webdevtedxuniversitasairlangga/modules/auth/repository"
@@ -15,7 +16,6 @@ import (
 	"github.com/webdevtedxuniversitasairlangga/modules/user/repository"
 	"github.com/webdevtedxuniversitasairlangga/pkg/helpers"
 	"github.com/webdevtedxuniversitasairlangga/pkg/utils"
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 

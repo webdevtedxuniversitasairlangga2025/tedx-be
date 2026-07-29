@@ -3,14 +3,10 @@ package utils
 import (
 	"bytes"
 	"embed"
-	"encoding/json"
-	"fmt"
 	"html/template"
-	"io"
-	"log"
-	"net/http"
-	"os"
-	"time"
+
+	"github.com/webdevtedxuniversitasairlangga/config"
+	"gopkg.in/gomail.v2"
 )
 
 //go:embed email-template/*.html
@@ -31,36 +27,23 @@ func RenderEmailTemplate(templateName string, data map[string]string) (string, e
 }
 
 func SendMail(toEmail string, subject string, body string) error {
-	apiKey := os.Getenv("BREVO_API_KEY")
-	if apiKey == "" {
-		return fmt.Errorf("BREVO API KEY isn't set yet.")
-	}
-
-	payload, _ := json.Marshal(map[string]any{
-		"sender": map[string]string{
-			"email": os.Getenv("BREVO_SENDER_EMAIL"),
-			"name":  os.Getenv("BREVO_SENDER_NAME"),
-		},
-		"to":          []map[string]string{{"email": toEmail}},
-		"subject":     subject,
-		"htmlContent": body,
-	})
-
-	req, _ := http.NewRequest("POST", "https://api.brevo.com/v3/smtp/email", bytes.NewBuffer(payload))
-	req.Header.Set("api-key", apiKey)
-	req.Header.Set("Content-Type", "application/json")
-
-	res, err := (&http.Client{Timeout: 30 * time.Second}).Do(req)
+	emailConfig, err := config.NewEmailConfig()
 	if err != nil {
-		return err
-	}
-	defer res.Body.Close()
-
-	b, _ := io.ReadAll(res.Body)
-	if res.StatusCode >= 300 {
-		return fmt.Errorf("Brevo: status %d - %s", res.StatusCode, b)
+			return err
 	}
 
-	log.Printf("Brevo accepted email to %s: status %d - %s", toEmail, res.StatusCode, b)
-	return nil
+	mailer := gomail.NewMessage()
+	mailer.SetHeader("From", emailConfig.AuthEmail)
+	mailer.SetHeader("To", toEmail)
+	mailer.SetHeader("Subject", subject)
+	mailer.SetBody("text/html", body)
+
+	dialer := gomail.NewDialer(
+			emailConfig.Host,
+			emailConfig.Port,
+			emailConfig.AuthEmail,
+			emailConfig.AuthPassword,
+	)
+
+	return dialer.DialAndSend(mailer)
 }

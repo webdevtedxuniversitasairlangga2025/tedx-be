@@ -11,3 +11,4 @@ config/logs/**
 *.log
 
 CLAUDE.md
+OPENCODE.md

@@ -5,9 +5,11 @@ import (
 )
 
 type EmailConfig struct {
-	SenderEmail				string				`mapstructure:"BREVO_SENDER_EMAIL"`
-	SenderName				string				`mapstructure:"BREVO_SENDER_NAME"`
-	APIKey						string				`mapstructure:"BREVO_API_KEY"`
+	Host         string `mapstructure:"SMTP_HOST"`
+	Port         int    `mapstructure:"SMTP_PORT"`
+	SenderName   string `mapstructure:"SMTP_SENDER_NAME"`
+	AuthEmail    string `mapstructure:"SMTP_AUTH_EMAIL"`
+	AuthPassword string `mapstructure:"SMTP_AUTH_PASSWORD"`
 }
 
 func NewEmailConfig() (*EmailConfig, error) {
