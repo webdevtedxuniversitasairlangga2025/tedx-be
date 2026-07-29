@@ -19,6 +19,8 @@ func NewEmailConfig() (*EmailConfig, error) {
 		return nil, err
 	}
 
+	//komentar
+
 	viper.AutomaticEnv()
 
 	var config EmailConfig
