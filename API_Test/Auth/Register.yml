@@ -12,7 +12,6 @@ http:
       {
         "name": "Liban",
         "email": "{{email}}",
-        "role": "user",
         "password": "{{password}}"
       }
   auth: inherit
