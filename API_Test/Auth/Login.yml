@@ -20,7 +20,7 @@ runtime:
     - name: base_url
       value: http://localhost:8888/api/v1
     - name: email
-      value: zhafirliban339@gmail.com
+      value: pelajarbintangrumy@gmail.com
     - name: password
       value: password123
 
