@@ -9,17 +9,15 @@ import (
 )
 
 type User struct {
-	ID         				uuid.UUID `gorm:"primaryKey;default:uuid_generate_v4()"`
-	Name       				string    `gorm:"size:150;not null"`
-	Email      				string    `gorm:"size:225;uniqueIndex;not null"`
-	Password   				string    `gorm:"size:225;not null"`
-	TelpNumber 				*string   `gorm:"size:13;index"`
-	Role 							string		`gorm:"size:50;not null;default:'user'"`
-	ProfileImageUrl		*string		`gorm:"size:255"`
-	IsVerified				bool			`gorm:"default:false"`
-
-	VerificationCode   string     `gorm:"type:varchar(6)"`
-	VerificationExpiry *time.Time `gorm:"type:timestamp with time zone"`
+	ID         				uuid.UUID 	`gorm:"primaryKey;default:uuid_generate_v4()"`
+	Name       				string    	`gorm:"size:150;not null"`
+	Email      				string    	`gorm:"size:225;uniqueIndex;not null"`
+	Password   				string    	`gorm:"size:225;not null"`
+	TelpNumber 				*string   	`gorm:"size:13;index"`
+	Role 					string	  	`gorm:"size:50;not null;default:'user'"`
+	IsVerified				bool	  	`gorm:"default:false"`
+	VerificationCode   		string     	`gorm:"type:varchar(6)"`
+	VerificationExpiry 		*time.Time 	`gorm:"type:timestamp with time zone"`
 
 	Todo []Todo
 
