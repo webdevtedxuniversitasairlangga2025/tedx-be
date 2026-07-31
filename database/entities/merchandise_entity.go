@@ -14,6 +14,8 @@ type Merchandise struct {
 	Category    string          `gorm:"size:50;not null"`
 	IsActive    bool            `gorm:"default:true"`
 
+	MerchImages []MerchImage
+
 	Timestamp
 }
 

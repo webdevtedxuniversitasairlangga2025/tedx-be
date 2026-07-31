@@ -10,7 +10,7 @@ http:
     type: json
     data: |-
       {
-        "name": "Liban",
+        "name": "Bintang",
         "email": "{{email}}",
         "password": "{{password}}"
       }

@@ -19,7 +19,10 @@ type User struct {
 	VerificationCode   		string     	`gorm:"type:varchar(6)"`
 	VerificationExpiry 		*time.Time 	`gorm:"type:timestamp with time zone"`
 
-	Todo []Todo
+	Todo 						[]Todo
+	RefreshTokens  	[]RefreshToken
+	Orders         	[]Order
+	AttendeeTickets []AttendeeTicket `gorm:"foreignKey:CheckedBy"`
 
 	Timestamp
 }

@@ -11,6 +11,8 @@ type Ticket struct {
 	Description string    `gorm:"type:text;not null"`
 	IsActive    bool      `gorm:"default:true"`
 
+	TicketTiers []TicketTier
+
 	Timestamp
 }
 

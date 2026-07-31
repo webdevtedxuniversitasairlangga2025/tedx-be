@@ -13,6 +13,8 @@ type Bundle struct {
 	Price       decimal.Decimal `gorm:"type:numeric(10,2);not null"`
 	IsActive    bool            `gorm:"default:true"`
 
+	BundleImages []BundleImage
+
 	Timestamp
 }
 

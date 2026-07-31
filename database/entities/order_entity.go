@@ -27,6 +27,8 @@ type Order struct {
 	User                  User            `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT"`
 	TicketTier            TicketTier      `gorm:"foreignKey:TicketTierID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT"`
 
+	AttendeeTickets []AttendeeTicket
+
 	Timestamp
 }
 

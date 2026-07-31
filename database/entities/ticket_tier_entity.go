@@ -20,6 +20,8 @@ type TicketTier struct {
 	IsActive    bool            `gorm:"default:true"`
 	Ticket      Ticket          `gorm:"foreignKey:TicketID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 
+	Orders []Order
+
 	Timestamp
 }
 
