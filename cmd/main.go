@@ -6,6 +6,7 @@ import (
 
 	"github.com/webdevtedxuniversitasairlangga/middlewares"
 	"github.com/webdevtedxuniversitasairlangga/modules/auth"
+	"github.com/webdevtedxuniversitasairlangga/modules/bundle"
 	"github.com/webdevtedxuniversitasairlangga/modules/todo"
 	"github.com/webdevtedxuniversitasairlangga/providers"
 	"github.com/common-nighthawk/go-figure"
@@ -49,6 +50,7 @@ func main() {
 	{
 		auth.RegisterRoutes(v1, injector)
 		todo.RegisterRoutes(v1, injector)
+		bundle.RegisterRoutes(v1, injector)
 	}
 
 	run(server)

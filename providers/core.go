@@ -10,6 +10,10 @@ import (
 	authRepo "github.com/webdevtedxuniversitasairlangga/modules/auth/repository"
 	authService "github.com/webdevtedxuniversitasairlangga/modules/auth/service"
 
+	bundleHandler "github.com/webdevtedxuniversitasairlangga/modules/bundle/handler"
+	bundleRepo "github.com/webdevtedxuniversitasairlangga/modules/bundle/repository"
+	bundleService "github.com/webdevtedxuniversitasairlangga/modules/bundle/service"
+
 	todoHandler "github.com/webdevtedxuniversitasairlangga/modules/todo/handler"
 	todoRepo "github.com/webdevtedxuniversitasairlangga/modules/todo/repository"
 	todoService "github.com/webdevtedxuniversitasairlangga/modules/todo/service"
@@ -57,6 +61,15 @@ func RegisterDependencies(injector *do.Injector) {
 	do.Provide(
 		injector, func(i *do.Injector) (todoHandler.TodoHandler, error) {
 			return todoHandler.NewTodoHandler(i, todoSvc), nil
+		},
+	)
+
+	bundleRepository := bundleRepo.NewBundleRepository(db)
+	bundleSvc := bundleService.NewBundleService(bundleRepository, db)
+
+	do.Provide(
+		injector, func(i *do.Injector) (bundleHandler.BundleHandler, error) {
+			return bundleHandler.NewBundleHandler(i, bundleSvc), nil
 		},
 	)
 }
