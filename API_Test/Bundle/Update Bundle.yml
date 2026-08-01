@@ -1,0 +1,33 @@
+info:
+  name: Update Bundle
+  type: http
+  seq: 5
+
+http:
+  method: PATCH
+  url: "{{base_url}}/bundles/{{bundle_id}}"
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Bundle Hemat TEDx (Revisi)",
+        "price": "175000.00",
+        "is_active": false
+      }
+  auth:
+    type: bearer
+    bearer:
+      token: "{{access_token}}"
+
+runtime:
+  variables:
+    - name: base_url
+      value: http://localhost:8888/api/v1
+    - name: bundle_id
+      value: ""
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

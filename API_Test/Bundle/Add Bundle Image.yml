@@ -1,0 +1,31 @@
+info:
+  name: Add Bundle Image
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: "{{base_url}}/bundles/{{bundle_id}}/images"
+  body:
+    type: json
+    data: |-
+      {
+        "image_url": "https://placehold.co/600x400.png"
+      }
+  auth:
+    type: bearer
+    bearer:
+      token: "{{access_token}}"
+
+runtime:
+  variables:
+    - name: base_url
+      value: http://localhost:8888/api/v1
+    - name: bundle_id
+      value: ""
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

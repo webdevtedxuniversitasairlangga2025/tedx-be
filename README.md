@@ -26,6 +26,7 @@ database/
 middlewares/             CORS, JWT authentication guard
 modules/                 Feature modules — each: dto / handler / service / repository / routes
   auth/                  Register, login, refresh, logout, email verify, password reset
+  bundle/                Bundle catalog (public read, admin write) + image gallery
   todo/                  CRUD example resource (auth-protected)
   user/                  User DTOs + repository (shared by auth)
 pkg/
@@ -33,7 +34,7 @@ pkg/
   helpers/               Password hashing (bcrypt)
   utils/                 Standard API response envelope, email sender + templates
 providers/core.go        RegisterDependencies — wires repos, services, handlers
-API_Test/                API collection (OpenCollection format) for Auth & Todo
+API_Test/                API collection (OpenCollection format) for Auth, Todo & Bundle
 ```
 
 Each module follows the same flow: `routes → handler → service → repository → entities`.
@@ -102,6 +103,31 @@ Register also fires a verification email asynchronously.
 | GET | `/:id` | — |
 | PATCH | `/:id` | `name?`, `category?`, `is_done?` |
 | DELETE | `/:id` | — |
+
+### Bundle — `/api/v1/bundles`
+
+Bundle catalog — display only; checkout happens through a Google Form.
+
+| Method | Path | Auth | Body / Query |
+|--------|------|------|------|
+| GET | `` | — | `page`, `per_page`, `is_active?` |
+| GET | `/:id` | — | — (detail incl. `images`) |
+| POST | `` | Bearer (admin) | `name`, `description`, `price` |
+| PATCH | `/:id` | Bearer (admin) | `name?`, `description?`, `price?`, `is_active?` |
+| DELETE | `/:id` | Bearer (admin) | — |
+| POST | `/:id/images` | Bearer (admin) | `image_url` |
+| DELETE | `/:id/images/:imageId` | Bearer (admin) | — |
+
+Notes:
+
+- `price` is sent and returned as a **string** (e.g. `"150000.00"`) so money keeps its
+  precision on both sides. Valid range: `0` – `99999999.99` (column is `numeric(10,2)`).
+- `GET /bundles` without an `is_active` parameter returns **active bundles only**, since
+  the endpoint is public. Pass `?is_active=false` to list hidden ones.
+- Bundles are always created active — deactivate them with `PATCH`.
+- Deleting a bundle also deletes its images (`ON DELETE CASCADE`).
+- ⚠️ Admin endpoints are currently guarded by `Authenticate` (login check) only. The
+  role check waits on the `AuthorizeAdmin` middleware, which is a separate task.
 
 ### Auth flow
 
