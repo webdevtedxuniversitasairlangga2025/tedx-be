@@ -12,10 +12,9 @@ http:
       {
         "image_url": "https://placehold.co/600x400.png"
       }
-  auth:
-    type: bearer
-    bearer:
-      token: "{{access_token}}"
+  headers:
+    - name: Authorization
+      value: "Bearer {{access_token}}"
 
 runtime:
   variables:

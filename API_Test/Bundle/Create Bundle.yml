@@ -14,10 +14,9 @@ http:
         "description": "Paket kaos + totebag + sticker",
         "price": "150000.00"
       }
-  auth:
-    type: bearer
-    bearer:
-      token: "{{access_token}}"
+  headers:
+    - name: Authorization
+      value: "Bearer {{access_token}}"
 
 runtime:
   variables:

@@ -14,10 +14,9 @@ http:
         "price": "175000.00",
         "is_active": false
       }
-  auth:
-    type: bearer
-    bearer:
-      token: "{{access_token}}"
+  headers:
+    - name: Authorization
+      value: "Bearer {{access_token}}"
 
 runtime:
   variables:

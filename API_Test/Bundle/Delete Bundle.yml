@@ -6,10 +6,9 @@ info:
 http:
   method: DELETE
   url: "{{base_url}}/bundles/{{bundle_id}}"
-  auth:
-    type: bearer
-    bearer:
-      token: "{{access_token}}"
+  headers:
+    - name: Authorization
+      value: "Bearer {{access_token}}"
 
 runtime:
   variables:
