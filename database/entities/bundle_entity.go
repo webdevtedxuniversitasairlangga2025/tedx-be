@@ -13,7 +13,12 @@ type Bundle struct {
 	Price       decimal.Decimal `gorm:"type:numeric(10,2);not null"`
 	IsActive    bool            `gorm:"default:true"`
 
-	BundleImages []BundleImage
+	// Tag constraint harus ada di sisi has-many ini: GORM membuat foreign key
+	// bundle_images.bundle_id dari relasi ini (fk_bundles_bundle_images), bukan
+	// dari tag di BundleImage.Bundle. Tanpa tag ini constraint-nya NO ACTION,
+	// sehingga menghapus bundle yang punya gambar akan gagal — padahal
+	// docs/database-schema.md mensyaratkan ON DELETE CASCADE.
+	BundleImages []BundleImage `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 
 	Timestamp
 }
