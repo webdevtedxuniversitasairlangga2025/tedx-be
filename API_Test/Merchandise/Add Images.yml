@@ -1,0 +1,24 @@
+info:
+  name: Add Images
+  type: http
+  seq: 4
+
+http:
+  method: POST
+  url: http://localhost:8888/api/v1/merchandise/cbdc4eb1-3bdc-4746-9f64-5be2a4d1ebce/images
+  headers:
+    - name: Authorization
+      value: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYjlkZGU0MDAtMzYzNy00N2UxLWI1YjEtODRlNzU1N2Q5YzE3Iiwicm9sZSI6InVzZXIiLCJpc3MiOiJUZW1wbGF0ZSIsImV4cCI6MTc4NTg0MDc1OSwiaWF0IjoxNzg1ODM5ODU5fQ.aXsADuu8eeq2F8pMOOecxSDES0rHYKnlo1PwkuTG4sw
+  body:
+    type: json
+    data: |-
+      {
+        "image_url": "https://example.com/images/merch-tshirt.jpg"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
