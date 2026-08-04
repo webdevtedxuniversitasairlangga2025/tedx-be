@@ -4,14 +4,15 @@ import (
 	"log"
 	"os"
 
-	"github.com/webdevtedxuniversitasairlangga/middlewares"
-	"github.com/webdevtedxuniversitasairlangga/modules/auth"
-	"github.com/webdevtedxuniversitasairlangga/modules/bundle"
-	"github.com/webdevtedxuniversitasairlangga/modules/todo"
-	"github.com/webdevtedxuniversitasairlangga/providers"
 	"github.com/common-nighthawk/go-figure"
 	"github.com/gin-gonic/gin"
 	"github.com/samber/do"
+	"github.com/webdevtedxuniversitasairlangga/middlewares"
+	"github.com/webdevtedxuniversitasairlangga/modules/auth"
+	"github.com/webdevtedxuniversitasairlangga/modules/bundle"
+	"github.com/webdevtedxuniversitasairlangga/modules/merchandise"
+	"github.com/webdevtedxuniversitasairlangga/modules/todo"
+	"github.com/webdevtedxuniversitasairlangga/providers"
 )
 
 func run(server *gin.Engine) {
@@ -51,6 +52,7 @@ func main() {
 		auth.RegisterRoutes(v1, injector)
 		todo.RegisterRoutes(v1, injector)
 		bundle.RegisterRoutes(v1, injector)
+		merchandise.RegisterRoutes(v1, injector)
 	}
 
 	run(server)

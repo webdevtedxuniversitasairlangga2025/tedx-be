@@ -1,0 +1,15 @@
+info:
+  name: Create Merchandise
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: http://localhost:8888/api/v1/merchandise
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

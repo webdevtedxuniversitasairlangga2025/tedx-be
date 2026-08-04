@@ -1,0 +1,15 @@
+info:
+  name: Add Images
+  type: http
+  seq: 4
+
+http:
+  method: POST
+  url: http://localhost:8888/api/v1/merchandise/cbdc4eb1-3bdc-4746-9f64-5be2a4d1ebce/images
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
