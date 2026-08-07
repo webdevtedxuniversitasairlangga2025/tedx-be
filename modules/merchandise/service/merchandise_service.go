@@ -5,11 +5,14 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/samber/do"
+	"github.com/shopspring/decimal"
 	"github.com/webdevtedxuniversitasairlangga/database/entities"
 	"github.com/webdevtedxuniversitasairlangga/modules/merchandise/dto"
 	"github.com/webdevtedxuniversitasairlangga/modules/merchandise/repository"
 	"github.com/webdevtedxuniversitasairlangga/pkg/constants"
 )
+
+var maxPrice = decimal.RequireFromString("99999999.99")
 
 type MerchandiseService interface {
 	GetAll(ctx context.Context, filter dto.MerchandiseFilter) (dto.MerchandisePaginationResponse, error)
@@ -103,11 +106,29 @@ func (s *merchandiseServiceImpl) GetByID(ctx context.Context, id uuid.UUID) (dto
 	return toResponse(*merch), nil
 }
 
+func parsePrice(raw string) (decimal.Decimal, error) {
+	price, err := decimal.NewFromString(raw)
+	if err != nil {
+		return decimal.Decimal{}, dto.ErrInvalidPrice
+	}
+
+	if price.IsNegative() || price.GreaterThan(maxPrice) {
+		return decimal.Decimal{}, dto.ErrPriceOutOfRange
+	}
+
+	return price, nil
+}
+
 func (s *merchandiseServiceImpl) Create(ctx context.Context, req dto.MerchandiseCreateRequest) error {
+	price, err := parsePrice(req.Price)
+	if err != nil {
+		return err
+	}
+
 	merch := &entities.Merchandise{
 		Name:        req.Name,
 		Description: req.Description,
-		Price:       req.Price,
+		Price:       price,
 		Category:    req.Category,
 		IsActive:    true,
 	}
@@ -129,7 +150,11 @@ func (s *merchandiseServiceImpl) Update(ctx context.Context, id uuid.UUID, req d
 		merch.Description = *req.Description
 	}
 	if req.Price != nil {
-		merch.Price = *req.Price
+		price, err := parsePrice(*req.Price)
+		if err != nil {
+			return err
+		}
+		merch.Price = price
 	}
 	if req.Category != nil {
 		merch.Category = *req.Category

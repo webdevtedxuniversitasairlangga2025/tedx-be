@@ -1,9 +1,8 @@
 package dto
 
 import (
+	"errors"
 	"time"
-
-	"github.com/shopspring/decimal"
 )
 
 const (
@@ -25,19 +24,24 @@ const (
 	MESSAGE_SUCCESS_DELETE_MERCHANDISE_IMAGE = "success delete merchandise image"
 )
 
+var (
+	ErrInvalidPrice    = errors.New("invalid price format")
+	ErrPriceOutOfRange = errors.New("price must be between 0 and 99999999.99")
+)
+
 type MerchandiseCreateRequest struct {
-	Name        string          `json:"name" binding:"required"`
-	Description string          `json:"description" binding:"required"`
-	Price       decimal.Decimal `json:"price" binding:"required"`
-	Category    string          `json:"category" binding:"required"`
+	Name        string `json:"name" binding:"required"`
+	Description string `json:"description" binding:"required"`
+	Price       string `json:"price" binding:"required"`
+	Category    string `json:"category" binding:"required"`
 }
 
 type MerchandiseUpdateRequest struct {
-	Name        *string          `json:"name" binding:"omitempty"`
-	Description *string          `json:"description" binding:"omitempty"`
-	Price       *decimal.Decimal `json:"price" binding:"omitempty"`
-	Category    *string          `json:"category" binding:"omitempty"`
-	IsActive    *bool            `json:"is_active"`
+	Name        *string `json:"name" binding:"omitempty"`
+	Description *string `json:"description" binding:"omitempty"`
+	Price       *string `json:"price" binding:"omitempty"`
+	Category    *string `json:"category" binding:"omitempty"`
+	IsActive    *bool   `json:"is_active"`
 }
 
 type MerchImageRequest struct {
