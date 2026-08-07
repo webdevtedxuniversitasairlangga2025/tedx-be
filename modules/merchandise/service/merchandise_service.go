@@ -66,6 +66,10 @@ func (s *merchandiseServiceImpl) GetAll(ctx context.Context, filter dto.Merchand
 	if filter.Limit <= 0 {
 		filter.Limit = constants.ENUM_PAGINATION_PER_PAGE
 	}
+	if filter.IsActive == nil {
+		activeOnly := true
+		filter.IsActive = &activeOnly
+	}
 
 	merchandises, total, err := s.repo.FindAll(ctx, filter)
 	if err != nil {
