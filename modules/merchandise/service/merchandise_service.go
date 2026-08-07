@@ -22,7 +22,7 @@ type MerchandiseService interface {
 	Delete(ctx context.Context, id uuid.UUID) error
 
 	AddImage(ctx context.Context, merchId uuid.UUID, req dto.MerchImageRequest) error
-	DeleteImage(ctx context.Context, imageId uuid.UUID) error
+	DeleteImage(ctx context.Context, merchId, imageId uuid.UUID) error
 }
 
 type merchandiseServiceImpl struct {
@@ -188,7 +188,19 @@ func (s *merchandiseServiceImpl) AddImage(ctx context.Context, merchId uuid.UUID
 	return s.repo.AddImage(ctx, image)
 }
 
-func (s *merchandiseServiceImpl) DeleteImage(ctx context.Context, imageId uuid.UUID) error {
+func (s *merchandiseServiceImpl) DeleteImage(ctx context.Context, merchId, imageId uuid.UUID) error {
 
-	return s.repo.DeleteImage(ctx, imageId)
+	if _, err := s.repo.FindByID(ctx, merchId); err != nil {
+		return err
+	}
+
+	affected, err := s.repo.DeleteImage(ctx, merchId, imageId)
+	if err != nil {
+		return err
+	}
+	if affected == 0 {
+		return dto.ErrMerchImageNotFound
+	}
+
+	return nil
 }

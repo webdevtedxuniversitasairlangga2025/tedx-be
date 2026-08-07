@@ -147,6 +147,13 @@ func (h *MerchandiseHandler) AddImage(c *gin.Context) {
 }
 
 func (h *MerchandiseHandler) DeleteImage(c *gin.Context) {
+	merchId, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_DELETE_MERCHANDISE_IMAGE, err.Error(), nil)
+		c.JSON(http.StatusBadRequest, res)
+		return
+	}
+
 	imageId, err := uuid.Parse(c.Param("imageId"))
 	if err != nil {
 		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_DELETE_MERCHANDISE_IMAGE, err.Error(), nil)
@@ -154,7 +161,7 @@ func (h *MerchandiseHandler) DeleteImage(c *gin.Context) {
 		return
 	}
 
-	if err := h.service.DeleteImage(c.Request.Context(), imageId); err != nil {
+	if err := h.service.DeleteImage(c.Request.Context(), merchId, imageId); err != nil {
 		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_DELETE_MERCHANDISE_IMAGE, err.Error(), nil)
 		c.JSON(http.StatusBadRequest, res)
 		return

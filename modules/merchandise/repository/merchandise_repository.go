@@ -18,7 +18,7 @@ type MerchandiseRepository interface {
 	Delete(ctx context.Context, id uuid.UUID) error
 
 	AddImage(ctx context.Context, image *entities.MerchImage) error
-	DeleteImage(ctx context.Context, imageId uuid.UUID) error
+	DeleteImage(ctx context.Context, merchId, imageId uuid.UUID) (int64, error)
 }
 
 type merchandiseRepositoryImpl struct {
@@ -83,6 +83,10 @@ func (r *merchandiseRepositoryImpl) AddImage(ctx context.Context, image *entitie
 	return r.db.WithContext(ctx).Create(image).Error
 }
 
-func (r *merchandiseRepositoryImpl) DeleteImage(ctx context.Context, imageId uuid.UUID) error {
-	return r.db.WithContext(ctx).Delete(&entities.MerchImage{}, "id = ?", imageId).Error
+func (r *merchandiseRepositoryImpl) DeleteImage(ctx context.Context, merchId, imageId uuid.UUID) (int64, error) {
+	result := r.db.WithContext(ctx).
+		Where("id = ? AND merchandise_id = ?", imageId, merchId).
+		Delete(&entities.MerchImage{})
+
+	return result.RowsAffected, result.Error
 }
