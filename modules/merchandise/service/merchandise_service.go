@@ -14,8 +14,8 @@ import (
 type MerchandiseService interface {
 	GetAll(ctx context.Context, filter dto.MerchandiseFilter) (dto.MerchandisePaginationResponse, error)
 	GetByID(ctx context.Context, id uuid.UUID) (dto.MerchandiseResponse, error)
-	Create(ctx context.Context, req dto.MerchandiseRequest) error
-	Update(ctx context.Context, id uuid.UUID, req dto.MerchandiseRequest) error
+	Create(ctx context.Context, req dto.MerchandiseCreateRequest) error
+	Update(ctx context.Context, id uuid.UUID, req dto.MerchandiseUpdateRequest) error
 	Delete(ctx context.Context, id uuid.UUID) error
 
 	AddImage(ctx context.Context, merchId uuid.UUID, req dto.MerchImageRequest) error
@@ -99,40 +99,40 @@ func (s *merchandiseServiceImpl) GetByID(ctx context.Context, id uuid.UUID) (dto
 	return toResponse(*merch), nil
 }
 
-func (s *merchandiseServiceImpl) Create(ctx context.Context, req dto.MerchandiseRequest) error {
-	isActive := true
-	if req.IsActive != nil {
-		isActive = *req.IsActive
-	}
-
+func (s *merchandiseServiceImpl) Create(ctx context.Context, req dto.MerchandiseCreateRequest) error {
 	merch := &entities.Merchandise{
 		Name:        req.Name,
 		Description: req.Description,
 		Price:       req.Price,
 		Category:    req.Category,
-		IsActive:    isActive,
+		IsActive:    true,
 	}
 
 	return s.repo.Create(ctx, merch)
 }
 
-func (s *merchandiseServiceImpl) Update(ctx context.Context, id uuid.UUID, req dto.MerchandiseRequest) error {
+func (s *merchandiseServiceImpl) Update(ctx context.Context, id uuid.UUID, req dto.MerchandiseUpdateRequest) error {
 
 	merch, err := s.repo.FindByID(ctx, id)
 	if err != nil {
 		return err
 	}
 
-	isActive := merch.IsActive
-	if req.IsActive != nil {
-		isActive = *req.IsActive
+	if req.Name != nil {
+		merch.Name = *req.Name
 	}
-
-	merch.Name = req.Name
-	merch.Description = req.Description
-	merch.Price = req.Price
-	merch.Category = req.Category
-	merch.IsActive = isActive
+	if req.Description != nil {
+		merch.Description = *req.Description
+	}
+	if req.Price != nil {
+		merch.Price = *req.Price
+	}
+	if req.Category != nil {
+		merch.Category = *req.Category
+	}
+	if req.IsActive != nil {
+		merch.IsActive = *req.IsActive
+	}
 
 	return s.repo.Update(ctx, merch)
 }

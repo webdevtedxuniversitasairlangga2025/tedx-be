@@ -25,12 +25,19 @@ const (
 	MESSAGE_SUCCESS_DELETE_MERCHANDISE_IMAGE = "success delete merchandise image"
 )
 
-type MerchandiseRequest struct {
+type MerchandiseCreateRequest struct {
 	Name        string          `json:"name" binding:"required"`
 	Description string          `json:"description" binding:"required"`
 	Price       decimal.Decimal `json:"price" binding:"required"`
 	Category    string          `json:"category" binding:"required"`
-	IsActive    *bool           `json:"is_active" binding:"required"`
+}
+
+type MerchandiseUpdateRequest struct {
+	Name        *string          `json:"name" binding:"omitempty"`
+	Description *string          `json:"description" binding:"omitempty"`
+	Price       *decimal.Decimal `json:"price" binding:"omitempty"`
+	Category    *string          `json:"category" binding:"omitempty"`
+	IsActive    *bool            `json:"is_active"`
 }
 
 type MerchImageRequest struct {

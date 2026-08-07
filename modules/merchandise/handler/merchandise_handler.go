@@ -33,7 +33,7 @@ func (h *MerchandiseHandler) GetAll(c *gin.Context) {
 	result, err := h.service.GetAll(c.Request.Context(), filter)
 	if err != nil {
 		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_LIST_MERCHANDISE, err.Error(), nil)
-		c.JSON(http.StatusInternalServerError, res)
+		c.JSON(http.StatusBadRequest, res)
 		return
 	}
 
@@ -61,7 +61,7 @@ func (h *MerchandiseHandler) GetByID(c *gin.Context) {
 }
 
 func (h *MerchandiseHandler) Create(c *gin.Context) {
-	var req dto.MerchandiseRequest
+	var req dto.MerchandiseCreateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_DATA_FROM_BODY, err.Error(), nil)
 		c.AbortWithStatusJSON(http.StatusBadRequest, res)
@@ -70,7 +70,7 @@ func (h *MerchandiseHandler) Create(c *gin.Context) {
 
 	if err := h.service.Create(c.Request.Context(), req); err != nil {
 		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_CREATE_MERCHANDISE, err.Error(), nil)
-		c.JSON(http.StatusInternalServerError, res)
+		c.JSON(http.StatusBadRequest, res)
 		return
 	}
 
@@ -86,7 +86,7 @@ func (h *MerchandiseHandler) Update(c *gin.Context) {
 		return
 	}
 
-	var req dto.MerchandiseRequest
+	var req dto.MerchandiseUpdateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_DATA_FROM_BODY, err.Error(), nil)
 		c.AbortWithStatusJSON(http.StatusBadRequest, res)
@@ -95,7 +95,7 @@ func (h *MerchandiseHandler) Update(c *gin.Context) {
 
 	if err := h.service.Update(c.Request.Context(), id, req); err != nil {
 		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_UPDATE_MERCHANDISE, err.Error(), nil)
-		c.JSON(http.StatusInternalServerError, res)
+		c.JSON(http.StatusBadRequest, res)
 		return
 	}
 
@@ -113,7 +113,7 @@ func (h *MerchandiseHandler) Delete(c *gin.Context) {
 
 	if err := h.service.Delete(c.Request.Context(), id); err != nil {
 		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_DELETE_MERCHANDISE, err.Error(), nil)
-		c.JSON(http.StatusInternalServerError, res)
+		c.JSON(http.StatusBadRequest, res)
 		return
 	}
 
@@ -138,7 +138,7 @@ func (h *MerchandiseHandler) AddImage(c *gin.Context) {
 
 	if err := h.service.AddImage(c.Request.Context(), merchId, req); err != nil {
 		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_ADD_MERCHANDISE_IMAGE, err.Error(), nil)
-		c.JSON(http.StatusInternalServerError, res)
+		c.JSON(http.StatusBadRequest, res)
 		return
 	}
 
@@ -156,7 +156,7 @@ func (h *MerchandiseHandler) DeleteImage(c *gin.Context) {
 
 	if err := h.service.DeleteImage(c.Request.Context(), imageId); err != nil {
 		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_DELETE_MERCHANDISE_IMAGE, err.Error(), nil)
-		c.JSON(http.StatusInternalServerError, res)
+		c.JSON(http.StatusBadRequest, res)
 		return
 	}
 
