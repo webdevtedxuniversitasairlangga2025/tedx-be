@@ -51,8 +51,6 @@ func (c *bundleHandler) Create(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, res)
 }
 
-// GetAll adalah endpoint publik: tidak ada pengambilan user_id dari context,
-// karena bundle bukan data milik-user melainkan katalog global.
 func (c *bundleHandler) GetAll(ctx *gin.Context) {
 	var query dto.BundleQueryRequest
 	if err := ctx.ShouldBindQuery(&query); err != nil {

@@ -15,16 +15,9 @@ func RegisterRoutes(server *gin.RouterGroup, injector *do.Injector) {
 
 	bundleRoutes := server.Group("/bundles")
 	{
-		// Publik — katalog bundle bisa dilihat tanpa login.
 		bundleRoutes.GET("", bundleController.GetAll)
 		bundleRoutes.GET("/:id", bundleController.GetByID)
 
-		// TODO(BE-2): pasang middlewares.AuthorizeAdmin() pada grup ini setelah
-		// task "Setup admin authorization middleware" (Manager) selesai.
-		// Untuk saat ini grup di bawah baru menuntut login dan BELUM membatasi
-		// role admin, sehingga user biasa masih bisa mengubah katalog.
-		// Checklist "endpoint admin diproteksi middleware admin" belum terpenuhi
-		// sampai baris itu ditambahkan.
 		adminRoutes := bundleRoutes.Group("", middlewares.Authenticate(jwtService))
 		{
 			adminRoutes.POST("", bundleController.Create)

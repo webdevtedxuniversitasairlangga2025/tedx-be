@@ -12,7 +12,6 @@ import (
 	"gorm.io/gorm"
 )
 
-// maxPrice mengikuti tipe kolom di database: numeric(10,2).
 var maxPrice = decimal.RequireFromString("99999999.99")
 
 type BundleService interface {
@@ -42,12 +41,10 @@ func toResponse(b entities.Bundle) dto.BundleResponse {
 		ID:          b.ID.String(),
 		Name:        b.Name,
 		Description: b.Description,
-		// StringFixed(2) dipakai agar harga selalu tampil dengan dua angka di
-		// belakang koma ("150000.00"), konsisten dengan kolom numeric(10,2).
-		Price:     b.Price.StringFixed(2),
-		IsActive:  b.IsActive,
-		CreatedAt: b.CreatedAt,
-		UpdatedAt: b.UpdatedAt,
+		Price:       b.Price.StringFixed(2),
+		IsActive:    b.IsActive,
+		CreatedAt:   b.CreatedAt,
+		UpdatedAt:   b.UpdatedAt,
 	}
 }
 
@@ -70,9 +67,6 @@ func toDetailResponse(b entities.Bundle) dto.BundleDetailResponse {
 	}
 }
 
-// parsePrice mengubah harga berbentuk string menjadi decimal sekaligus
-// memvalidasinya, sehingga client menerima pesan 400 yang jelas alih-alih error
-// mentah dari database.
 func parsePrice(raw string) (decimal.Decimal, error) {
 	price, err := decimal.NewFromString(raw)
 	if err != nil {
@@ -117,11 +111,6 @@ func (s *bundleService) GetAll(ctx context.Context, req dto.BundleQueryRequest) 
 	}
 	offset := (req.Page - 1) * req.PerPage
 
-	// Endpoint ini publik dan tidak bisa membedakan admin dari pengunjung biasa,
-	// jadi ketika filter tidak dikirim, default-nya hanya bundle aktif — sesuai
-	// docs/database-schema.md: is_active=false berarti disembunyikan dari
-	// katalog. Admin yang ingin melihat bundle tersembunyi memanggil
-	// ?is_active=false.
 	isActive := req.IsActive
 	if isActive == nil {
 		activeOnly := true
@@ -176,7 +165,6 @@ func (s *bundleService) Update(ctx context.Context, id string, req dto.BundleUpd
 		return dto.BundleResponse{}, dto.ErrBundleNotFound
 	}
 
-	// Hanya update field yang dikirim (pola pointer).
 	if req.Name != nil {
 		bundle.Name = *req.Name
 	}
@@ -221,8 +209,6 @@ func (s *bundleService) AddImage(ctx context.Context, bundleID string, req dto.B
 		return dto.BundleImageResponse{}, dto.ErrBundleNotFound
 	}
 
-	// Pastikan bundle induknya ada supaya client menerima "bundle not found"
-	// yang jelas, bukan error pelanggaran foreign key dari database.
 	if _, err := s.bundleRepository.GetByID(ctx, s.db, bid); err != nil {
 		return dto.BundleImageResponse{}, dto.ErrBundleNotFound
 	}

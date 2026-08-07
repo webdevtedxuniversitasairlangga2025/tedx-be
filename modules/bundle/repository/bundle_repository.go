@@ -44,8 +44,6 @@ func (r *bundleRepository) Create(ctx context.Context, tx *gorm.DB, bundle entit
 	return bundle, nil
 }
 
-// GetAll hanya menerapkan filter bila isActive tidak nil. Keputusan "kalau
-// tidak difilter, tampilkan apa" adalah aturan bisnis dan tinggal di service.
 func (r *bundleRepository) GetAll(ctx context.Context, tx *gorm.DB, isActive *bool, limit, offset int) ([]entities.Bundle, int64, error) {
 	if tx == nil {
 		tx = r.db
@@ -69,10 +67,6 @@ func (r *bundleRepository) GetAll(ctx context.Context, tx *gorm.DB, isActive *bo
 	return bundles, total, nil
 }
 
-// GetByID sengaja TIDAK mem-preload gambar. Entity hasil preload yang kemudian
-// di-Save() akan ikut meng-upsert asosiasinya oleh GORM, jadi jalur
-// update/delete harus memakai method ini. Untuk menampilkan detail beserta
-// gambar, pakai GetByIDWithImages.
 func (r *bundleRepository) GetByID(ctx context.Context, tx *gorm.DB, id uuid.UUID) (entities.Bundle, error) {
 	if tx == nil {
 		tx = r.db
@@ -111,13 +105,6 @@ func (r *bundleRepository) Update(ctx context.Context, tx *gorm.DB, bundle entit
 	return bundle, nil
 }
 
-// Delete menghapus permanen (entity Bundle tidak punya kolom DeletedAt).
-//
-// Gambar dihapus lebih dulu di dalam satu transaksi, bukan mengandalkan
-// ON DELETE CASCADE semata: database yang sudah terlanjur dimigrasi sebelum
-// tag constraint pada Bundle.BundleImages ditambahkan masih memakai foreign key
-// NO ACTION, dan AutoMigrate tidak mengubah constraint yang sudah ada. Dengan
-// cara ini penghapusan tetap benar pada database lama maupun baru.
 func (r *bundleRepository) Delete(ctx context.Context, tx *gorm.DB, id uuid.UUID) error {
 	if tx == nil {
 		tx = r.db
@@ -137,8 +124,6 @@ func (r *bundleRepository) CreateImage(ctx context.Context, tx *gorm.DB, image e
 		tx = r.db
 	}
 
-	// Omit("Bundle") memastikan GORM hanya menulis baris gambar dan tidak ikut
-	// menyentuh asosiasi Bundle-nya yang memang sengaja dibiarkan kosong.
 	if err := tx.WithContext(ctx).Omit("Bundle").Create(&image).Error; err != nil {
 		return entities.BundleImage{}, err
 	}
@@ -146,10 +131,6 @@ func (r *bundleRepository) CreateImage(ctx context.Context, tx *gorm.DB, image e
 	return image, nil
 }
 
-// DeleteImage difilter id DAN bundle_id sekaligus — mengikuti pola isolasi data
-// di modul todo (`id = ? AND user_id = ?`) — supaya gambar milik bundle lain
-// tidak bisa dihapus lewat URL yang dicocok-cocokkan. Jumlah baris terpengaruh
-// dikembalikan agar service bisa membedakan "terhapus" dari "tidak ditemukan".
 func (r *bundleRepository) DeleteImage(ctx context.Context, tx *gorm.DB, imageID, bundleID uuid.UUID) (int64, error) {
 	if tx == nil {
 		tx = r.db
