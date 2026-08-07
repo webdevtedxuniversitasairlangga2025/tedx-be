@@ -1,17 +1,11 @@
 info:
-  name: Add Images
+  name: Delete Merchandise
   type: http
-  seq: 3
+  seq: 7
 
 http:
-  method: POST
-  url: "{{base_url}}/merchandise/{{merchandise_id}}/images"
-  body:
-    type: json
-    data: |-
-      {
-        "image_url": "https://example.com/images/merch-tshirt.jpg"
-      }
+  method: DELETE
+  url: "{{base_url}}/merchandise/{{merchandise_id}}"
   headers:
     - name: Authorization
       value: "Bearer {{access_token}}"

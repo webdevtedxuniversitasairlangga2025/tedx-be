@@ -68,13 +68,14 @@ func (h *MerchandiseHandler) Create(c *gin.Context) {
 		return
 	}
 
-	if err := h.service.Create(c.Request.Context(), req); err != nil {
+	result, err := h.service.Create(c.Request.Context(), req)
+	if err != nil {
 		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_CREATE_MERCHANDISE, err.Error(), nil)
 		c.JSON(http.StatusBadRequest, res)
 		return
 	}
 
-	res := utils.BuildResponseSuccess(dto.MESSAGE_SUCCESS_CREATE_MERCHANDISE, nil)
+	res := utils.BuildResponseSuccess(dto.MESSAGE_SUCCESS_CREATE_MERCHANDISE, result)
 	c.JSON(http.StatusCreated, res)
 }
 
@@ -93,13 +94,14 @@ func (h *MerchandiseHandler) Update(c *gin.Context) {
 		return
 	}
 
-	if err := h.service.Update(c.Request.Context(), id, req); err != nil {
+	result, err := h.service.Update(c.Request.Context(), id, req)
+	if err != nil {
 		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_UPDATE_MERCHANDISE, err.Error(), nil)
 		c.JSON(http.StatusBadRequest, res)
 		return
 	}
 
-	res := utils.BuildResponseSuccess(dto.MESSAGE_SUCCESS_UPDATE_MERCHANDISE, nil)
+	res := utils.BuildResponseSuccess(dto.MESSAGE_SUCCESS_UPDATE_MERCHANDISE, result)
 	c.JSON(http.StatusOK, res)
 }
 

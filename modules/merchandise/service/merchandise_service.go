@@ -17,8 +17,8 @@ var maxPrice = decimal.RequireFromString("99999999.99")
 type MerchandiseService interface {
 	GetAll(ctx context.Context, filter dto.MerchandiseFilter) (dto.MerchandisePaginationResponse, error)
 	GetByID(ctx context.Context, id uuid.UUID) (dto.MerchandiseResponse, error)
-	Create(ctx context.Context, req dto.MerchandiseCreateRequest) error
-	Update(ctx context.Context, id uuid.UUID, req dto.MerchandiseUpdateRequest) error
+	Create(ctx context.Context, req dto.MerchandiseCreateRequest) (dto.MerchandiseResponse, error)
+	Update(ctx context.Context, id uuid.UUID, req dto.MerchandiseUpdateRequest) (dto.MerchandiseResponse, error)
 	Delete(ctx context.Context, id uuid.UUID) error
 
 	AddImage(ctx context.Context, merchId uuid.UUID, req dto.MerchImageRequest) error
@@ -120,10 +120,24 @@ func parsePrice(raw string) (decimal.Decimal, error) {
 	return price, nil
 }
 
-func (s *merchandiseServiceImpl) Create(ctx context.Context, req dto.MerchandiseCreateRequest) error {
+func isValidCategory(category string) bool {
+	switch category {
+	case constants.ENUM_MERCH_CATEGORY_TSHIRT,
+		constants.ENUM_MERCH_CATEGORY_CAP,
+		constants.ENUM_MERCH_CATEGORY_STICKER,
+		constants.ENUM_MERCH_CATEGORY_OTHER:
+		return true
+	}
+	return false
+}
+
+func (s *merchandiseServiceImpl) Create(ctx context.Context, req dto.MerchandiseCreateRequest) (dto.MerchandiseResponse, error) {
 	price, err := parsePrice(req.Price)
 	if err != nil {
-		return err
+		return dto.MerchandiseResponse{}, err
+	}
+	if !isValidCategory(req.Category) {
+		return dto.MerchandiseResponse{}, dto.ErrInvalidCategory
 	}
 
 	merch := &entities.Merchandise{
@@ -134,14 +148,19 @@ func (s *merchandiseServiceImpl) Create(ctx context.Context, req dto.Merchandise
 		IsActive:    true,
 	}
 
-	return s.repo.Create(ctx, merch)
+	created, err := s.repo.Create(ctx, merch)
+	if err != nil {
+		return dto.MerchandiseResponse{}, err
+	}
+
+	return toResponse(*created), nil
 }
 
-func (s *merchandiseServiceImpl) Update(ctx context.Context, id uuid.UUID, req dto.MerchandiseUpdateRequest) error {
+func (s *merchandiseServiceImpl) Update(ctx context.Context, id uuid.UUID, req dto.MerchandiseUpdateRequest) (dto.MerchandiseResponse, error) {
 
 	merch, err := s.repo.FindByID(ctx, id)
 	if err != nil {
-		return err
+		return dto.MerchandiseResponse{}, err
 	}
 
 	if req.Name != nil {
@@ -153,18 +172,25 @@ func (s *merchandiseServiceImpl) Update(ctx context.Context, id uuid.UUID, req d
 	if req.Price != nil {
 		price, err := parsePrice(*req.Price)
 		if err != nil {
-			return err
+			return dto.MerchandiseResponse{}, err
 		}
 		merch.Price = price
 	}
 	if req.Category != nil {
+		if !isValidCategory(*req.Category) {
+			return dto.MerchandiseResponse{}, dto.ErrInvalidCategory
+		}
 		merch.Category = *req.Category
 	}
 	if req.IsActive != nil {
 		merch.IsActive = *req.IsActive
 	}
 
-	return s.repo.Update(ctx, merch)
+	if err := s.repo.Update(ctx, merch); err != nil {
+		return dto.MerchandiseResponse{}, err
+	}
+
+	return toResponse(*merch), nil
 }
 
 func (s *merchandiseServiceImpl) Delete(ctx context.Context, id uuid.UUID) error {

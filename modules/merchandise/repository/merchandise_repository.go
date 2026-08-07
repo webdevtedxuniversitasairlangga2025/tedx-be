@@ -13,7 +13,7 @@ import (
 type MerchandiseRepository interface {
 	FindAll(ctx context.Context, category string, isActive *bool, limit, offset int) ([]entities.Merchandise, int64, error)
 	FindByID(ctx context.Context, id uuid.UUID) (*entities.Merchandise, error)
-	Create(ctx context.Context, merch *entities.Merchandise) error
+	Create(ctx context.Context, merch *entities.Merchandise) (*entities.Merchandise, error)
 	Update(ctx context.Context, merch *entities.Merchandise) error
 	Delete(ctx context.Context, id uuid.UUID) error
 
@@ -65,8 +65,11 @@ func (r *merchandiseRepositoryImpl) FindByID(ctx context.Context, id uuid.UUID) 
 	return &merch, nil
 }
 
-func (r *merchandiseRepositoryImpl) Create(ctx context.Context, merch *entities.Merchandise) error {
-	return r.db.WithContext(ctx).Create(merch).Error
+func (r *merchandiseRepositoryImpl) Create(ctx context.Context, merch *entities.Merchandise) (*entities.Merchandise, error) {
+	if err := r.db.WithContext(ctx).Create(merch).Error; err != nil {
+		return nil, err
+	}
+	return merch, nil
 }
 
 func (r *merchandiseRepositoryImpl) Update(ctx context.Context, merch *entities.Merchandise) error {

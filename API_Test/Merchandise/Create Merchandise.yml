@@ -1,25 +1,28 @@
 info:
   name: Create Merchandise
   type: http
-  seq: 2
+  seq: 1
 
 http:
   method: POST
-  url: http://localhost:8888/api/v1/merchandise
-  headers:
-    - name: Authorization
-      value: "                Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYjlkZGU0MDAtMzYzNy00N2UxLWI1YjEtODRlNzU1N2Q5YzE3Iiwicm9sZSI6InVzZXIiLCJpc3MiOiJUZW1wbGF0ZSIsImV4cCI6MTc4NTg0MDc1OSwiaWF0IjoxNzg1ODM5ODU5fQ.aXsADuu8eeq2F8pMOOecxSDES0rHYKnlo1PwkuTG4sw"
+  url: "{{base_url}}/merchandise"
   body:
     type: json
     data: |-
       {
         "name": "T-Shirt TEDx UNAIR 2026",
         "description": "Kaos eksklusif edisi TEDx UNAIR 2026 bahan cotton combed 30s.",
-        "price": 120000,
-        "category": "Apparel",
-        "is_active": true
+        "price": "120000.00",
+        "category": "t-shirt"
       }
-  auth: inherit
+  headers:
+    - name: Authorization
+      value: "Bearer {{access_token}}"
+
+runtime:
+  variables:
+    - name: base_url
+      value: http://localhost:8888/api/v1
 
 settings:
   encodeUrl: true

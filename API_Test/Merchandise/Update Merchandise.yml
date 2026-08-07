@@ -1,25 +1,31 @@
 info:
   name: Update Merchandise
   type: http
-  seq: 3
+  seq: 5
 
 http:
   method: PATCH
-  url: http://localhost:8888/api/v1/merchandise/cbdc4eb1-3bdc-4746-9f64-5be2a4d1ebce
-  headers:
-    - name: Authorization
-      value: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYjlkZGU0MDAtMzYzNy00N2UxLWI1YjEtODRlNzU1N2Q5YzE3Iiwicm9sZSI6InVzZXIiLCJpc3MiOiJUZW1wbGF0ZSIsImV4cCI6MTc4NTg0MDc1OSwiaWF0IjoxNzg1ODM5ODU5fQ.aXsADuu8eeq2F8pMOOecxSDES0rHYKnlo1PwkuTG4sw
+  url: "{{base_url}}/merchandise/{{merchandise_id}}"
   body:
     type: json
     data: |-
       {
         "name": "T-Shirt TEDx UNAIR 2026 (Edisi Spesial)",
         "description": "Kaos eksklusif edisi terbatas bahan cotton combed 30s.",
-        "price": 135000,
-        "category": "Apparel",
+        "price": "135000.00",
+        "category": "t-shirt",
         "is_active": true
       }
-  auth: inherit
+  headers:
+    - name: Authorization
+      value: "Bearer {{access_token}}"
+
+runtime:
+  variables:
+    - name: base_url
+      value: http://localhost:8888/api/v1
+    - name: merchandise_id
+      value: ""
 
 settings:
   encodeUrl: true
