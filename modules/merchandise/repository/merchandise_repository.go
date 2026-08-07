@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/samber/do"
 	"github.com/webdevtedxuniversitasairlangga/database/entities"
+	"github.com/webdevtedxuniversitasairlangga/pkg/constants"
 	"gorm.io/gorm"
 )
 
@@ -25,7 +26,7 @@ type merchandiseRepositoryImpl struct {
 }
 
 func NewMerchandiseRepository(i *do.Injector) (MerchandiseRepository, error) {
-	db := do.MustInvokeNamed[*gorm.DB](i, "db")
+	db := do.MustInvokeNamed[*gorm.DB](i, constants.DB)
 	return &merchandiseRepositoryImpl{
 		db: db,
 	}, nil

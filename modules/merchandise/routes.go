@@ -7,18 +7,13 @@ import (
 
 	authService "github.com/webdevtedxuniversitasairlangga/modules/auth/service"
 	"github.com/webdevtedxuniversitasairlangga/modules/merchandise/handler"
-	"github.com/webdevtedxuniversitasairlangga/modules/merchandise/repository"
-	"github.com/webdevtedxuniversitasairlangga/modules/merchandise/service"
+	"github.com/webdevtedxuniversitasairlangga/pkg/constants"
 )
 
 func RegisterRoutes(r *gin.RouterGroup, i *do.Injector) {
 
-	do.Provide(i, repository.NewMerchandiseRepository)
-	do.Provide(i, service.NewMerchandiseService)
-	do.Provide(i, handler.NewMerchandiseHandler)
-
 	merchandiseHandler := do.MustInvoke[*handler.MerchandiseHandler](i)
-	jwtSvc := do.MustInvokeNamed[authService.JWTService](i, "JWTService")
+	jwtSvc := do.MustInvokeNamed[authService.JWTService](i, constants.JWTService)
 
 	merchandiseGroup := r.Group("/merchandise")
 

@@ -14,13 +14,17 @@ import (
 	bundleRepo "github.com/webdevtedxuniversitasairlangga/modules/bundle/repository"
 	bundleService "github.com/webdevtedxuniversitasairlangga/modules/bundle/service"
 
+	merchHandler "github.com/webdevtedxuniversitasairlangga/modules/merchandise/handler"
+	merchRepo "github.com/webdevtedxuniversitasairlangga/modules/merchandise/repository"
+	merchService "github.com/webdevtedxuniversitasairlangga/modules/merchandise/service"
+
 	todoHandler "github.com/webdevtedxuniversitasairlangga/modules/todo/handler"
 	todoRepo "github.com/webdevtedxuniversitasairlangga/modules/todo/repository"
 	todoService "github.com/webdevtedxuniversitasairlangga/modules/todo/service"
 
+	"github.com/samber/do"
 	"github.com/webdevtedxuniversitasairlangga/modules/user/repository"
 	"github.com/webdevtedxuniversitasairlangga/pkg/constants"
-	"github.com/samber/do"
 	"gorm.io/gorm"
 )
 
@@ -72,4 +76,8 @@ func RegisterDependencies(injector *do.Injector) {
 			return bundleHandler.NewBundleHandler(i, bundleSvc), nil
 		},
 	)
+
+	do.Provide(injector, merchRepo.NewMerchandiseRepository)
+	do.Provide(injector, merchService.NewMerchandiseService)
+	do.Provide(injector, merchHandler.NewMerchandiseHandler)
 }
