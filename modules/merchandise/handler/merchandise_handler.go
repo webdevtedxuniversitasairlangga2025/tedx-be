@@ -25,150 +25,141 @@ func NewMerchandiseHandler(i *do.Injector) (*MerchandiseHandler, error) {
 func (h *MerchandiseHandler) GetAll(c *gin.Context) {
 	var filter dto.MerchandiseFilter
 	if err := c.ShouldBindQuery(&filter); err != nil {
-		res := utils.BuildResponseFailed("failed get data from body", err.Error(), nil)
-		c.JSON(http.StatusBadRequest, res)
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_DATA_FROM_BODY, err.Error(), nil)
+		c.AbortWithStatusJSON(http.StatusBadRequest, res)
 		return
 	}
 
-	data, total, err := h.service.GetAll(c.Request.Context(), filter)
+	result, err := h.service.GetAll(c.Request.Context(), filter)
 	if err != nil {
-		res := utils.BuildResponseFailed("failed get list merchandise", err.Error(), nil)
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_LIST_MERCHANDISE, err.Error(), nil)
 		c.JSON(http.StatusInternalServerError, res)
 		return
 	}
 
-	res := utils.Response{
-		Status:  true,
-		Message: "success get list merchandise",
-		Data:    data,
-		Meta: gin.H{
-			"total": total,
-			"page":  filter.Page,
-			"limit": filter.Limit,
-		},
-	}
+	res := utils.BuildResponseSuccess(dto.MESSAGE_SUCCESS_GET_LIST_MERCHANDISE, result)
 	c.JSON(http.StatusOK, res)
 }
 
 func (h *MerchandiseHandler) GetByID(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		res := utils.BuildResponseFailed("failed get merchandise", "Invalid UUID", nil)
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_MERCHANDISE, err.Error(), nil)
 		c.JSON(http.StatusBadRequest, res)
 		return
 	}
 
 	data, err := h.service.GetByID(c.Request.Context(), id)
 	if err != nil {
-		res := utils.BuildResponseFailed("failed get merchandise", err.Error(), nil)
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_MERCHANDISE, err.Error(), nil)
 		c.JSON(http.StatusNotFound, res)
 		return
 	}
 
-	res := utils.BuildResponseSuccess("success get merchandise", data)
+	res := utils.BuildResponseSuccess(dto.MESSAGE_SUCCESS_GET_MERCHANDISE, data)
 	c.JSON(http.StatusOK, res)
 }
 
 func (h *MerchandiseHandler) Create(c *gin.Context) {
 	var req dto.MerchandiseRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		res := utils.BuildResponseFailed("failed get data from body", err.Error(), nil)
-		c.JSON(http.StatusBadRequest, res)
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_DATA_FROM_BODY, err.Error(), nil)
+		c.AbortWithStatusJSON(http.StatusBadRequest, res)
 		return
 	}
 
 	if err := h.service.Create(c.Request.Context(), req); err != nil {
-		res := utils.BuildResponseFailed("failed create merchandise", err.Error(), nil)
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_CREATE_MERCHANDISE, err.Error(), nil)
 		c.JSON(http.StatusInternalServerError, res)
 		return
 	}
 
-	res := utils.BuildResponseSuccess("success create merchandise", nil)
+	res := utils.BuildResponseSuccess(dto.MESSAGE_SUCCESS_CREATE_MERCHANDISE, nil)
 	c.JSON(http.StatusCreated, res)
 }
 
 func (h *MerchandiseHandler) Update(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		res := utils.BuildResponseFailed("failed update merchandise", "Invalid UUID", nil)
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_UPDATE_MERCHANDISE, err.Error(), nil)
 		c.JSON(http.StatusBadRequest, res)
 		return
 	}
 
 	var req dto.MerchandiseRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		res := utils.BuildResponseFailed("failed get data from body", err.Error(), nil)
-		c.JSON(http.StatusBadRequest, res)
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_DATA_FROM_BODY, err.Error(), nil)
+		c.AbortWithStatusJSON(http.StatusBadRequest, res)
 		return
 	}
 
 	if err := h.service.Update(c.Request.Context(), id, req); err != nil {
-		res := utils.BuildResponseFailed("failed update merchandise", err.Error(), nil)
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_UPDATE_MERCHANDISE, err.Error(), nil)
 		c.JSON(http.StatusInternalServerError, res)
 		return
 	}
 
-	res := utils.BuildResponseSuccess("success update merchandise", nil)
+	res := utils.BuildResponseSuccess(dto.MESSAGE_SUCCESS_UPDATE_MERCHANDISE, nil)
 	c.JSON(http.StatusOK, res)
 }
 
 func (h *MerchandiseHandler) Delete(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		res := utils.BuildResponseFailed("failed delete merchandise", "Invalid UUID", nil)
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_DELETE_MERCHANDISE, err.Error(), nil)
 		c.JSON(http.StatusBadRequest, res)
 		return
 	}
 
 	if err := h.service.Delete(c.Request.Context(), id); err != nil {
-		res := utils.BuildResponseFailed("failed delete merchandise", err.Error(), nil)
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_DELETE_MERCHANDISE, err.Error(), nil)
 		c.JSON(http.StatusInternalServerError, res)
 		return
 	}
 
-	res := utils.BuildResponseSuccess("success delete merchandise", nil)
+	res := utils.BuildResponseSuccess(dto.MESSAGE_SUCCESS_DELETE_MERCHANDISE, nil)
 	c.JSON(http.StatusOK, res)
 }
 
 func (h *MerchandiseHandler) AddImage(c *gin.Context) {
 	merchId, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		res := utils.BuildResponseFailed("failed add merchandise image", "Invalid Merchandise UUID", nil)
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_ADD_MERCHANDISE_IMAGE, err.Error(), nil)
 		c.JSON(http.StatusBadRequest, res)
 		return
 	}
 
 	var req dto.MerchImageRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		res := utils.BuildResponseFailed("failed get data from body", err.Error(), nil)
-		c.JSON(http.StatusBadRequest, res)
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_DATA_FROM_BODY, err.Error(), nil)
+		c.AbortWithStatusJSON(http.StatusBadRequest, res)
 		return
 	}
 
 	if err := h.service.AddImage(c.Request.Context(), merchId, req); err != nil {
-		res := utils.BuildResponseFailed("failed add merchandise image", err.Error(), nil)
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_ADD_MERCHANDISE_IMAGE, err.Error(), nil)
 		c.JSON(http.StatusInternalServerError, res)
 		return
 	}
 
-	res := utils.BuildResponseSuccess("success add merchandise image", nil)
+	res := utils.BuildResponseSuccess(dto.MESSAGE_SUCCESS_ADD_MERCHANDISE_IMAGE, nil)
 	c.JSON(http.StatusCreated, res)
 }
 
 func (h *MerchandiseHandler) DeleteImage(c *gin.Context) {
 	imageId, err := uuid.Parse(c.Param("imageId"))
 	if err != nil {
-		res := utils.BuildResponseFailed("failed delete merchandise image", "Invalid Image UUID", nil)
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_DELETE_MERCHANDISE_IMAGE, err.Error(), nil)
 		c.JSON(http.StatusBadRequest, res)
 		return
 	}
 
 	if err := h.service.DeleteImage(c.Request.Context(), imageId); err != nil {
-		res := utils.BuildResponseFailed("failed delete merchandise image", err.Error(), nil)
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_DELETE_MERCHANDISE_IMAGE, err.Error(), nil)
 		c.JSON(http.StatusInternalServerError, res)
 		return
 	}
 
-	res := utils.BuildResponseSuccess("success delete merchandise image", nil)
+	res := utils.BuildResponseSuccess(dto.MESSAGE_SUCCESS_DELETE_MERCHANDISE_IMAGE, nil)
 	c.JSON(http.StatusOK, res)
 }
