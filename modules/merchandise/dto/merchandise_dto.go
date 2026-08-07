@@ -53,7 +53,7 @@ type MerchandiseFilter struct {
 	Category string `form:"category"`
 	IsActive *bool  `form:"is_active"`
 	Page     int    `form:"page"`
-	Limit    int    `form:"limit"`
+	PerPage  int    `form:"per_page"`
 }
 
 type MerchImageResponse struct {

@@ -66,15 +66,16 @@ func (s *merchandiseServiceImpl) GetAll(ctx context.Context, filter dto.Merchand
 	if filter.Page <= 0 {
 		filter.Page = constants.ENUM_PAGINATION_PAGE
 	}
-	if filter.Limit <= 0 {
-		filter.Limit = constants.ENUM_PAGINATION_PER_PAGE
+	if filter.PerPage <= 0 {
+		filter.PerPage = constants.ENUM_PAGINATION_PER_PAGE
 	}
 	if filter.IsActive == nil {
 		activeOnly := true
 		filter.IsActive = &activeOnly
 	}
 
-	merchandises, total, err := s.repo.FindAll(ctx, filter)
+	offset := (filter.Page - 1) * filter.PerPage
+	merchandises, total, err := s.repo.FindAll(ctx, filter.Category, filter.IsActive, filter.PerPage, offset)
 	if err != nil {
 		return dto.MerchandisePaginationResponse{}, err
 	}
@@ -84,13 +85,13 @@ func (s *merchandiseServiceImpl) GetAll(ctx context.Context, filter dto.Merchand
 		data = append(data, toResponse(m))
 	}
 
-	maxPage := int((total + int64(filter.Limit) - 1) / int64(filter.Limit))
+	maxPage := int((total + int64(filter.PerPage) - 1) / int64(filter.PerPage))
 
 	return dto.MerchandisePaginationResponse{
 		Data: data,
 		Meta: dto.PaginationMeta{
 			Page:    filter.Page,
-			PerPage: filter.Limit,
+			PerPage: filter.PerPage,
 			MaxPage: maxPage,
 			Total:   total,
 		},
