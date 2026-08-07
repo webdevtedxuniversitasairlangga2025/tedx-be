@@ -75,8 +75,13 @@ func (r *merchandiseRepositoryImpl) Update(ctx context.Context, merch *entities.
 }
 
 func (r *merchandiseRepositoryImpl) Delete(ctx context.Context, id uuid.UUID) error {
+	return r.db.WithContext(ctx).Transaction(func(t *gorm.DB) error {
+		if err := t.Where("merchandise_id = ?", id).Delete(&entities.MerchImage{}).Error; err != nil {
+			return err
+		}
 
-	return r.db.WithContext(ctx).Delete(&entities.Merchandise{}, "id = ?", id).Error
+		return t.Where("id = ?", id).Delete(&entities.Merchandise{}).Error
+	})
 }
 
 func (r *merchandiseRepositoryImpl) AddImage(ctx context.Context, image *entities.MerchImage) error {
