@@ -32,15 +32,15 @@ var (
 )
 
 type MerchandiseCreateRequest struct {
-	Name        string `json:"name" binding:"required"`
-	Description string `json:"description" binding:"required"`
+	Name        string `json:"name" binding:"required,min=1,max=255"`
+	Description string `json:"description" binding:"required,min=1"`
 	Price       string `json:"price" binding:"required"`
 	Category    string `json:"category" binding:"required"`
 }
 
 type MerchandiseUpdateRequest struct {
-	Name        *string `json:"name" binding:"omitempty"`
-	Description *string `json:"description" binding:"omitempty"`
+	Name        *string `json:"name" binding:"omitempty,min=1,max=255"`
+	Description *string `json:"description" binding:"omitempty,min=1"`
 	Price       *string `json:"price" binding:"omitempty"`
 	Category    *string `json:"category" binding:"omitempty"`
 	IsActive    *bool   `json:"is_active"`
