@@ -53,8 +53,6 @@ type MerchImageRequest struct {
 type MerchandiseFilter struct {
 	Category string `form:"category"`
 	IsActive *bool  `form:"is_active"`
-	Page     int    `form:"page"`
-	PerPage  int    `form:"per_page"`
 }
 
 type MerchImageResponse struct {
@@ -72,16 +70,4 @@ type MerchandiseResponse struct {
 	CreatedAt   time.Time            `json:"created_at"`
 	UpdatedAt   time.Time            `json:"updated_at"`
 	Images      []MerchImageResponse `json:"images"`
-}
-
-type PaginationMeta struct {
-	Page    int   `json:"page"`
-	PerPage int   `json:"per_page"`
-	MaxPage int   `json:"max_page"`
-	Total   int64 `json:"total"`
-}
-
-type MerchandisePaginationResponse struct {
-	Data []MerchandiseResponse `json:"data"`
-	Meta PaginationMeta        `json:"meta"`
 }

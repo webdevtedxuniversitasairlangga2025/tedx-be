@@ -22,6 +22,9 @@ import (
 	todoRepo "github.com/webdevtedxuniversitasairlangga/modules/todo/repository"
 	todoService "github.com/webdevtedxuniversitasairlangga/modules/todo/service"
 
+	userHandler "github.com/webdevtedxuniversitasairlangga/modules/user/handler"
+	userService "github.com/webdevtedxuniversitasairlangga/modules/user/service"
+
 	"github.com/samber/do"
 	"github.com/webdevtedxuniversitasairlangga/modules/user/repository"
 	"github.com/webdevtedxuniversitasairlangga/pkg/constants"
@@ -56,6 +59,14 @@ func RegisterDependencies(injector *do.Injector) {
 	do.Provide(
 		injector, func(i *do.Injector) (authHandler.AuthHandler, error) {
 			return authHandler.NewAuthHandler(i, authService), nil
+		},
+	)
+
+	userSvc := userService.NewUserService(userRepository, db)
+
+	do.Provide(
+		injector, func(i *do.Injector) (userHandler.UserHandler, error) {
+			return userHandler.NewUserHandler(i, userSvc), nil
 		},
 	)
 

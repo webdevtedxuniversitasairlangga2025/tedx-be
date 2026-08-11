@@ -11,7 +11,7 @@ import (
 type (
 	BundleRepository interface {
 		Create(ctx context.Context, tx *gorm.DB, bundle entities.Bundle) (entities.Bundle, error)
-		GetAll(ctx context.Context, tx *gorm.DB, isActive *bool, limit, offset int) ([]entities.Bundle, int64, error)
+GetAll(ctx context.Context, tx *gorm.DB, isActive *bool) ([]entities.Bundle, error)
 		GetByID(ctx context.Context, tx *gorm.DB, id uuid.UUID) (entities.Bundle, error)
 		GetByIDWithImages(ctx context.Context, tx *gorm.DB, id uuid.UUID) (entities.Bundle, error)
 		Update(ctx context.Context, tx *gorm.DB, bundle entities.Bundle) (entities.Bundle, error)
@@ -44,7 +44,7 @@ func (r *bundleRepository) Create(ctx context.Context, tx *gorm.DB, bundle entit
 	return bundle, nil
 }
 
-func (r *bundleRepository) GetAll(ctx context.Context, tx *gorm.DB, isActive *bool, limit, offset int) ([]entities.Bundle, int64, error) {
+func (r *bundleRepository) GetAll(ctx context.Context, tx *gorm.DB, isActive *bool) ([]entities.Bundle, error) {
 	if tx == nil {
 		tx = r.db
 	}
@@ -54,17 +54,12 @@ func (r *bundleRepository) GetAll(ctx context.Context, tx *gorm.DB, isActive *bo
 		query = query.Where("is_active = ?", *isActive)
 	}
 
-	var total int64
-	if err := query.Count(&total).Error; err != nil {
-		return nil, 0, err
-	}
-
 	var bundles []entities.Bundle
-	if err := query.Order("created_at desc").Limit(limit).Offset(offset).Find(&bundles).Error; err != nil {
-		return nil, 0, err
+	if err := query.Order("created_at desc").Find(&bundles).Error; err != nil {
+		return nil, err
 	}
 
-	return bundles, total, nil
+	return bundles, nil
 }
 
 func (r *bundleRepository) GetByID(ctx context.Context, tx *gorm.DB, id uuid.UUID) (entities.Bundle, error) {

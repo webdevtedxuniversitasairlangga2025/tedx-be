@@ -14,7 +14,7 @@ import (
 var maxPrice = decimal.RequireFromString("99999999.99")
 
 type MerchandiseService interface {
-	GetAll(ctx context.Context, filter dto.MerchandiseFilter) (dto.MerchandisePaginationResponse, error)
+	GetAll(ctx context.Context, filter dto.MerchandiseFilter) ([]dto.MerchandiseResponse, error)
 	GetByID(ctx context.Context, id uuid.UUID) (dto.MerchandiseResponse, error)
 	Create(ctx context.Context, req dto.MerchandiseCreateRequest) (dto.MerchandiseResponse, error)
 	Update(ctx context.Context, id uuid.UUID, req dto.MerchandiseUpdateRequest) (dto.MerchandiseResponse, error)
@@ -60,22 +60,15 @@ func toResponse(m entities.Merchandise) dto.MerchandiseResponse {
 	}
 }
 
-func (s *merchandiseService) GetAll(ctx context.Context, filter dto.MerchandiseFilter) (dto.MerchandisePaginationResponse, error) {
-	if filter.Page <= 0 {
-		filter.Page = constants.ENUM_PAGINATION_PAGE
-	}
-	if filter.PerPage <= 0 {
-		filter.PerPage = constants.ENUM_PAGINATION_PER_PAGE
-	}
+func (s *merchandiseService) GetAll(ctx context.Context, filter dto.MerchandiseFilter) ([]dto.MerchandiseResponse, error) {
 	if filter.IsActive == nil {
 		activeOnly := true
 		filter.IsActive = &activeOnly
 	}
 
-	offset := (filter.Page - 1) * filter.PerPage
-	merchandises, total, err := s.repo.FindAll(ctx, filter.Category, filter.IsActive, filter.PerPage, offset)
+	merchandises, err := s.repo.FindAll(ctx, filter.Category, filter.IsActive)
 	if err != nil {
-		return dto.MerchandisePaginationResponse{}, err
+		return nil, err
 	}
 
 	data := make([]dto.MerchandiseResponse, 0, len(merchandises))
@@ -83,17 +76,7 @@ func (s *merchandiseService) GetAll(ctx context.Context, filter dto.MerchandiseF
 		data = append(data, toResponse(m))
 	}
 
-	maxPage := int((total + int64(filter.PerPage) - 1) / int64(filter.PerPage))
-
-	return dto.MerchandisePaginationResponse{
-		Data: data,
-		Meta: dto.PaginationMeta{
-			Page:    filter.Page,
-			PerPage: filter.PerPage,
-			MaxPage: maxPage,
-			Total:   total,
-		},
-	}, nil
+	return data, nil
 }
 
 func (s *merchandiseService) GetByID(ctx context.Context, id uuid.UUID) (dto.MerchandiseResponse, error) {

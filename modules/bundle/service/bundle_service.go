@@ -6,7 +6,6 @@ import (
 	"github.com/webdevtedxuniversitasairlangga/database/entities"
 	"github.com/webdevtedxuniversitasairlangga/modules/bundle/dto"
 	"github.com/webdevtedxuniversitasairlangga/modules/bundle/repository"
-	"github.com/webdevtedxuniversitasairlangga/pkg/constants"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
@@ -16,7 +15,7 @@ var maxPrice = decimal.RequireFromString("99999999.99")
 
 type BundleService interface {
 	Create(ctx context.Context, req dto.BundleCreateRequest) (dto.BundleResponse, error)
-	GetAll(ctx context.Context, req dto.BundleQueryRequest) (dto.BundlePaginationResponse, error)
+	GetAll(ctx context.Context, req dto.BundleQueryRequest) ([]dto.BundleResponse, error)
 	GetByID(ctx context.Context, id string) (dto.BundleDetailResponse, error)
 	Update(ctx context.Context, id string, req dto.BundleUpdateRequest) (dto.BundleResponse, error)
 	Delete(ctx context.Context, id string) error
@@ -102,24 +101,16 @@ func (s *bundleService) Create(ctx context.Context, req dto.BundleCreateRequest)
 	return toResponse(created), nil
 }
 
-func (s *bundleService) GetAll(ctx context.Context, req dto.BundleQueryRequest) (dto.BundlePaginationResponse, error) {
-	if req.Page <= 0 {
-		req.Page = constants.ENUM_PAGINATION_PAGE
-	}
-	if req.PerPage <= 0 {
-		req.PerPage = constants.ENUM_PAGINATION_PER_PAGE
-	}
-	offset := (req.Page - 1) * req.PerPage
-
+func (s *bundleService) GetAll(ctx context.Context, req dto.BundleQueryRequest) ([]dto.BundleResponse, error) {
 	isActive := req.IsActive
 	if isActive == nil {
 		activeOnly := true
 		isActive = &activeOnly
 	}
 
-	bundles, total, err := s.bundleRepository.GetAll(ctx, s.db, isActive, req.PerPage, offset)
+	bundles, err := s.bundleRepository.GetAll(ctx, s.db, isActive)
 	if err != nil {
-		return dto.BundlePaginationResponse{}, err
+		return nil, err
 	}
 
 	data := make([]dto.BundleResponse, 0, len(bundles))
@@ -127,17 +118,7 @@ func (s *bundleService) GetAll(ctx context.Context, req dto.BundleQueryRequest) 
 		data = append(data, toResponse(b))
 	}
 
-	maxPage := int((total + int64(req.PerPage) - 1) / int64(req.PerPage))
-
-	return dto.BundlePaginationResponse{
-		Data: data,
-		Meta: dto.PaginationMeta{
-			Page:    req.Page,
-			PerPage: req.PerPage,
-			MaxPage: maxPage,
-			Total:   total,
-		},
-	}, nil
+	return data, nil
 }
 
 func (s *bundleService) GetByID(ctx context.Context, id string) (dto.BundleDetailResponse, error) {

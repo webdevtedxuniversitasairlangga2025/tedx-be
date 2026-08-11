@@ -43,6 +43,7 @@ var (
 	ErrTokenInvalid           = errors.New("token invalid")
 	ErrTokenExpired           = errors.New("token expired")
 	ErrAccountAlreadyVerified = errors.New("account already verified")
+	ErrInvalidRole            = errors.New("role must be admin or user")
 )
 
 type (
@@ -68,6 +69,7 @@ type (
 		Name       *string `json:"name"`
 		TelpNumber *string `json:"telp_number"`
 		Email      *string `json:"email"`
+		Role       *string `json:"role"`
 	}
 	
 	UserUpdateResponse struct {
@@ -96,5 +98,24 @@ type (
 	UserLoginRequest struct {
 		Email    string `json:"email" form:"email" binding:"required"`
 		Password string `json:"password" form:"password" binding:"required"`
+	}
+
+	UserFilter struct {
+		Search  string `form:"search"`
+		Role    string `form:"role"`
+		Page    int    `form:"page"`
+		PerPage int    `form:"per_page"`
+	}
+
+	PaginationMeta struct {
+		Page    int   `json:"page"`
+		PerPage int   `json:"per_page"`
+		MaxPage int   `json:"max_page"`
+		Total   int64 `json:"total"`
+	}
+
+	UserPaginationResponse struct {
+		Data []UserResponse `json:"data"`
+		Meta PaginationMeta `json:"meta"`
 	}
 )

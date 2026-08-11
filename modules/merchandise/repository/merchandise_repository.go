@@ -9,7 +9,7 @@ import (
 )
 
 type MerchandiseRepository interface {
-	FindAll(ctx context.Context, category string, isActive *bool, limit, offset int) ([]entities.Merchandise, int64, error)
+	FindAll(ctx context.Context, category string, isActive *bool) ([]entities.Merchandise, error)
 	FindByID(ctx context.Context, id uuid.UUID) (*entities.Merchandise, error)
 	Create(ctx context.Context, merch *entities.Merchandise) (*entities.Merchandise, error)
 	Update(ctx context.Context, merch *entities.Merchandise) error
@@ -29,9 +29,8 @@ func NewMerchandiseRepository(db *gorm.DB) MerchandiseRepository {
 	}
 }
 
-func (r *merchandiseRepositoryImpl) FindAll(ctx context.Context, category string, isActive *bool, limit, offset int) ([]entities.Merchandise, int64, error) {
+func (r *merchandiseRepositoryImpl) FindAll(ctx context.Context, category string, isActive *bool) ([]entities.Merchandise, error) {
 	var merchandises []entities.Merchandise
-	var total int64
 
 	query := r.db.WithContext(ctx).Model(&entities.Merchandise{}).Preload("MerchImages")
 
@@ -42,15 +41,11 @@ func (r *merchandiseRepositoryImpl) FindAll(ctx context.Context, category string
 		query = query.Where("is_active = ?", *isActive)
 	}
 
-	if err := query.Count(&total).Error; err != nil {
-		return nil, 0, err
+	if err := query.Find(&merchandises).Error; err != nil {
+		return nil, err
 	}
 
-	if err := query.Offset(offset).Limit(limit).Find(&merchandises).Error; err != nil {
-		return nil, 0, err
-	}
-
-	return merchandises, total, nil
+	return merchandises, nil
 }
 
 func (r *merchandiseRepositoryImpl) FindByID(ctx context.Context, id uuid.UUID) (*entities.Merchandise, error) {

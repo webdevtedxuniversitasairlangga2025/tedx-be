@@ -50,8 +50,6 @@ type (
 	}
 
 	BundleQueryRequest struct {
-		Page     int   `form:"page"`
-		PerPage  int   `form:"per_page"`
 		IsActive *bool `form:"is_active"`
 	}
 
@@ -73,17 +71,5 @@ type (
 	BundleDetailResponse struct {
 		BundleResponse
 		Images []BundleImageResponse `json:"images"`
-	}
-
-	PaginationMeta struct {
-		Page    int   `json:"page"`
-		PerPage int   `json:"per_page"`
-		MaxPage int   `json:"max_page"`
-		Total   int64 `json:"total"`
-	}
-
-	BundlePaginationResponse struct {
-		Data []BundleResponse `json:"data"`
-		Meta PaginationMeta   `json:"meta"`
 	}
 )
