@@ -10,9 +10,10 @@ http:
     type: json
     data: |-
       {
-        "name": "ernest",
-        "email": "ernestnaufal22@gmail.com",
-        "password": "passwordernest"
+        "name": "Rizal Admin",
+        "email": "mohamad.rizal.nurochman-2024@fst.unair.ac.id",
+        "password": "password123",
+        "role":"admin"
       }
   auth: inherit
 
