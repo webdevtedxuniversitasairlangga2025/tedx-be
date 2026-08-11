@@ -20,9 +20,9 @@ runtime:
     - name: base_url
       value: http://localhost:8888/api/v1
     - name: email
-      value: pelajarbintangrumy@gmail.com
+      value: mohamad.rizal.nurochman-2024@fst.unair.ac.id
     - name: verification_code
-      value: "214170"
+      value: "205707"
 
 settings:
   encodeUrl: true
