@@ -9,6 +9,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
 	github.com/samber/do v1.6.0
+	github.com/shopspring/decimal v1.4.0
 	github.com/spf13/viper v1.21.0
 	golang.org/x/crypto v0.54.0
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df

@@ -1,28 +1,27 @@
 info:
-  name: Login
+  name: Add Bundle Image
   type: http
-  seq: 2
+  seq: 3
 
 http:
   method: POST
-  url: "{{base_url}}/auth/login"
+  url: "{{base_url}}/bundles/{{bundle_id}}/images"
   body:
     type: json
     data: |-
       {
-        "email": "ernestnaufal22@gmail.com",
-        "password": "passwordernest"
+        "image_url": "https://placehold.co/600x400.png"
       }
-  auth: inherit
+  headers:
+    - name: Authorization
+      value: "Bearer {{access_token}}"
 
 runtime:
   variables:
     - name: base_url
       value: http://localhost:8888/api/v1
-    - name: email
-      value: pelajarbintangrumy@gmail.com
-    - name: password
-      value: password123
+    - name: bundle_id
+      value: ""
 
 settings:
   encodeUrl: true

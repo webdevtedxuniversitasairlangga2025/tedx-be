@@ -1,0 +1,30 @@
+info:
+  name: Add Images
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: "{{base_url}}/merchandise/{{merchandise_id}}/images"
+  body:
+    type: json
+    data: |-
+      {
+        "image_url": "https://example.com/images/merch-tshirt.jpg"
+      }
+  headers:
+    - name: Authorization
+      value: "Bearer {{access_token}}"
+
+runtime:
+  variables:
+    - name: base_url
+      value: http://localhost:8888/api/v1
+    - name: merchandise_id
+      value: ""
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

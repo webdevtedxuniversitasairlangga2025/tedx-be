@@ -1,28 +1,27 @@
 info:
-  name: Login
+  name: Create Bundle
   type: http
-  seq: 2
+  seq: 1
 
 http:
   method: POST
-  url: "{{base_url}}/auth/login"
+  url: "{{base_url}}/bundles"
   body:
     type: json
     data: |-
       {
-        "email": "ernestnaufal22@gmail.com",
-        "password": "passwordernest"
+        "name": "Bundle Hemat TEDx",
+        "description": "Paket kaos + totebag + sticker",
+        "price": "150000.00"
       }
-  auth: inherit
+  headers:
+    - name: Authorization
+      value: "Bearer {{access_token}}"
 
 runtime:
   variables:
     - name: base_url
       value: http://localhost:8888/api/v1
-    - name: email
-      value: pelajarbintangrumy@gmail.com
-    - name: password
-      value: password123
 
 settings:
   encodeUrl: true

@@ -1,0 +1,26 @@
+info:
+  name: Delete Bundle Image
+  type: http
+  seq: 6
+
+http:
+  method: DELETE
+  url: "{{base_url}}/bundles/{{bundle_id}}/images/{{image_id}}"
+  headers:
+    - name: Authorization
+      value: "Bearer {{access_token}}"
+
+runtime:
+  variables:
+    - name: base_url
+      value: http://localhost:8888/api/v1
+    - name: bundle_id
+      value: ""
+    - name: image_id
+      value: ""
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

@@ -1,0 +1,31 @@
+info:
+  name: Create Merchandise
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{base_url}}/merchandise"
+  body:
+    type: json
+    data: |-
+      {
+        "name": "T-Shirt TEDx UNAIR 2026",
+        "description": "Kaos eksklusif edisi TEDx UNAIR 2026 bahan cotton combed 30s.",
+        "price": "120000.00",
+        "category": "t-shirt"
+      }
+  headers:
+    - name: Authorization
+      value: "Bearer {{access_token}}"
+
+runtime:
+  variables:
+    - name: base_url
+      value: http://localhost:8888/api/v1
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

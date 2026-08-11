@@ -2,3 +2,7 @@ name: Dev
 variables:
   - name: base_url
     value: http://localhost:8888/api/v1
+    description: ""
+  - name: access_token
+    value: ""
+    description: "Isi dari response Auth > Login, berlaku 15 menit. Kosongkan lagi sebelum commit — jangan sampai token asli masuk riwayat git."
