@@ -276,9 +276,10 @@ go test ./...
 ```
 
 Tulis unit test untuk logika service (bagian yang paling banyak berisi aturan bisnis).
-Contoh pola test sudah ada di `modules/bundle/service/bundle_service_test.go`
-(unit test service memakai fake repository, tanpa koneksi database). Untuk fitur baru
-minimal uji: happy path, input tidak valid, dan kasus "data tidak ditemukan".
+Contoh pola test bisa dilihat di riwayat commit `modules/bundle/service/bundle_service_test.go`
+(unit test service memakai fake repository, tanpa koneksi database) — file test saat ini
+tidak di-commit. Untuk fitur baru minimal uji: happy path, input tidak valid, dan kasus
+"data tidak ditemukan".
 
 ---
 

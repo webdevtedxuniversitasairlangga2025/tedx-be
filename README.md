@@ -28,13 +28,13 @@ modules/                 Feature modules — each: dto / handler / service / rep
   auth/                  Register, login, refresh, logout, email verify, password reset
   bundle/                Bundle catalog (public read, admin write) + image gallery
   todo/                  CRUD example resource (auth-protected)
-  user/                  User DTOs + repository (shared by auth)
+  user/                  User management (admin CRUD, paginated list)
 pkg/
   constants/             Roles, pagination defaults, DI keys
   helpers/               Password hashing (bcrypt)
   utils/                 Standard API response envelope, email sender + templates
 providers/core.go        RegisterDependencies — wires repos, services, handlers
-API_Test/                API collection (OpenCollection format) for Auth, Todo & Bundle
+API_Test/                API collection (OpenCollection format) for Auth, Todo, Bundle, Merchandise & User
 ```
 
 Each module follows the same flow: `routes → handler → service → repository → entities`.
@@ -110,7 +110,7 @@ Bundle catalog — display only; checkout happens through a Google Form.
 
 | Method | Path | Auth | Body / Query |
 |--------|------|------|------|
-| GET | `` | — | `page`, `per_page`, `is_active?` |
+| GET | `` | — | `is_active?` |
 | GET | `/:id` | — | — (detail incl. `images`) |
 | POST | `` | Bearer (admin) | `name`, `description`, `price` |
 | PATCH | `/:id` | Bearer (admin) | `name?`, `description?`, `price?`, `is_active?` |
@@ -129,6 +129,47 @@ Notes:
 - ⚠️ Admin endpoints require role `admin` via the `AuthorizeAdmin` middleware
   (chained after `Authenticate`). Tokens with role `user` get `403 Forbidden`.
 
+### Merchandise — `/api/v1/merchandise`
+
+Merchandise catalog — display only; checkout happens through a Google Form.
+
+| Method | Path | Auth | Body / Query |
+|--------|------|------|------|
+| GET | `` | — | `is_active?`, `category?` |
+| GET | `/:id` | — | — (detail incl. `images`) |
+| POST | `` | Bearer (admin) | `name`, `description`, `price`, `category` |
+| PATCH | `/:id` | Bearer (admin) | `name?`, `description?`, `price?`, `category?`, `is_active?` |
+| DELETE | `/:id` | Bearer (admin) | — |
+| POST | `/:id/images` | Bearer (admin) | `image_url` |
+| DELETE | `/:id/images/:imageId` | Bearer (admin) | — |
+
+Notes:
+
+- `price` is sent and returned as a **string** (e.g. `"150000.00"`) so money keeps its
+  precision on both sides. Valid range: `0` – `99999999.99` (column is `numeric(10,2)`).
+- `GET /merchandise` without an `is_active` parameter returns **active items only**, since
+  the endpoint is public. Pass `?is_active=false` to list hidden ones.
+- Merchandise is always created active — deactivate it with `PATCH`.
+- Deleting an item also deletes its images (`ON DELETE CASCADE`).
+- Admin endpoints require role `admin` (same middleware chain as Bundle).
+
+### User — `/api/v1/users` (all require `Authorization: Bearer <access_token>` + role `admin`)
+
+User management — list, detail, update, and delete registered users.
+
+| Method | Path | Body / Query |
+|--------|------|------|
+| GET | `` | `search?` (name/email), `role?`, `page?`, `per_page?` (paginated) |
+| GET | `/:id` | — |
+| PATCH | `/:id` | `name?`, `email?`, `telp_number?`, `role?` |
+| DELETE | `/:id` | — |
+
+Notes:
+
+- `GET /users` returns a paginated list with `meta` (page, per_page, total, total_pages).
+- `role` accepts `admin` or `user`; anything else returns `400`.
+- Deleting a user also revokes their refresh tokens.
+
 ### Auth flow
 
 1. Access tokens are HS256 JWTs, 15 min TTL, carry `user_id` + `role`.
@@ -138,9 +179,9 @@ Notes:
 ### 🧪 API Testing
 
 Project memakai **Bruno** (collection file-based di folder `API_Test/` pada repo backend).
-Sudah berisi request untuk Auth & Todo. Setiap modul API baru **wajib menambahkan
-folder request-nya** ke `API_Test/`, mengikuti pola folder `Todo/`. Collection ikut
-di-commit dan di-review di branch `be`.
+Sudah berisi request untuk Auth, Todo, Bundle, Merchandise & User. Setiap modul API baru
+**wajib menambahkan folder request-nya** ke `API_Test/`, mengikuti pola folder `Todo/`.
+Collection ikut di-commit dan di-review di branch `be`.
 
 ```bash
 go test ./...
