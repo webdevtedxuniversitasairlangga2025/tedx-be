@@ -1,0 +1,32 @@
+info:
+  name: Update User
+  type: http
+  seq: 3
+
+http:
+  method: PATCH
+  url: "{{base_url}}/users/{{user_id}}"
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Nama User (Revisi)",
+        "telp_number": "081234567890",
+        "role": "admin"
+      }
+  headers:
+    - name: Authorization
+      value: "Bearer {{access_token}}"
+
+runtime:
+  variables:
+    - name: base_url
+      value: http://localhost:8888/api/v1
+    - name: user_id
+      value: ""
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
