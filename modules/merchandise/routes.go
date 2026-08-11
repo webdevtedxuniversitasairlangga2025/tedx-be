@@ -12,7 +12,7 @@ import (
 
 func RegisterRoutes(r *gin.RouterGroup, i *do.Injector) {
 
-	merchandiseHandler := do.MustInvoke[*handler.MerchandiseHandler](i)
+	merchandiseHandler := do.MustInvoke[handler.MerchandiseHandler](i)
 	jwtSvc := do.MustInvokeNamed[authService.JWTService](i, constants.JWTService)
 
 	merchandiseGroup := r.Group("/merchandise")
@@ -21,7 +21,7 @@ func RegisterRoutes(r *gin.RouterGroup, i *do.Injector) {
 	merchandiseGroup.GET("/:id", merchandiseHandler.GetByID)
 
 	adminGroup := merchandiseGroup.Group("")
-	adminGroup.Use(middlewares.Authenticate(jwtSvc))
+	adminGroup.Use(middlewares.Authenticate(jwtSvc), middlewares.AuthorizeAdmin(jwtSvc))
 	{
 		adminGroup.POST("", merchandiseHandler.Create)
 		adminGroup.PATCH("/:id", merchandiseHandler.Update)

@@ -6,6 +6,9 @@ info:
 http:
   method: POST
   url: "{{base_url}}/bundles"
+  headers:
+    - name: Authorization
+      value: Bearer {{access_token}}
   body:
     type: json
     data: |-
@@ -14,14 +17,13 @@ http:
         "description": "Paket kaos + totebag + sticker",
         "price": "150000.00"
       }
-  headers:
-    - name: Authorization
-      value: "Bearer {{access_token}}"
 
 runtime:
   variables:
     - name: base_url
       value: http://localhost:8888/api/v1
+    - name: access_token
+      value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMzM5MDU3ZTctYTA5Ny00YTk2LWJlOTItOTgyMTcwMTVjYjIyIiwicm9sZSI6InVzZXIiLCJpc3MiOiJUZW1wbGF0ZSIsImV4cCI6MTc4NjQ3NzgwNywiaWF0IjoxNzg2NDc2OTA3fQ.LJs8kTUhcl4keAapg2oFPVG_E-nAOTDwnQjYyJ6nqWQ
 
 settings:
   encodeUrl: true

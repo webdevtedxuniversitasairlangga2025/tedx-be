@@ -18,7 +18,7 @@ func RegisterRoutes(server *gin.RouterGroup, injector *do.Injector) {
 		bundleRoutes.GET("", bundleController.GetAll)
 		bundleRoutes.GET("/:id", bundleController.GetByID)
 
-		adminRoutes := bundleRoutes.Group("", middlewares.Authenticate(jwtService))
+		adminRoutes := bundleRoutes.Group("", middlewares.Authenticate(jwtService), middlewares.AuthorizeAdmin(jwtService))
 		{
 			adminRoutes.POST("", bundleController.Create)
 			adminRoutes.PATCH("/:id", bundleController.Update)

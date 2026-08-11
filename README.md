@@ -126,8 +126,8 @@ Notes:
   the endpoint is public. Pass `?is_active=false` to list hidden ones.
 - Bundles are always created active — deactivate them with `PATCH`.
 - Deleting a bundle also deletes its images (`ON DELETE CASCADE`).
-- ⚠️ Admin endpoints are currently guarded by `Authenticate` (login check) only. The
-  role check waits on the `AuthorizeAdmin` middleware, which is a separate task.
+- ⚠️ Admin endpoints require role `admin` via the `AuthorizeAdmin` middleware
+  (chained after `Authenticate`). Tokens with role `user` get `403 Forbidden`.
 
 ### Auth flow
 

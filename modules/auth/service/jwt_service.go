@@ -16,6 +16,7 @@ type JWTService interface {
 	GenerateRefreshToken() (string, time.Time)
 	ValidateToken(token string) (*jwt.Token, error)
 	GetUserIDByToken(token string) (string, error)
+	GetRoleByToken(token string) (string, error)
 }
 
 type jwtCustomClaim struct {
@@ -101,4 +102,15 @@ func (j *jwtService) GetUserIDByToken(token string) (string, error) {
 	claims := tToken.Claims.(jwt.MapClaims)
 	id := fmt.Sprintf("%v", claims["user_id"])
 	return id, nil
+}
+
+func (j *jwtService) GetRoleByToken(token string) (string, error) {
+	tToken, err := j.ValidateToken(token)
+	if err != nil {
+		return "", err
+	}
+
+	claims := tToken.Claims.(jwt.MapClaims)
+	role := fmt.Sprintf("%v", claims["role"])
+	return role, nil
 }

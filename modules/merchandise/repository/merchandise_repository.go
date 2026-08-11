@@ -4,9 +4,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/samber/do"
 	"github.com/webdevtedxuniversitasairlangga/database/entities"
-	"github.com/webdevtedxuniversitasairlangga/pkg/constants"
 	"gorm.io/gorm"
 )
 
@@ -25,11 +23,10 @@ type merchandiseRepositoryImpl struct {
 	db *gorm.DB
 }
 
-func NewMerchandiseRepository(i *do.Injector) (MerchandiseRepository, error) {
-	db := do.MustInvokeNamed[*gorm.DB](i, constants.DB)
+func NewMerchandiseRepository(db *gorm.DB) MerchandiseRepository {
 	return &merchandiseRepositoryImpl{
 		db: db,
-	}, nil
+	}
 }
 
 func (r *merchandiseRepositoryImpl) FindAll(ctx context.Context, category string, isActive *bool, limit, offset int) ([]entities.Merchandise, int64, error) {

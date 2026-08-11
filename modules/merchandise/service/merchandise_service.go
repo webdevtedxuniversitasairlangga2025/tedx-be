@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/samber/do"
 	"github.com/shopspring/decimal"
 	"github.com/webdevtedxuniversitasairlangga/database/entities"
 	"github.com/webdevtedxuniversitasairlangga/modules/merchandise/dto"
@@ -25,15 +24,14 @@ type MerchandiseService interface {
 	DeleteImage(ctx context.Context, merchId, imageId uuid.UUID) error
 }
 
-type merchandiseServiceImpl struct {
+type merchandiseService struct {
 	repo repository.MerchandiseRepository
 }
 
-func NewMerchandiseService(i *do.Injector) (MerchandiseService, error) {
-	repo := do.MustInvoke[repository.MerchandiseRepository](i)
-	return &merchandiseServiceImpl{
+func NewMerchandiseService(repo repository.MerchandiseRepository) MerchandiseService {
+	return &merchandiseService{
 		repo: repo,
-	}, nil
+	}
 }
 
 func toImageResponse(i entities.MerchImage) dto.MerchImageResponse {
@@ -62,7 +60,7 @@ func toResponse(m entities.Merchandise) dto.MerchandiseResponse {
 	}
 }
 
-func (s *merchandiseServiceImpl) GetAll(ctx context.Context, filter dto.MerchandiseFilter) (dto.MerchandisePaginationResponse, error) {
+func (s *merchandiseService) GetAll(ctx context.Context, filter dto.MerchandiseFilter) (dto.MerchandisePaginationResponse, error) {
 	if filter.Page <= 0 {
 		filter.Page = constants.ENUM_PAGINATION_PAGE
 	}
@@ -98,7 +96,7 @@ func (s *merchandiseServiceImpl) GetAll(ctx context.Context, filter dto.Merchand
 	}, nil
 }
 
-func (s *merchandiseServiceImpl) GetByID(ctx context.Context, id uuid.UUID) (dto.MerchandiseResponse, error) {
+func (s *merchandiseService) GetByID(ctx context.Context, id uuid.UUID) (dto.MerchandiseResponse, error) {
 	merch, err := s.repo.FindByID(ctx, id)
 	if err != nil {
 		return dto.MerchandiseResponse{}, err
@@ -131,7 +129,7 @@ func isValidCategory(category string) bool {
 	return false
 }
 
-func (s *merchandiseServiceImpl) Create(ctx context.Context, req dto.MerchandiseCreateRequest) (dto.MerchandiseResponse, error) {
+func (s *merchandiseService) Create(ctx context.Context, req dto.MerchandiseCreateRequest) (dto.MerchandiseResponse, error) {
 	price, err := parsePrice(req.Price)
 	if err != nil {
 		return dto.MerchandiseResponse{}, err
@@ -156,7 +154,7 @@ func (s *merchandiseServiceImpl) Create(ctx context.Context, req dto.Merchandise
 	return toResponse(*created), nil
 }
 
-func (s *merchandiseServiceImpl) Update(ctx context.Context, id uuid.UUID, req dto.MerchandiseUpdateRequest) (dto.MerchandiseResponse, error) {
+func (s *merchandiseService) Update(ctx context.Context, id uuid.UUID, req dto.MerchandiseUpdateRequest) (dto.MerchandiseResponse, error) {
 
 	merch, err := s.repo.FindByID(ctx, id)
 	if err != nil {
@@ -193,7 +191,7 @@ func (s *merchandiseServiceImpl) Update(ctx context.Context, id uuid.UUID, req d
 	return toResponse(*merch), nil
 }
 
-func (s *merchandiseServiceImpl) Delete(ctx context.Context, id uuid.UUID) error {
+func (s *merchandiseService) Delete(ctx context.Context, id uuid.UUID) error {
 
 	if _, err := s.repo.FindByID(ctx, id); err != nil {
 		return err
@@ -201,7 +199,7 @@ func (s *merchandiseServiceImpl) Delete(ctx context.Context, id uuid.UUID) error
 	return s.repo.Delete(ctx, id)
 }
 
-func (s *merchandiseServiceImpl) AddImage(ctx context.Context, merchId uuid.UUID, req dto.MerchImageRequest) error {
+func (s *merchandiseService) AddImage(ctx context.Context, merchId uuid.UUID, req dto.MerchImageRequest) error {
 
 	if _, err := s.repo.FindByID(ctx, merchId); err != nil {
 		return err
@@ -215,7 +213,7 @@ func (s *merchandiseServiceImpl) AddImage(ctx context.Context, merchId uuid.UUID
 	return s.repo.AddImage(ctx, image)
 }
 
-func (s *merchandiseServiceImpl) DeleteImage(ctx context.Context, merchId, imageId uuid.UUID) error {
+func (s *merchandiseService) DeleteImage(ctx context.Context, merchId, imageId uuid.UUID) error {
 
 	if _, err := s.repo.FindByID(ctx, merchId); err != nil {
 		return err

@@ -77,7 +77,12 @@ func RegisterDependencies(injector *do.Injector) {
 		},
 	)
 
-	do.Provide(injector, merchRepo.NewMerchandiseRepository)
-	do.Provide(injector, merchService.NewMerchandiseService)
-	do.Provide(injector, merchHandler.NewMerchandiseHandler)
+	merchandiseRepository := merchRepo.NewMerchandiseRepository(db)
+	merchandiseSvc := merchService.NewMerchandiseService(merchandiseRepository)
+
+	do.Provide(
+		injector, func(i *do.Injector) (merchHandler.MerchandiseHandler, error) {
+			return merchHandler.NewMerchandiseHandler(i, merchandiseSvc), nil
+		},
+	)
 }

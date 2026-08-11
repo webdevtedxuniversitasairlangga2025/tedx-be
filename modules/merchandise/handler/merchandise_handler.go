@@ -11,18 +11,27 @@ import (
 	"github.com/webdevtedxuniversitasairlangga/pkg/utils"
 )
 
-type MerchandiseHandler struct {
-	service service.MerchandiseService
+type (
+	MerchandiseHandler interface {
+		GetAll(ctx *gin.Context)
+		GetByID(ctx *gin.Context)
+		Create(ctx *gin.Context)
+		Update(ctx *gin.Context)
+		Delete(ctx *gin.Context)
+		AddImage(ctx *gin.Context)
+		DeleteImage(ctx *gin.Context)
+	}
+
+	merchandiseHandler struct {
+		service service.MerchandiseService
+	}
+)
+
+func NewMerchandiseHandler(injector *do.Injector, ms service.MerchandiseService) MerchandiseHandler {
+	return &merchandiseHandler{service: ms}
 }
 
-func NewMerchandiseHandler(i *do.Injector) (*MerchandiseHandler, error) {
-	svc := do.MustInvoke[service.MerchandiseService](i)
-	return &MerchandiseHandler{
-		service: svc,
-	}, nil
-}
-
-func (h *MerchandiseHandler) GetAll(c *gin.Context) {
+func (h *merchandiseHandler) GetAll(c *gin.Context) {
 	var filter dto.MerchandiseFilter
 	if err := c.ShouldBindQuery(&filter); err != nil {
 		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_DATA_FROM_BODY, err.Error(), nil)
@@ -41,7 +50,7 @@ func (h *MerchandiseHandler) GetAll(c *gin.Context) {
 	c.JSON(http.StatusOK, res)
 }
 
-func (h *MerchandiseHandler) GetByID(c *gin.Context) {
+func (h *merchandiseHandler) GetByID(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_MERCHANDISE, err.Error(), nil)
@@ -60,7 +69,7 @@ func (h *MerchandiseHandler) GetByID(c *gin.Context) {
 	c.JSON(http.StatusOK, res)
 }
 
-func (h *MerchandiseHandler) Create(c *gin.Context) {
+func (h *merchandiseHandler) Create(c *gin.Context) {
 	var req dto.MerchandiseCreateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_DATA_FROM_BODY, err.Error(), nil)
@@ -79,7 +88,7 @@ func (h *MerchandiseHandler) Create(c *gin.Context) {
 	c.JSON(http.StatusCreated, res)
 }
 
-func (h *MerchandiseHandler) Update(c *gin.Context) {
+func (h *merchandiseHandler) Update(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_UPDATE_MERCHANDISE, err.Error(), nil)
@@ -105,7 +114,7 @@ func (h *MerchandiseHandler) Update(c *gin.Context) {
 	c.JSON(http.StatusOK, res)
 }
 
-func (h *MerchandiseHandler) Delete(c *gin.Context) {
+func (h *merchandiseHandler) Delete(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_DELETE_MERCHANDISE, err.Error(), nil)
@@ -123,7 +132,7 @@ func (h *MerchandiseHandler) Delete(c *gin.Context) {
 	c.JSON(http.StatusOK, res)
 }
 
-func (h *MerchandiseHandler) AddImage(c *gin.Context) {
+func (h *merchandiseHandler) AddImage(c *gin.Context) {
 	merchId, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_ADD_MERCHANDISE_IMAGE, err.Error(), nil)
@@ -148,7 +157,7 @@ func (h *MerchandiseHandler) AddImage(c *gin.Context) {
 	c.JSON(http.StatusCreated, res)
 }
 
-func (h *MerchandiseHandler) DeleteImage(c *gin.Context) {
+func (h *merchandiseHandler) DeleteImage(c *gin.Context) {
 	merchId, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_DELETE_MERCHANDISE_IMAGE, err.Error(), nil)
