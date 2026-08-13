@@ -1,0 +1,14 @@
+# .gitattributes
+# Normalisasi line ending: semua file teks disimpan sebagai LF di git,
+# apapun OS kontributor (Windows/Linux/macOS).
+
+# Auto-detect file teks, normalisasi ke LF saat commit
+* text=auto
+
+# File project: selalu checkout dengan LF
+*.go     text eol=lf
+*.md     text eol=lf
+*.yml    text eol=lf
+*.yaml   text eol=lf
+*.json   text eol=lf
+*.html   text eol=lf

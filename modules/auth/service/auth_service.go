@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"math/big"
+	"os"
 	"time"
 
 	"github.com/google/uuid"
@@ -241,8 +242,11 @@ func (s *authService) SendPasswordReset(ctx context.Context, req dto.SendPasswor
 
 	resetToken := s.jwtService.GenerateAccessToken(user.ID.String(), "password_reset")
 
+	frontendURL := os.Getenv("FRONTEND_URL")
+	resetURL := frontendURL + "/forgot-password?token=" + resetToken
+
 	subject := "Password Reset"
-	body := "Please reset your password using this token: " + resetToken
+	body := "Please reset your password using this token: " + resetURL
 
 	return utils.SendMail(user.Email, subject, body)
 }
@@ -251,6 +255,11 @@ func (s *authService) ResetPassword(ctx context.Context, req dto.ResetPasswordRe
 	token, err := s.jwtService.ValidateToken(req.Token)
 	if err != nil || !token.Valid {
 		return dto.ErrPasswordResetToken
+	}
+
+	role, err := s.jwtService.GetRoleByToken(req.Token)
+	if err != nil || role != "password_reset" {
+			return dto.ErrPasswordResetToken
 	}
 
 	userId, err := s.jwtService.GetUserIDByToken(req.Token)
