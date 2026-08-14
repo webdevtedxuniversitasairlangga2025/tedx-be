@@ -16,6 +16,8 @@ services:
       - APP_ENV=production
       - GIN_MODE=release
       - DB_HOST=db
+      - FRONTEND_URL=${FRONTEND_URL}
+      - JWT_SECRET=${JWT_SECRET}
   
     logging:
       driver: json-file
