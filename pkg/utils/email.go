@@ -33,7 +33,7 @@ func SendMail(toEmail string, subject string, body string) error {
 	}
 
 	mailer := gomail.NewMessage()
-	mailer.SetHeader("From", emailConfig.AuthEmail)
+	mailer.SetHeader("From", emailConfig.SenderName)
 	mailer.SetHeader("To", toEmail)
 	mailer.SetHeader("Subject", subject)
 	mailer.SetBody("text/html", body)
