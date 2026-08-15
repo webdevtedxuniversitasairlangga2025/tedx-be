@@ -246,9 +246,14 @@ func (s *authService) SendPasswordReset(ctx context.Context, req dto.SendPasswor
 	resetURL := frontendURL + "/forgot-password?token=" + resetToken
 
 	subject := "Password Reset"
-	body := "Please reset your password using this token: " + resetURL
-
-	return utils.SendMail(user.Email, subject, body)
+	renderedBody, err := utils.RenderEmailTemplate("reset_password.html", map[string]string{
+		"Email":    user.Email,
+		"ResetURL": resetURL,
+	})
+	if err != nil {
+		return err
+	}
+	return utils.SendMail(user.Email, subject, renderedBody)
 }
 
 func (s *authService) ResetPassword(ctx context.Context, req dto.ResetPasswordRequest) error {
