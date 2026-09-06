@@ -8,7 +8,6 @@ import (
 	"github.com/webdevtedxuniversitasairlangga/database/entities"
 	"github.com/webdevtedxuniversitasairlangga/modules/merchandise/dto"
 	"github.com/webdevtedxuniversitasairlangga/modules/merchandise/repository"
-	"github.com/webdevtedxuniversitasairlangga/pkg/constants"
 )
 
 var maxPrice = decimal.RequireFromString("99999999.99")
@@ -52,11 +51,14 @@ func toResponse(m entities.Merchandise) dto.MerchandiseResponse {
 		Name:        m.Name,
 		Description: m.Description,
 		Price:       m.Price.StringFixed(2),
-		Category:    m.Category,
-		IsActive:    m.IsActive,
-		CreatedAt:   m.CreatedAt,
-		UpdatedAt:   m.UpdatedAt,
-		Images:      images,
+		Category: dto.CategoryResponse{
+			ID:   m.Category.ID.String(),
+			Name: m.Category.Name,
+		},
+		IsActive:  m.IsActive,
+		CreatedAt: m.CreatedAt,
+		UpdatedAt: m.UpdatedAt,
+		Images:    images,
 	}
 }
 
@@ -66,7 +68,16 @@ func (s *merchandiseService) GetAll(ctx context.Context, filter dto.MerchandiseF
 		filter.IsActive = &activeOnly
 	}
 
-	merchandises, err := s.repo.FindAll(ctx, filter.Category, filter.IsActive)
+	var categoryID *uuid.UUID
+	if filter.CategoryID != "" {
+		cid, err := uuid.Parse(filter.CategoryID)
+		if err != nil {
+			return nil, dto.ErrCategoryNotFound
+		}
+		categoryID = &cid
+	}
+
+	merchandises, err := s.repo.FindAll(ctx, categoryID, filter.IsActive)
 	if err != nil {
 		return nil, err
 	}
@@ -101,31 +112,25 @@ func parsePrice(raw string) (decimal.Decimal, error) {
 	return price, nil
 }
 
-func isValidCategory(category string) bool {
-	switch category {
-	case constants.ENUM_MERCH_CATEGORY_TSHIRT,
-		constants.ENUM_MERCH_CATEGORY_CAP,
-		constants.ENUM_MERCH_CATEGORY_STICKER,
-		constants.ENUM_MERCH_CATEGORY_OTHER:
-		return true
-	}
-	return false
-}
-
 func (s *merchandiseService) Create(ctx context.Context, req dto.MerchandiseCreateRequest) (dto.MerchandiseResponse, error) {
 	price, err := parsePrice(req.Price)
 	if err != nil {
 		return dto.MerchandiseResponse{}, err
 	}
-	if !isValidCategory(req.Category) {
-		return dto.MerchandiseResponse{}, dto.ErrInvalidCategory
+
+	categoryID, err := uuid.Parse(req.CategoryID)
+	if err != nil {
+		return dto.MerchandiseResponse{}, dto.ErrCategoryNotFound
+	}
+	if _, err := s.repo.FindCategoryByID(ctx, categoryID); err != nil {
+		return dto.MerchandiseResponse{}, dto.ErrCategoryNotFound
 	}
 
 	merch := &entities.Merchandise{
 		Name:        req.Name,
 		Description: req.Description,
 		Price:       price,
-		Category:    req.Category,
+		CategoryID:  categoryID,
 		IsActive:    true,
 	}
 
@@ -157,11 +162,15 @@ func (s *merchandiseService) Update(ctx context.Context, id uuid.UUID, req dto.M
 		}
 		merch.Price = price
 	}
-	if req.Category != nil {
-		if !isValidCategory(*req.Category) {
-			return dto.MerchandiseResponse{}, dto.ErrInvalidCategory
+	if req.CategoryID != nil {
+		categoryID, err := uuid.Parse(*req.CategoryID)
+		if err != nil {
+			return dto.MerchandiseResponse{}, dto.ErrCategoryNotFound
 		}
-		merch.Category = *req.Category
+		if _, err := s.repo.FindCategoryByID(ctx, categoryID); err != nil {
+			return dto.MerchandiseResponse{}, dto.ErrCategoryNotFound
+		}
+		merch.CategoryID = categoryID
 	}
 	if req.IsActive != nil {
 		merch.IsActive = *req.IsActive
