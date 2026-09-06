@@ -28,21 +28,21 @@ var (
 	ErrInvalidPrice       = errors.New("invalid price format")
 	ErrPriceOutOfRange    = errors.New("price must be between 0 and 99999999.99")
 	ErrMerchImageNotFound = errors.New("merchandise image not found")
-	ErrInvalidCategory    = errors.New("category must be t-shirt, cap, sticker, or other")
+	ErrCategoryNotFound   = errors.New("category not found")
 )
 
 type MerchandiseCreateRequest struct {
 	Name        string `json:"name" binding:"required,min=1,max=255"`
 	Description string `json:"description" binding:"required,min=1"`
 	Price       string `json:"price" binding:"required"`
-	Category    string `json:"category" binding:"required"`
+	CategoryID  string `json:"category_id" binding:"required,uuid4"`
 }
 
 type MerchandiseUpdateRequest struct {
 	Name        *string `json:"name" binding:"omitempty,min=1,max=255"`
 	Description *string `json:"description" binding:"omitempty,min=1"`
 	Price       *string `json:"price" binding:"omitempty"`
-	Category    *string `json:"category" binding:"omitempty"`
+	CategoryID  *string `json:"category_id" binding:"omitempty,uuid4"`
 	IsActive    *bool   `json:"is_active"`
 }
 
@@ -51,8 +51,8 @@ type MerchImageRequest struct {
 }
 
 type MerchandiseFilter struct {
-	Category string `form:"category"`
-	IsActive *bool  `form:"is_active"`
+	CategoryID string `form:"category_id"`
+	IsActive   *bool   `form:"is_active"`
 }
 
 type MerchImageResponse struct {
@@ -60,12 +60,17 @@ type MerchImageResponse struct {
 	ImageURL string `json:"image_url"`
 }
 
+type CategoryResponse struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}
+
 type MerchandiseResponse struct {
 	ID          string               `json:"id"`
 	Name        string               `json:"name"`
 	Description string               `json:"description"`
 	Price       string               `json:"price"`
-	Category    string               `json:"category"`
+	Category    CategoryResponse     `json:"category"`
 	IsActive    bool                 `json:"is_active"`
 	CreatedAt   time.Time            `json:"created_at"`
 	UpdatedAt   time.Time            `json:"updated_at"`
