@@ -1,0 +1,30 @@
+info:
+  name: Update Category
+  type: http
+  seq: 4
+
+http:
+  method: PATCH
+  url: "{{base_url}}/categories/{{category_id}}"
+  body:
+    type: json
+    data: |-
+      {
+        "name": "hoodie"
+      }
+  headers:
+    - name: Authorization
+      value: "Bearer {{access_token}}"
+
+runtime:
+  variables:
+    - name: base_url
+      value: http://localhost:8888/api/v1
+    - name: category_id
+      value: ""
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

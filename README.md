@@ -134,23 +134,40 @@ Notes:
 Merchandise catalog — display only; checkout happens through a Google Form.
 
 | Method | Path | Auth | Body / Query |
-|--------|------|------|------|
-| GET | `` | — | `is_active?`, `category?` |
-| GET | `/:id` | — | — (detail incl. `images`) |
-| POST | `` | Bearer (admin) | `name`, `description`, `price`, `category` |
-| PATCH | `/:id` | Bearer (admin) | `name?`, `description?`, `price?`, `category?`, `is_active?` |
+|--------|------|------|--------------|
+| GET | `` | — | `is_active?`, `category_id?` (UUID) |
+| GET | `/:id` | — | — (detail incl. `category` + `images`) |
+| POST | `` | Bearer (admin) | `name`, `description`, `price`, `category_id` (UUID) |
+| PATCH | `/:id` | Bearer (admin) | `name?`, `description?`, `price?`, `category_id?`, `is_active?` |
 | DELETE | `/:id` | Bearer (admin) | — |
 | POST | `/:id/images` | Bearer (admin) | `image_url` |
 | DELETE | `/:id/images/:imageId` | Bearer (admin) | — |
 
-Notes:
+### Categories — `/api/v1/categories`
 
+Merchandise categories — managed by admin, referenced by merchandise via `category_id`.
+
+| Method | Path | Auth | Body |
+|--------|------|------|------|
+| GET | `` | — | — (alphabetical) |
+| GET | `/:id` | — | — |
+| POST | `` | Bearer (admin) | `name` (unique) |
+| PATCH | `/:id` | Bearer (admin) | `name?` |
+| DELETE | `/:id` | Bearer (admin) | — (blocked with `400` if still used by merchandise) |
+
+Notes (merchandise + categories):
+
+- `category` is returned as a nested object (`{"id": "...", "name": "..."}`); requests
+  send `category_id` (UUID). Creating merchandise with an unknown `category_id` returns
+  `400 category not found`.
 - `price` is sent and returned as a **string** (e.g. `"150000.00"`) so money keeps its
   precision on both sides. Valid range: `0` – `99999999.99` (column is `numeric(10,2)`).
 - `GET /merchandise` without an `is_active` parameter returns **active items only**, since
   the endpoint is public. Pass `?is_active=false` to list hidden ones.
 - Merchandise is always created active — deactivate it with `PATCH`.
 - Deleting an item also deletes its images (`ON DELETE CASCADE`).
+- Deleting a category that is still referenced by merchandise is blocked
+  (`ON DELETE RESTRICT`).
 - Admin endpoints require role `admin` (same middleware chain as Bundle).
 
 ### User — `/api/v1/users` (all require `Authorization: Bearer <access_token>` + role `admin`)

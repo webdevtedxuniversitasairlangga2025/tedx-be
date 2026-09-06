@@ -1,0 +1,24 @@
+info:
+  name: Delete Category
+  type: http
+  seq: 5
+
+http:
+  method: DELETE
+  url: "{{base_url}}/categories/{{category_id}}"
+  headers:
+    - name: Authorization
+      value: "Bearer {{access_token}}"
+
+runtime:
+  variables:
+    - name: base_url
+      value: http://localhost:8888/api/v1
+    - name: category_id
+      value: ""
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

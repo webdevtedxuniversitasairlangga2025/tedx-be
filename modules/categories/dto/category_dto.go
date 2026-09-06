@@ -6,12 +6,12 @@ import (
 )
 
 const (
-	MESSAGE_FAILED_GET_DATA_FROM_BODY   = "failed get data from body"
-	MESSAGE_FAILED_CREATE_CATEGORY      = "failed create category"
-	MESSAGE_FAILED_GET_LIST_CATEGORIES  = "failed get list categories"
-	MESSAGE_FAILED_GET_CATEGORY         = "failed get category"
-	MESSAGE_FAILED_UPDATE_CATEGORY      = "failed update category"
-	MESSAGE_FAILED_DELETE_CATEGORY      = "failed delete category"
+	MESSAGE_FAILED_GET_DATA_FROM_BODY  = "failed get data from body"
+	MESSAGE_FAILED_CREATE_CATEGORY     = "failed create category"
+	MESSAGE_FAILED_GET_LIST_CATEGORIES = "failed get list categories"
+	MESSAGE_FAILED_GET_CATEGORY        = "failed get category"
+	MESSAGE_FAILED_UPDATE_CATEGORY     = "failed update category"
+	MESSAGE_FAILED_DELETE_CATEGORY     = "failed delete category"
 
 	MESSAGE_SUCCESS_CREATE_CATEGORY     = "success create category"
 	MESSAGE_SUCCESS_GET_LIST_CATEGORIES = "success get list categories"
