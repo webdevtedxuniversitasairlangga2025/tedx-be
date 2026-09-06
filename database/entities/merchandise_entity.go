@@ -11,9 +11,10 @@ type Merchandise struct {
 	Name        string          `gorm:"size:255;not null"`
 	Description string          `gorm:"type:text;not null"`
 	Price       decimal.Decimal `gorm:"type:numeric(10,2);not null"`
-	Category    string          `gorm:"size:50;not null"`
+	CategoryID  uuid.UUID       `gorm:"type:uuid;not null;index"`
 	IsActive    bool            `gorm:"default:true"`
 
+	Category    Category
 	MerchImages []MerchImage
 
 	Timestamp

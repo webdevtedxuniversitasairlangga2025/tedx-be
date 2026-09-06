@@ -13,6 +13,7 @@ func Migrate(db *gorm.DB) error {
 
 		&entities.Merchandise{},
 		&entities.MerchImage{},
+		&entities.Category{},
 		&entities.Bundle{},
 		&entities.BundleImage{},
 
