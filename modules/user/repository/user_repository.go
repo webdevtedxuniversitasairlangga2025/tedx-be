@@ -128,9 +128,11 @@ func (r *userRepository) Delete(ctx context.Context, tx *gorm.DB, userId string)
 		tx = r.db
 	}
 
-	if err := tx.WithContext(ctx).Delete(&entities.User{}, "id = ?", userId).Error; err != nil {
-		return err
-	}
+	return tx.WithContext(ctx).Transaction(func(t *gorm.DB) error {
+		if err := t.Where("user_id = ?", userId).Delete(&entities.RefreshToken{}).Error; err != nil {
+			return err
+		}
 
-	return nil
+		return t.Delete(&entities.User{}, "id = ?", userId).Error
+	})
 }

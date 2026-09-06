@@ -122,7 +122,8 @@ func (s *merchandiseService) Create(ctx context.Context, req dto.MerchandiseCrea
 	if err != nil {
 		return dto.MerchandiseResponse{}, dto.ErrCategoryNotFound
 	}
-	if _, err := s.repo.FindCategoryByID(ctx, categoryID); err != nil {
+	category, err := s.repo.FindCategoryByID(ctx, categoryID)
+	if err != nil {
 		return dto.MerchandiseResponse{}, dto.ErrCategoryNotFound
 	}
 
@@ -138,6 +139,8 @@ func (s *merchandiseService) Create(ctx context.Context, req dto.MerchandiseCrea
 	if err != nil {
 		return dto.MerchandiseResponse{}, err
 	}
+
+	created.Category = *category
 
 	return toResponse(*created), nil
 }
@@ -167,10 +170,12 @@ func (s *merchandiseService) Update(ctx context.Context, id uuid.UUID, req dto.M
 		if err != nil {
 			return dto.MerchandiseResponse{}, dto.ErrCategoryNotFound
 		}
-		if _, err := s.repo.FindCategoryByID(ctx, categoryID); err != nil {
+		category, err := s.repo.FindCategoryByID(ctx, categoryID)
+		if err != nil {
 			return dto.MerchandiseResponse{}, dto.ErrCategoryNotFound
 		}
 		merch.CategoryID = categoryID
+		merch.Category = *category
 	}
 	if req.IsActive != nil {
 		merch.IsActive = *req.IsActive
