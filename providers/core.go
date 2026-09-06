@@ -18,6 +18,10 @@ import (
 	merchRepo "github.com/webdevtedxuniversitasairlangga/modules/merchandise/repository"
 	merchService "github.com/webdevtedxuniversitasairlangga/modules/merchandise/service"
 
+	categoryHandler "github.com/webdevtedxuniversitasairlangga/modules/categories/handler"
+	categoryRepo "github.com/webdevtedxuniversitasairlangga/modules/categories/repository"
+	categoryService "github.com/webdevtedxuniversitasairlangga/modules/categories/service"
+
 	todoHandler "github.com/webdevtedxuniversitasairlangga/modules/todo/handler"
 	todoRepo "github.com/webdevtedxuniversitasairlangga/modules/todo/repository"
 	todoService "github.com/webdevtedxuniversitasairlangga/modules/todo/service"
@@ -48,6 +52,9 @@ func RegisterDependencies(injector *do.Injector) {
 	err := database.Migrate(db)
 	if err != nil {
 		log.Fatalf("Failed to migrate database: %v", err)
+	}
+	if err := database.SeedCategories(db); err != nil {
+		log.Fatalf("Failed to seed categories: %v", err)
 	}
 	jwtService := do.MustInvokeNamed[authService.JWTService](injector, constants.JWTService)
 
@@ -94,6 +101,15 @@ func RegisterDependencies(injector *do.Injector) {
 	do.Provide(
 		injector, func(i *do.Injector) (merchHandler.MerchandiseHandler, error) {
 			return merchHandler.NewMerchandiseHandler(i, merchandiseSvc), nil
+		},
+	)
+
+	categoryRepository := categoryRepo.NewCategoryRepository(db)
+	categorySvc := categoryService.NewCategoryService(categoryRepository)
+
+	do.Provide(
+		injector, func(i *do.Injector) (categoryHandler.CategoryHandler, error) {
+			return categoryHandler.NewCategoryHandler(i, categorySvc), nil
 		},
 	)
 }

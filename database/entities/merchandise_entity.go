@@ -14,7 +14,7 @@ type Merchandise struct {
 	CategoryID  uuid.UUID       `gorm:"type:uuid;not null;index"`
 	IsActive    bool            `gorm:"default:true"`
 
-	Category    Category
+	Category    Category           `gorm:"foreignKey:CategoryID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT"`
 	MerchImages []MerchImage
 
 	Timestamp
