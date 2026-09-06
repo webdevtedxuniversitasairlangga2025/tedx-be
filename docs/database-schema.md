@@ -39,6 +39,7 @@ erDiagram
     tickets ||--o{ ticket_tiers : "punya tier"
     ticket_tiers ||--o{ orders : "dipesan"
     orders ||--o{ attendee_tickets : "menghasilkan"
+    categories ||--o{ merchandise : "mengelompokkan"
     merchandise ||--o{ merch_images : "punya gambar"
     bundles ||--o{ bundle_images : "punya gambar"
 
@@ -70,8 +71,15 @@ erDiagram
         varchar name
         text description
         decimal price
-        varchar category "t-shirt | cap | sticker | other"
+        uuid category_id FK
         boolean is_active
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    categories {
+        uuid id PK
+        varchar name UK
         timestamptz created_at
         timestamptz updated_at
     }
@@ -171,6 +179,7 @@ flowchart TB
         refresh_tokens
     end
     subgraph CATALOG["Katalog (display, checkout via Google Form)"]
+        categories
         merchandise
         merch_images
         bundles
@@ -230,11 +239,25 @@ Katalog produk merchandise. **Display saja** — tidak ada transaksi di backend.
 | `name` | varchar | Nama produk. |
 | `description` | text | Deskripsi panjang. |
 | `price` | decimal | Harga tampilan. |
-| `category` | varchar | `t-shirt`, `cap`, `sticker`, `other`. |
+| `category_id` | uuid, FK → `categories.id` | Kategori produk. |
 | `is_active` | boolean | Sembunyikan dari katalog bila `false`. |
 | `created_at`, `updated_at` | timestamptz | Audit waktu. |
 
 **Alur beli:** user melihat katalog & detail → menambah ke cart (di frontend) → diarahkan ke **Google Form global** untuk menyelesaikan pemesanan. Backend tidak menyimpan pesanan merch.
+
+---
+
+### 4.3a `categories`
+Kategori merchandise. Dikelola admin; merch menunjuk ke sini via `category_id`.
+
+| Kolom | Tipe | Keterangan |
+|-------|------|------------|
+| `id` | uuid, PK | — |
+| `name` | varchar, **unique** | Nama kategori (mis. `t-shirt`, `cap`, `sticker`, `other`). |
+
+> Kategori hanya milik domain **merchandise**. Bundle tidak berkategori — bundle adalah
+> gabungan merch (paket), identitasnya cukup pada `name` (mis. "Paket A"), dan jumlahnya
+> sedikit sehingga filter kategori tidak memberi nilai.
 
 ---
 
@@ -378,6 +401,7 @@ Tiket per **hadirin** yang dihasilkan dari order yang sudah dibayar. Satu order 
 | `tickets` → `ticket_tiers` | 1 : banyak | Satu tiket punya banyak tier harga. |
 | `ticket_tiers` → `orders` | 1 : banyak | Satu tier dipesan di banyak order. |
 | `orders` → `attendee_tickets` | 1 : banyak | Satu order menghasilkan banyak tiket hadirin. |
+| `categories` → `merchandise` | 1 : banyak | Satu kategori memiliki banyak merch. |
 | `merchandise` → `merch_images` | 1 : banyak | Satu merch punya banyak gambar. |
 | `bundles` → `bundle_images` | 1 : banyak | Satu bundle punya banyak gambar. |
 
@@ -462,7 +486,9 @@ di lapisan service (bukan enum native Postgres).
 | Kolom | Nilai valid |
 |-------|-------------|
 | `users.role` | `admin`, `user` |
-| `merchandise.category` | `t-shirt`, `cap`, `sticker`, `other` |
 | `orders.status` | `pending`, `paid`, `failed`, `cancelled`, `expired`, `refunded` |
 | `attendee_tickets.audience_type` | `unair`, `umum` |
 | `ticket_tiers.tier` | `early-bird`, `regular`, dst (bebas, sesuai kebutuhan panitia) |
+
+> `categories.name` bebas (dikelola admin lewat modul categories), tidak lagi pakai
+> enum hardcoded.

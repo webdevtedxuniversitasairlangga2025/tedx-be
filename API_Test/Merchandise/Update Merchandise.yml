@@ -13,7 +13,7 @@ http:
         "name": "T-Shirt TEDx UNAIR 2026 (Edisi Spesial)",
         "description": "Kaos eksklusif edisi terbatas bahan cotton combed 30s.",
         "price": "135000.00",
-        "category": "t-shirt",
+        "category_id": "{{category_id}}",
         "is_active": true
       }
   headers:

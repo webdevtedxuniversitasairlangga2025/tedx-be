@@ -5,10 +5,13 @@ info:
 
 http:
   method: GET
-  url: "{{base_url}}/merchandise?is_active=true"
+  url: "{{base_url}}/merchandise?is_active=true&category_id={{category_id}}"
   params:
     - name: is_active
       value: "true"
+      type: query
+    - name: category_id
+      value: "{{category_id}}"
       type: query
   auth: inherit
 
