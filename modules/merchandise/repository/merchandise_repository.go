@@ -9,11 +9,13 @@ import (
 )
 
 type MerchandiseRepository interface {
-	FindAll(ctx context.Context, category string, isActive *bool) ([]entities.Merchandise, error)
+	FindAll(ctx context.Context, categoryID *uuid.UUID, isActive *bool) ([]entities.Merchandise, error)
 	FindByID(ctx context.Context, id uuid.UUID) (*entities.Merchandise, error)
 	Create(ctx context.Context, merch *entities.Merchandise) (*entities.Merchandise, error)
 	Update(ctx context.Context, merch *entities.Merchandise) error
 	Delete(ctx context.Context, id uuid.UUID) error
+
+	FindCategoryByID(ctx context.Context, id uuid.UUID) (*entities.Category, error)
 
 	AddImage(ctx context.Context, image *entities.MerchImage) error
 	DeleteImage(ctx context.Context, merchId, imageId uuid.UUID) (int64, error)
@@ -29,13 +31,13 @@ func NewMerchandiseRepository(db *gorm.DB) MerchandiseRepository {
 	}
 }
 
-func (r *merchandiseRepositoryImpl) FindAll(ctx context.Context, category string, isActive *bool) ([]entities.Merchandise, error) {
+func (r *merchandiseRepositoryImpl) FindAll(ctx context.Context, categoryID *uuid.UUID, isActive *bool) ([]entities.Merchandise, error) {
 	var merchandises []entities.Merchandise
 
-	query := r.db.WithContext(ctx).Model(&entities.Merchandise{}).Preload("MerchImages")
+	query := r.db.WithContext(ctx).Model(&entities.Merchandise{}).Preload("MerchImages").Preload("Category")
 
-	if category != "" {
-		query = query.Where("category = ?", category)
+	if categoryID != nil {
+		query = query.Where("category_id = ?", *categoryID)
 	}
 	if isActive != nil {
 		query = query.Where("is_active = ?", *isActive)
@@ -51,10 +53,19 @@ func (r *merchandiseRepositoryImpl) FindAll(ctx context.Context, category string
 func (r *merchandiseRepositoryImpl) FindByID(ctx context.Context, id uuid.UUID) (*entities.Merchandise, error) {
 	var merch entities.Merchandise
 
-	if err := r.db.WithContext(ctx).Preload("MerchImages").First(&merch, "id = ?", id).Error; err != nil {
+	if err := r.db.WithContext(ctx).Preload("MerchImages").Preload("Category").First(&merch, "id = ?", id).Error; err != nil {
 		return nil, err
 	}
 	return &merch, nil
+}
+
+func (r *merchandiseRepositoryImpl) FindCategoryByID(ctx context.Context, id uuid.UUID) (*entities.Category, error) {
+	var category entities.Category
+
+	if err := r.db.WithContext(ctx).First(&category, "id = ?", id).Error; err != nil {
+		return nil, err
+	}
+	return &category, nil
 }
 
 func (r *merchandiseRepositoryImpl) Create(ctx context.Context, merch *entities.Merchandise) (*entities.Merchandise, error) {
