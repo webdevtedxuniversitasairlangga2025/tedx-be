@@ -1,0 +1,32 @@
+info:
+  name: Update Ticket
+  type: http
+  seq: 4
+
+http:
+  method: PATCH
+  url: "{{base_url}}/tickets/{{ticket_id}}"
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Tiket Konferensi TEDx UNAIR 2026 (Revisi)",
+        "description": "Tiket masuk acara utama, sudah termasuk merchandise eksklusif.",
+        "is_active": true
+      }
+  headers:
+    - name: Authorization
+      value: "Bearer {{access_token}}"
+
+runtime:
+  variables:
+    - name: base_url
+      value: http://localhost:8888/api/v1
+    - name: ticket_id
+      value: ""
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

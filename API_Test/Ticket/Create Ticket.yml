@@ -1,0 +1,29 @@
+info:
+  name: Create Ticket
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: "{{base_url}}/tickets"
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Tiket TEDx UNAIR 2026",
+        "description": "Tiket masuk acara utama TEDx Universitas Airlangga 2026."
+      }
+  headers:
+    - name: Authorization
+      value: "Bearer {{access_token}}"
+
+runtime:
+  variables:
+    - name: base_url
+      value: http://localhost:8888/api/v1
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

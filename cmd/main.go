@@ -12,6 +12,7 @@ import (
 	"github.com/webdevtedxuniversitasairlangga/modules/bundle"
 	"github.com/webdevtedxuniversitasairlangga/modules/categories"
 	"github.com/webdevtedxuniversitasairlangga/modules/merchandise"
+	"github.com/webdevtedxuniversitasairlangga/modules/ticket"
 	"github.com/webdevtedxuniversitasairlangga/modules/todo"
 	"github.com/webdevtedxuniversitasairlangga/modules/user"
 	"github.com/webdevtedxuniversitasairlangga/providers"
@@ -57,6 +58,7 @@ func main() {
 		merchandise.RegisterRoutes(v1, injector)
 		categories.RegisterRoutes(v1, injector)
 		user.RegisterRoutes(v1, injector)
+		ticket.RegisterRoutes(v1, injector)
 	}
 
 	run(server)

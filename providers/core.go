@@ -22,6 +22,10 @@ import (
 	categoryRepo "github.com/webdevtedxuniversitasairlangga/modules/categories/repository"
 	categoryService "github.com/webdevtedxuniversitasairlangga/modules/categories/service"
 
+	ticketHandler "github.com/webdevtedxuniversitasairlangga/modules/ticket/handler"
+	ticketRepo "github.com/webdevtedxuniversitasairlangga/modules/ticket/repository"
+	ticketService "github.com/webdevtedxuniversitasairlangga/modules/ticket/service"
+
 	todoHandler "github.com/webdevtedxuniversitasairlangga/modules/todo/handler"
 	todoRepo "github.com/webdevtedxuniversitasairlangga/modules/todo/repository"
 	todoService "github.com/webdevtedxuniversitasairlangga/modules/todo/service"
@@ -110,6 +114,15 @@ func RegisterDependencies(injector *do.Injector) {
 	do.Provide(
 		injector, func(i *do.Injector) (categoryHandler.CategoryHandler, error) {
 			return categoryHandler.NewCategoryHandler(i, categorySvc), nil
+		},
+	)
+
+	ticketRepository := ticketRepo.NewTicketRepository(db)
+	ticketSvc := ticketService.NewTicketService(ticketRepository)
+
+	do.Provide(
+		injector, func(i *do.Injector) (ticketHandler.TicketHandler, error) {
+			return ticketHandler.NewTicketHandler(i, ticketSvc), nil
 		},
 	)
 }
