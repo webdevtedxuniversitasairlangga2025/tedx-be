@@ -1,0 +1,26 @@
+info:
+  name: Delete Ticket Tier
+  type: http
+  seq: 8
+
+http:
+  method: DELETE
+  url: "{{base_url}}/tickets/{{ticket_id}}/tiers/{{tier_id}}"
+  headers:
+    - name: Authorization
+      value: "Bearer {{access_token}}"
+
+runtime:
+  variables:
+    - name: base_url
+      value: http://localhost:8888/api/v1
+    - name: ticket_id
+      value: ""
+    - name: tier_id
+      value: ""
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
