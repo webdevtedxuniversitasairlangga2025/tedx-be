@@ -68,9 +68,13 @@ func (r *ticketRepositoryImpl) Update(ctx context.Context, ticket *entities.Tick
 }
 
 func (r *ticketRepositoryImpl) Delete(ctx context.Context, id uuid.UUID) error {
-	// TicketTier has ON DELETE CASCADE on ticket_id at the DB level,
-	// so removing the ticket also removes its tiers.
-	return r.db.WithContext(ctx).Where("id = ?", id).Delete(&entities.Ticket{}).Error
+	return r.db.WithContext(ctx).Transaction(func(t *gorm.DB) error {
+		if err := t.Where("ticket_id = ?", id).Delete(&entities.TicketTier{}).Error; err != nil {
+			return err
+		}
+
+		return t.Where("id = ?", id).Delete(&entities.Ticket{}).Error
+	})
 }
 
 func (r *ticketRepositoryImpl) FindTierByID(ctx context.Context, id uuid.UUID) (*entities.TicketTier, error) {
