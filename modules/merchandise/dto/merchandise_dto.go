@@ -47,7 +47,7 @@ type MerchandiseUpdateRequest struct {
 }
 
 type MerchImageRequest struct {
-	ImageURL string `json:"image_url" binding:"required"`
+	ImageURL string `json:"image_url" binding:"required,url,max=255"`
 }
 
 type MerchandiseFilter struct {
