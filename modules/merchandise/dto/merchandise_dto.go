@@ -25,6 +25,7 @@ const (
 )
 
 var (
+	ErrMerchandiseNotFound  = errors.New("merchandise not found")
 	ErrInvalidPrice       = errors.New("invalid price format")
 	ErrPriceOutOfRange    = errors.New("price must be between 0 and 99999999.99")
 	ErrMerchImageNotFound = errors.New("merchandise image not found")
