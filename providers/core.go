@@ -33,6 +33,12 @@ import (
 	userHandler "github.com/webdevtedxuniversitasairlangga/modules/user/handler"
 	userService "github.com/webdevtedxuniversitasairlangga/modules/user/service"
 
+	"os"
+
+	webhookHandler "github.com/webdevtedxuniversitasairlangga/modules/webhook/handler"
+	webhookRepo "github.com/webdevtedxuniversitasairlangga/modules/webhook/repository"
+	webhookService "github.com/webdevtedxuniversitasairlangga/modules/webhook/service"
+
 	"github.com/samber/do"
 	"github.com/webdevtedxuniversitasairlangga/modules/user/repository"
 	"github.com/webdevtedxuniversitasairlangga/pkg/constants"
@@ -123,6 +129,18 @@ func RegisterDependencies(injector *do.Injector) {
 	do.Provide(
 		injector, func(i *do.Injector) (ticketHandler.TicketHandler, error) {
 			return ticketHandler.NewTicketHandler(i, ticketSvc), nil
+
+		},
+	)
+
+	webhookRepository := webhookRepo.NewWebhookRepository(db)
+
+	midtransServerKey := os.Getenv("MIDTRANS_SERVER_KEY")
+	webhookSvc := webhookService.NewWebhookService(webhookRepository, midtransServerKey)
+
+	do.Provide(
+		injector, func(i *do.Injector) (webhookHandler.WebhookHandler, error) {
+			return webhookHandler.NewWebhookHandler(i, webhookSvc), nil
 		},
 	)
 }

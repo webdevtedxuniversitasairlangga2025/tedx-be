@@ -15,6 +15,7 @@ import (
 	"github.com/webdevtedxuniversitasairlangga/modules/ticket"
 	"github.com/webdevtedxuniversitasairlangga/modules/todo"
 	"github.com/webdevtedxuniversitasairlangga/modules/user"
+	"github.com/webdevtedxuniversitasairlangga/modules/webhook"
 	"github.com/webdevtedxuniversitasairlangga/providers"
 )
 
@@ -59,6 +60,7 @@ func main() {
 		categories.RegisterRoutes(v1, injector)
 		user.RegisterRoutes(v1, injector)
 		ticket.RegisterRoutes(v1, injector)
+		webhook.RegisterRoutes(v1, injector)
 	}
 
 	run(server)
