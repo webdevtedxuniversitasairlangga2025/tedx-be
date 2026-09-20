@@ -13,7 +13,7 @@ Pastikan 1 buyer 1 email beli 1..5 tiket tidak oversell, hold 15m lepas otomatis
 - Base URL: `http://localhost:8888/api/v1` (dev) atau `https://api.tedxuniversitasairlangga.com/api/v1` (prod via `docker exec`).
 
 ## 3. Flow yang diuji (end-to-end)
-`GET /tickets` → `POST /orders` (hold) → QRIS + `total` + countdown → `GET /orders/admin/all` → `PATCH approve/reject` → email 1 berisi 3 kode → `GET /orders/:id` → check-in scan.
+`GET /tickets` → `POST /orders` (hold) → QRIS + `total` + countdown → `PATCH /orders/:id/proof {payment_proof_url}` (upload screenshot) → `GET /orders/:id` cek `payment_proof_url` → `GET /orders/admin/all` lihat bukti → `PATCH approve/reject` → email 1 berisi 3 kode → `GET /orders/:id` → check-in scan.
 
 ## 4. Test Cases — checklist wajib centang
 | ID | Skenario | Langkah | Expected |
@@ -22,14 +22,18 @@ Pastikan 1 buyer 1 email beli 1..5 tiket tidak oversell, hold 15m lepas otomatis
 | TC02 | Avail 2 beli 3 | Setelah TC01 (left 1), `POST qty:3` | 400 `quota exceeded`, `held` tetap |
 | TC03 | War 2 buyer qty2 sisa 3 | `TIER quota 3` → 2 terminal bareng `POST qty:2` (TOKEN_A & B `&`) | Tepat 1x 201, 1x 400 `quota exceeded`, DB `held=2 left=1` |
 | TC04 | War 3 buyer qty1 sisa 3 | 3 terminal `qty:1` bareng | 3x 201 `held 3`, extra ke-4 `qty:1` → 400 |
-| TC05 | Approve race | 1 order `qty:2` → 2 admin `PATCH approve` bareng | 1x 200 `paid`, 1x 400 `order not awaiting approval`, `filled 2 held 0` |
-| TC06 | Approve happy 1 email 3 QR | `qty:3` → admin approve | 200 `paid` + 3 `ticket_code` unik, 1 email ke buyer berisi `Ticket 1: code... Ticket 2... Ticket 3...`, `GET /orders/:id` 3 kode |
-| TC07 | Reject lepas hold | `qty:2` → admin `PATCH reject {"reason":"nominal kurang"}` | 200 `rejected`, `held 0`, `left` balik |
-| TC08 | Expiry auto 15m | `qty:2` → `UPDATE orders SET expired_at=now()-1m` → tunggu 60s | `status expired`, `held 0`, next buyer bisa beli lagi |
-| TC09 | Validasi qty | `qty:0` / `qty:6` | 400 `quantity must be between` |
-| TC10 | Isolasi order | buyerA buat order → buyerB `GET /orders/:id` order A | 404 `order not found`, `GET /orders` buyerB hanya lihat miliknya |
-| TC11 | Sale window | tier `sale_end` lewat → `POST qty:1` | 400 `sale ended` |
-| TC12 | Tier inactive | `PATCH tier is_active:false` → `POST` | 400 `tier inactive` |
+| TC05 | Upload proof happy | `POST qty:2` → `PATCH /orders/:id/proof {"payment_proof_url":"https://example.com/bukti.jpg"}` | 200 `payment_proof_url` terisi, `GET /orders/:id` ada url |
+| TC06 | Upload proof expired | `POST qty:1` → `UPDATE expired_at` lalu `PATCH proof` | 400 `order expired` |
+| TC07 | Approve race | 1 order `qty:2` (sudah upload proof) → 2 admin `PATCH approve` bareng | 1x 200 `paid`, 1x 400 `order not awaiting approval`, `filled 2 held 0` |
+| TC08 | Approve happy 1 email 3 QR | `qty:3` upload proof → admin approve | 200 `paid` + 3 `ticket_code` unik, 1 email ke buyer berisi 3 kode, `GET /orders/:id` 3 kode |
+| TC09 | Reject lepas hold | `qty:2` → admin `PATCH reject {"reason":"nominal kurang"}` | 200 `rejected`, `held 0`, `left` balik |
+| TC10 | Expiry auto 15m | `qty:2` → `UPDATE orders SET expired_at=now()-1m` → tunggu 60s | `status expired`, `held 0`, next buyer bisa beli lagi |
+| TC11 | Validasi qty | `qty:0` / `qty:6` | 400 `quantity must be between` |
+| TC12 | Validasi proof url | `PATCH proof {"payment_proof_url":"not-a-url"}` | 400 `failed get data from body` |
+| TC13 | Isolasi order | buyerA buat order → buyerB `GET /orders/:id` order A | 404 `order not found`, `GET /orders` buyerB hanya lihat miliknya |
+| TC14 | Isolasi proof | buyerA order → buyerB `PATCH proof` order A | 404 `order not found` |
+| TC15 | Sale window | tier `sale_end` lewat → `POST qty:1` | 400 `sale ended` |
+| TC16 | Tier inactive | `PATCH tier is_active:false` → `POST` | 400 `tier inactive` |
 
 ## 5. Langkah War 2 Terminal (copy-paste)
 ```bash
@@ -42,7 +46,7 @@ wait
 Bruno: `Order/Create Order` ganti `tier_id`/`quantity` → Run 2 tab bareng.
 
 ## 6. Data yang dicatat per TC
-- `order_number`, `status`, `expired_at`, `held/filled/left` via `GET /tickets`, response code, `ticket_code` uniqueness.
+- `order_number`, `status`, `expired_at`, `payment_proof_url`, `held/filled/left` via `GET /tickets`, response code, `ticket_code` uniqueness.
 
 ## 7. Kriteria lulus
 - Tidak pernah `quota_left` minus / oversell, war selalu 1 sukses 1 gagal, approve selalu 1 email berisi N kode, expired selalu lepas dalam 1 menit, isolasi 404 benar.

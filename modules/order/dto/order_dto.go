@@ -12,6 +12,7 @@ const (
 	MESSAGE_FAILED_GET_ORDER            = "failed get order"
 	MESSAGE_FAILED_APPROVE_ORDER        = "failed approve order"
 	MESSAGE_FAILED_REJECT_ORDER         = "failed reject order"
+	MESSAGE_FAILED_UPLOAD_PROOF         = "failed upload payment proof"
 	MESSAGE_FAILED_RELEASE_EXPIRED      = "failed release expired holds"
 
 	MESSAGE_SUCCESS_CREATE_ORDER    = "success create order"
@@ -19,6 +20,7 @@ const (
 	MESSAGE_SUCCESS_GET_ORDER       = "success get order"
 	MESSAGE_SUCCESS_APPROVE_ORDER   = "success approve order"
 	MESSAGE_SUCCESS_REJECT_ORDER    = "success reject order"
+	MESSAGE_SUCCESS_UPLOAD_PROOF    = "success upload payment proof"
 	MESSAGE_SUCCESS_RELEASE_EXPIRED = "success release expired holds"
 )
 
@@ -55,6 +57,10 @@ type OrderRejectRequest struct {
 	Reason string `json:"reason" binding:"required,min=1,max=1000"`
 }
 
+type OrderUploadProofRequest struct {
+	PaymentProofURL string `json:"payment_proof_url" binding:"required,url,max=500"`
+}
+
 type AttendeeTicketResponse struct {
 	ID            string     `json:"id"`
 	OrderID       string     `json:"order_id"`
@@ -85,6 +91,7 @@ type OrderResponse struct {
 	ApprovedBy      *string                  `json:"approved_by"`
 	ApprovedAt      *time.Time               `json:"approved_at"`
 	RejectedReason  *string                  `json:"rejected_reason"`
+	PaymentProofURL *string                  `json:"payment_proof_url"`
 	CreatedAt       time.Time                `json:"created_at"`
 	UpdatedAt       time.Time                `json:"updated_at"`
 	AttendeeTickets []AttendeeTicketResponse `json:"attendee_tickets"`

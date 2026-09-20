@@ -17,6 +17,7 @@ type OrderHandler interface {
 	GetAll(ctx *gin.Context)
 	Approve(ctx *gin.Context)
 	Reject(ctx *gin.Context)
+	UploadProof(ctx *gin.Context)
 }
 
 type orderHandler struct {
@@ -128,5 +129,24 @@ func (h *orderHandler) Reject(ctx *gin.Context) {
 		return
 	}
 	res := utils.BuildResponseSuccess(dto.MESSAGE_SUCCESS_REJECT_ORDER, result)
+	ctx.JSON(http.StatusOK, res)
+}
+
+func (h *orderHandler) UploadProof(ctx *gin.Context) {
+	userID := ctx.MustGet("user_id").(string)
+	id := ctx.Param("id")
+	var req dto.OrderUploadProofRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_DATA_FROM_BODY, err.Error(), nil)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
+		return
+	}
+	result, err := h.orderService.UploadProof(ctx.Request.Context(), userID, id, req)
+	if err != nil {
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_UPLOAD_PROOF, err.Error(), nil)
+		ctx.JSON(http.StatusBadRequest, res)
+		return
+	}
+	res := utils.BuildResponseSuccess(dto.MESSAGE_SUCCESS_UPLOAD_PROOF, result)
 	ctx.JSON(http.StatusOK, res)
 }

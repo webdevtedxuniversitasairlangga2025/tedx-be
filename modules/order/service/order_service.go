@@ -25,6 +25,7 @@ type OrderService interface {
 	GetAll(ctx context.Context, filter dto.OrderFilter, req dto.PaginationRequest) (dto.OrderPaginationResponse, error)
 	Approve(ctx context.Context, adminID string, id string) (dto.OrderResponse, error)
 	Reject(ctx context.Context, adminID string, id string, req dto.OrderRejectRequest) (dto.OrderResponse, error)
+	UploadProof(ctx context.Context, userID string, id string, req dto.OrderUploadProofRequest) (dto.OrderResponse, error)
 	ReleaseExpiredHolds(ctx context.Context) (int64, error)
 }
 
@@ -91,6 +92,7 @@ func toOrderResponse(o entities.Order) dto.OrderResponse {
 		ApprovedBy:      approvedBy,
 		ApprovedAt:      o.ApprovedAt,
 		RejectedReason:  o.RejectedReason,
+		PaymentProofURL: o.PaymentProofURL,
 		CreatedAt:       o.CreatedAt,
 		UpdatedAt:       o.UpdatedAt,
 		AttendeeTickets: tickets,
@@ -356,7 +358,6 @@ func (s *orderService) Reject(ctx context.Context, adminID string, id string, re
 	if err != nil {
 		return dto.OrderResponse{}, dto.ErrInvalidUser
 	}
-	_ = adminUID
 	oid, err := uuid.Parse(id)
 	if err != nil {
 		return dto.OrderResponse{}, dto.ErrOrderNotFound
@@ -398,6 +399,36 @@ func (s *orderService) Reject(ctx context.Context, adminID string, id string, re
 		return dto.OrderResponse{}, err
 	}
 	return result, nil
+}
+
+func (s *orderService) UploadProof(ctx context.Context, userID string, id string, req dto.OrderUploadProofRequest) (dto.OrderResponse, error) {
+	uid, err := uuid.Parse(userID)
+	if err != nil {
+		return dto.OrderResponse{}, dto.ErrInvalidUser
+	}
+	oid, err := uuid.Parse(id)
+	if err != nil {
+		return dto.OrderResponse{}, dto.ErrOrderNotFound
+	}
+	order, err := s.repo.GetByID(ctx, nil, oid)
+	if err != nil {
+		return dto.OrderResponse{}, dto.ErrOrderNotFound
+	}
+	if order.UserID != uid {
+		return dto.OrderResponse{}, dto.ErrOrderNotFound
+	}
+	if order.Status != constants.ENUM_ORDER_STATUS_AWAITING_APPROVAL {
+		return dto.OrderResponse{}, dto.ErrOrderNotAwaitingApproval
+	}
+	if time.Now().After(order.ExpiredAt) {
+		return dto.OrderResponse{}, dto.ErrOrderExpired
+	}
+	order.PaymentProofURL = &req.PaymentProofURL
+	updated, err := s.repo.Update(ctx, nil, order)
+	if err != nil {
+		return dto.OrderResponse{}, err
+	}
+	return toOrderResponse(updated), nil
 }
 
 func (s *orderService) ReleaseExpiredHolds(ctx context.Context) (int64, error) {

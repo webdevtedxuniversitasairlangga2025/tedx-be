@@ -27,6 +27,7 @@ type Order struct {
 	ApprovedBy            *uuid.UUID      `gorm:"type:uuid;index"`
 	ApprovedAt            *time.Time      `gorm:"type:timestamp with time zone"`
 	RejectedReason        *string         `gorm:"type:text"`
+	PaymentProofURL       *string         `gorm:"size:500"`
 	User                  User            `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT"`
 	TicketTier            TicketTier      `gorm:"foreignKey:TicketTierID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT"`
 	ApprovedByUser        *User           `gorm:"foreignKey:ApprovedBy;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
