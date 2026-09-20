@@ -48,7 +48,7 @@ type AttendeeCreateRequest struct {
 type OrderCreateRequest struct {
 	TicketTierID string                  `json:"ticket_tier_id" binding:"required"`
 	Quantity     int                     `json:"quantity" binding:"required,min=1,max=5"`
-	Attendees    []AttendeeCreateRequest `json:"attendees" binding:"required,min=1,max=5,dive"`
+	Attendees    []AttendeeCreateRequest `json:"attendees" binding:"omitempty,dive"`
 }
 
 type OrderRejectRequest struct {

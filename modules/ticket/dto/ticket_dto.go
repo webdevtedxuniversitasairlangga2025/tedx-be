@@ -91,6 +91,7 @@ type TicketTierResponse struct {
 	Price       string     `json:"price"`
 	Quota       int        `json:"quota"`
 	QuotaFilled int        `json:"quota_filled"`
+	QuotaHeld   int        `json:"quota_held"`
 	QuotaLeft   int        `json:"quota_left"`
 	SaleStart   *time.Time `json:"sale_start"`
 	SaleEnd     *time.Time `json:"sale_end"`

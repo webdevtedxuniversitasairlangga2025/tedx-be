@@ -1,7 +1,9 @@
 package providers
 
 import (
+	"context"
 	"log"
+	"time"
 
 	"github.com/webdevtedxuniversitasairlangga/config"
 	"github.com/webdevtedxuniversitasairlangga/database"
@@ -21,6 +23,10 @@ import (
 	categoryHandler "github.com/webdevtedxuniversitasairlangga/modules/categories/handler"
 	categoryRepo "github.com/webdevtedxuniversitasairlangga/modules/categories/repository"
 	categoryService "github.com/webdevtedxuniversitasairlangga/modules/categories/service"
+
+	orderHandler "github.com/webdevtedxuniversitasairlangga/modules/order/handler"
+	orderRepo "github.com/webdevtedxuniversitasairlangga/modules/order/repository"
+	orderService "github.com/webdevtedxuniversitasairlangga/modules/order/service"
 
 	ticketHandler "github.com/webdevtedxuniversitasairlangga/modules/ticket/handler"
 	ticketRepo "github.com/webdevtedxuniversitasairlangga/modules/ticket/repository"
@@ -125,4 +131,20 @@ func RegisterDependencies(injector *do.Injector) {
 			return ticketHandler.NewTicketHandler(i, ticketSvc), nil
 		},
 	)
+
+	orderRepository := orderRepo.NewOrderRepository(db)
+	orderSvc := orderService.NewOrderService(orderRepository, db)
+
+	do.Provide(
+		injector, func(i *do.Injector) (orderHandler.OrderHandler, error) {
+			return orderHandler.NewOrderHandler(i, orderSvc), nil
+		},
+	)
+
+	go func() {
+		ticker := time.NewTicker(1 * time.Minute)
+		for range ticker.C {
+			orderSvc.ReleaseExpiredHolds(context.Background())
+		}
+	}()
 }
