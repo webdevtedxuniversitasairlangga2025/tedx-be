@@ -24,8 +24,12 @@ type Order struct {
 	PaymentType           *string         `gorm:"size:100"`
 	ExpiredAt             time.Time       `gorm:"type:timestamp with time zone;not null"`
 	PaidAt                *time.Time      `gorm:"type:timestamp with time zone"`
+	ApprovedBy            *uuid.UUID      `gorm:"type:uuid;index"`
+	ApprovedAt            *time.Time      `gorm:"type:timestamp with time zone"`
+	RejectedReason        *string         `gorm:"type:text"`
 	User                  User            `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT"`
 	TicketTier            TicketTier      `gorm:"foreignKey:TicketTierID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT"`
+	ApprovedByUser        *User           `gorm:"foreignKey:ApprovedBy;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
 
 	AttendeeTickets []AttendeeTicket
 

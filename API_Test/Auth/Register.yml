@@ -20,7 +20,7 @@ http:
 runtime:
   variables:
     - name: base_url
-      value: http://localhost:8888/api/v1
+      value: https://tedxuniversitasairlangga.com
     - name: email
       value: pelajarbintangrumy@gmail.com
     - name: password
@@ -31,3 +31,4 @@ settings:
   timeout: 0
   followRedirects: true
   maxRedirects: 5
+  forwardAuthorizationHeader: true
