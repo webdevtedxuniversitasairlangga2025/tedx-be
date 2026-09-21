@@ -12,7 +12,7 @@ with `samber/do` dependency injection.
 - **Auth:** JWT access tokens ([golang-jwt v4](https://github.com/golang-jwt/jwt)) + opaque refresh tokens
 - **DI:** [samber/do](https://github.com/samber/do)
 - **Config:** [godotenv](https://github.com/joho/godotenv) + [viper](https://github.com/spf13/viper)
-- **Email:** [Brevo](https://www.brevo.com) transactional API
+- **Email:** SMTP via [gomail.v2](https://gopkg.in/gomail.v2) (Gmail-compatible)
 - **Live reload (dev):** [air](https://github.com/air-verse/air)
 
 ## Project layout
@@ -65,11 +65,12 @@ and prints a TEDx banner.
 | `GOLANG_PORT` | HTTP port (default `8888`) |
 | `DB_HOST` / `DB_PORT` / `DB_USER` / `DB_PASS` / `DB_NAME` | PostgreSQL connection |
 | `JWT_SECRET` | HMAC secret for access tokens |
-| `BREVO_API_KEY` | Brevo transactional email API key |
-| `BREVO_SENDER_EMAIL` / `BREVO_SENDER_NAME` | Email sender identity |
+| `SMTP_HOST` / `SMTP_PORT` | SMTP server host and port (e.g. `smtp.gmail.com`, `587`) |
+| `SMTP_SENDER_NAME` | Email sender identity (e.g. `"TEDx Universitas Airlangga <no-reply@tedxunair.com>"`) |
+| `SMTP_AUTH_EMAIL` / `SMTP_AUTH_PASSWORD` | SMTP auth credentials |
 
-> `.env` is git-ignored. Email sending (verification, password reset) requires a
-> valid `BREVO_API_KEY`; without it those endpoints return an error.
+> `.env` is git-ignored. Email sending (verification, password reset) requires
+> valid `SMTP_*` values; without them those endpoints return an error.
 
 ## API
 

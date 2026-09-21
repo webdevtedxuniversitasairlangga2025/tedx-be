@@ -96,6 +96,10 @@ func (s *merchandiseService) GetByID(ctx context.Context, id uuid.UUID) (dto.Mer
 		return dto.MerchandiseResponse{}, err
 	}
 
+	if !merch.IsActive {
+		return dto.MerchandiseResponse{}, dto.ErrMerchandiseNotFound
+	}
+
 	return toResponse(*merch), nil
 }
 

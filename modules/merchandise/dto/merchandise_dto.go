@@ -25,6 +25,7 @@ const (
 )
 
 var (
+	ErrMerchandiseNotFound  = errors.New("merchandise not found")
 	ErrInvalidPrice       = errors.New("invalid price format")
 	ErrPriceOutOfRange    = errors.New("price must be between 0 and 99999999.99")
 	ErrMerchImageNotFound = errors.New("merchandise image not found")
@@ -47,7 +48,7 @@ type MerchandiseUpdateRequest struct {
 }
 
 type MerchImageRequest struct {
-	ImageURL string `json:"image_url" binding:"required"`
+	ImageURL string `json:"image_url" binding:"required,url,max=255"`
 }
 
 type MerchandiseFilter struct {
