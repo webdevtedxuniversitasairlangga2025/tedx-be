@@ -22,10 +22,9 @@ func Migrate(db *gorm.DB) error {
 		&entities.Order{},
 		&entities.AttendeeTicket{},
 	)
-	
 	if err != nil {
 		return err
 	}
-
+	db.Exec("ALTER TABLE merchandise DROP COLUMN IF EXISTS category")
 	return nil
 }
