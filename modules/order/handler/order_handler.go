@@ -28,6 +28,7 @@ type OrderHandler interface {
 	Approve(ctx *gin.Context)
 	Reject(ctx *gin.Context)
 	UploadProof(ctx *gin.Context)
+	ResendEmail(ctx *gin.Context)
 }
 
 type orderHandler struct {
@@ -248,5 +249,18 @@ func (h *orderHandler) UploadProof(ctx *gin.Context) {
 		return
 	}
 	res := utils.BuildResponseSuccess(dto.MESSAGE_SUCCESS_UPLOAD_PROOF, result)
+	ctx.JSON(http.StatusOK, res)
+}
+func (h *orderHandler) ResendEmail(ctx *gin.Context) {
+	orderID := ctx.Param("id")
+	adminID := ctx.MustGet("user_id").(string)
+
+	if err := h.orderService.ResendEmail(ctx.Request.Context(), adminID, orderID); err != nil {
+		res := utils.BuildResponseFailed("Failed to resend email", err.Error(), nil)
+		ctx.JSON(http.StatusBadRequest, res)
+		return
+	}
+
+	res := utils.BuildResponseSuccess("Email tiket berhasil dikirim ulang", nil)
 	ctx.JSON(http.StatusOK, res)
 }

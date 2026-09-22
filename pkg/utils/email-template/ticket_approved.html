@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <h2>Pembayaran Berhasil!</h2>
+    <p>Berikut adalah detail pesanan dan tiket kamu:</p>
+    
+    <table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; max-width: 600px;">
+        <tr style="background-color: #f2f2f2;">
+            <th>Order Number</th>
+            <th>Quantity</th>
+            <th>Total</th>
+        </tr>
+        <tr>
+            <td style="text-align: center;">{{.OrderNumber}}</td>
+            <td style="text-align: center;">{{.Quantity}}</td>
+            <td style="text-align: center;">{{.TotalAmount}}</td>
+        </tr>
+    </table>
+    <br>
+    <table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; max-width: 600px;">
+        <tr style="background-color: #f2f2f2;">
+            <th>Name</th>
+            <th>Ticket Code</th>
+            <th>QR Code</th>
+        </tr>
+        {{.TicketsHTML}}
+    </table>
+</body>
+</html>

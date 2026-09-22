@@ -5,17 +5,17 @@ info:
 
 http:
   method: PATCH
-  url: "{{base_url}}/orders/PASTE_ORDER_UUID/proof"
+  url: "{{base_url}}/orders/e4a0273e-b4e5-4081-b1b7-f895b0f60a9d/proof"
   body:
-    type: json
-    data: |-
-      {
-        "payment_proof_url": "https://example.com/bukti.jpg"
-      }
+    type: multipart-form
+    data:
+      - name: file
+        type: file
+        value:
+          - c:\Users\Ernest\OneDrive\Dokumen\TEDx Website\repo\tedx-be\API_Test\WIN_20260922_00_08_276_Pro.jpg
   auth:
     type: bearer
-    bearer:
-      token: "{{access_token}}"
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMDQyMDhhZmMtOGFmOS00YWE2LWFkNDgtOTQ5Y2RiYzQ5NmJlIiwicm9sZSI6InVzZXIiLCJpc3MiOiJUZW1wbGF0ZSIsImV4cCI6MTc5MDExMTk4NSwiaWF0IjoxNzkwMTExMDg1fQ.HyXdrUyI2vXqug_ni_EcbQE05u8TGUQ6YGqeoDL5DX4
 
 runtime:
   variables:

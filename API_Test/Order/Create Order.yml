@@ -10,13 +10,12 @@ http:
     type: json
     data: |-
       {
-        "ticket_tier_id": "PASTE_TIER_UUID",
-        "quantity": 2
+        "ticket_tier_id": "627647a3-662d-408c-8dc9-fb74b1a1e805",
+        "quantity": 3
       }
   auth:
     type: bearer
-    bearer:
-      token: "{{access_token}}"
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMDQyMDhhZmMtOGFmOS00YWE2LWFkNDgtOTQ5Y2RiYzQ5NmJlIiwicm9sZSI6InVzZXIiLCJpc3MiOiJUZW1wbGF0ZSIsImV4cCI6MTc5MDExMTk4NSwiaWF0IjoxNzkwMTExMDg1fQ.HyXdrUyI2vXqug_ni_EcbQE05u8TGUQ6YGqeoDL5DX4
 
 runtime:
   variables:

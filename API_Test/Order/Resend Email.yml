@@ -1,0 +1,17 @@
+info:
+  name: Resend Email
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: http://localhost:8888/api/v1/orders/e4a0273e-b4e5-4081-b1b7-f895b0f60a9d/resend-email
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMDE1MzRlYTUtN2Q5My00NjRiLWJlNzItYmQzNDM0OTFhNTBmIiwicm9sZSI6ImFkbWluIiwiaXNzIjoiVGVtcGxhdGUiLCJleHAiOjE3OTAxMTE4NjgsImlhdCI6MTc5MDExMDk2OH0.wBtt0mWHNUbxXbrnDqTqJYgAS_VwL6T_eGZmI2FF65Y
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

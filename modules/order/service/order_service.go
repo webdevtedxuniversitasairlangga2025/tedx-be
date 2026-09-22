@@ -3,10 +3,14 @@ package service
 import (
 	"context"
 	"crypto/rand"
+
 	"encoding/hex"
 	"fmt"
+	"html/template"
 	"log"
 	"time"
+
+	"github.com/skip2/go-qrcode"
 
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
@@ -27,6 +31,7 @@ type OrderService interface {
 	Reject(ctx context.Context, adminID string, id string, req dto.OrderRejectRequest) (dto.OrderResponse, error)
 	UploadProof(ctx context.Context, userID string, id string, req dto.OrderUploadProofRequest) (dto.OrderResponse, error)
 	ReleaseExpiredHolds(ctx context.Context) (int64, error)
+	ResendEmail(ctx context.Context, adminID string, id string) error
 }
 
 type orderService struct {
@@ -342,12 +347,43 @@ func (s *orderService) Approve(ctx context.Context, adminID string, id string) (
 		}
 	}
 	if buyerEmail != "" {
-		body := fmt.Sprintf("<p>Hello %s</p><p>Order %s approved. Quantity: %d</p>", buyerName, result.OrderNumber, result.Quantity)
-		for i, t := range result.AttendeeTickets {
-			body += fmt.Sprintf("<p>Ticket %d: <b>%s</b> — %s</p>", i+1, t.TicketCode, t.AttendeeName)
+		var ticketsHTML string
+		embeds := make(map[string][]byte)
+		for _, t := range result.AttendeeTickets {
+
+			png, err := qrcode.Encode(t.TicketCode, qrcode.Medium, 256)
+			if err != nil {
+				log.Printf("gagal generate qrcode untuk tiket %s: %v", t.TicketCode, err)
+				continue
+			}
+
+			filename := fmt.Sprintf("qr_%s.png", t.TicketCode)
+			embeds[filename] = png
+			imgTag := fmt.Sprintf(`<img src="cid:%s" width="256" height="256" alt="QR Code">`, filename)
+
+			ticketsHTML += fmt.Sprintf(`
+			<tr>
+				<td style="text-align: center;">%s</td>
+				<td style="text-align: center;">%s</td>
+				<td style="text-align: center;">%s</td>
+			</tr>`, t.AttendeeName, t.TicketCode, imgTag)
 		}
-		if err := utils.SendMail(buyerEmail, "TEDx Ticket Approved — "+result.OrderNumber, body); err != nil {
-			log.Printf("failed send ticket email to %s: %v", buyerEmail, err)
+
+		emailData := map[string]any{
+			"BuyerName":   buyerName,
+			"OrderNumber": result.OrderNumber,
+			"Quantity":    fmt.Sprintf("%d", result.Quantity),
+			"TotalAmount": result.TotalAmount,
+			"TicketsHTML": template.HTML(ticketsHTML),
+		}
+
+		body, err := utils.RenderEmailTemplate("ticket_approved.html", emailData)
+		if err != nil {
+			log.Printf("gagal render email template: %v", err)
+		} else {
+			if err := utils.SendMailWithEmbeds(buyerEmail, "TEDx Ticket Approved - "+result.OrderNumber, body, embeds); err != nil {
+				log.Printf("gagal kirim email tiket ke %s: %v", buyerEmail, err)
+			}
 		}
 	}
 	return result, nil
@@ -470,4 +506,83 @@ func (s *orderService) ReleaseExpiredHolds(ctx context.Context) (int64, error) {
 		}
 	}
 	return count, nil
+}
+func (s *orderService) ResendEmail(ctx context.Context, adminID string, id string) error {
+	_, err := uuid.Parse(adminID)
+	if err != nil {
+		return dto.ErrInvalidUser
+	}
+	oid, err := uuid.Parse(id)
+	if err != nil {
+		return dto.ErrOrderNotFound
+	}
+
+	order, err := s.repo.GetByID(ctx, nil, oid)
+	if err != nil {
+		return dto.ErrOrderNotFound
+	}
+
+	if order.Status != constants.ENUM_ORDER_STATUS_PAID {
+		return fmt.Errorf("hanya pesanan dengan status paid yang bisa dikirim ulang")
+	}
+
+	result := toOrderResponse(order)
+
+	var buyerEmail string
+	var buyerName string
+	if len(result.AttendeeTickets) > 0 {
+		buyerEmail = result.AttendeeTickets[0].AttendeeEmail
+		buyerName = result.AttendeeTickets[0].AttendeeName
+	} else {
+		var buyer entities.User
+		if err := s.db.WithContext(ctx).Where("id = ?", result.UserID).Take(&buyer).Error; err == nil {
+			buyerEmail = buyer.Email
+			buyerName = buyer.Name
+		}
+	}
+
+	if buyerEmail == "" {
+		return fmt.Errorf("email pembeli tidak ditemukan")
+	}
+
+	var ticketsHTML string
+	embeds := make(map[string][]byte)
+	for _, t := range result.AttendeeTickets {
+
+		png, err := qrcode.Encode(t.TicketCode, qrcode.Medium, 256)
+		if err != nil {
+			log.Printf("gagal generate qrcode untuk tiket %s: %v", t.TicketCode, err)
+			continue
+		}
+
+		filename := fmt.Sprintf("qr_%s.png", t.TicketCode)
+		embeds[filename] = png
+		imgTag := fmt.Sprintf(`<img src="cid:%s" width="256" height="256" alt="QR Code">`, filename)
+
+		ticketsHTML += fmt.Sprintf(`
+			<tr>
+				<td style="text-align: center;">%s</td>
+				<td style="text-align: center;">%s</td>
+				<td style="text-align: center;">%s</td>
+			</tr>`, t.AttendeeName, t.TicketCode, imgTag)
+	}
+
+	emailData := map[string]any{
+		"BuyerName":   buyerName,
+		"OrderNumber": result.OrderNumber,
+		"Quantity":    fmt.Sprintf("%d", result.Quantity),
+		"TotalAmount": result.TotalAmount,
+		"TicketsHTML": template.HTML(ticketsHTML),
+	}
+
+	body, err := utils.RenderEmailTemplate("ticket_approved.html", emailData)
+	if err != nil {
+		return fmt.Errorf("gagal render email template: %v", err)
+	}
+
+	if err := utils.SendMailWithEmbeds(buyerEmail, "TEDx Ticket Approved - "+result.OrderNumber, body, embeds); err != nil {
+		log.Printf("gagal kirim email tiket ke %s: %v", buyerEmail, err)
+	}
+
+	return nil
 }
