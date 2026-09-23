@@ -188,6 +188,17 @@ Notes:
 - `role` accepts `admin` or `user`; anything else returns `400`.
 - Deleting a user also revokes their refresh tokens.
 
+### Check-in — `/api/v1/checkins` (all require `Authorization: Bearer <access_token>` + role `admin`)
+
+| Method | Path | Body |
+|--------|------|------|
+| POST | `/scan` | `ticket_code` |
+
+The same endpoint accepts a code obtained from a phone scanner or entered manually.
+Only tickets whose order has status `paid` can check in. A successful scan marks the
+ticket as used atomically, so a second scan returns `409 Conflict`. A ticket from an
+unpaid order also returns `409 Conflict`; an unknown code returns `404 Not Found`.
+
 ### Auth flow
 
 1. Access tokens are HS256 JWTs, 15 min TTL, carry `user_id` + `role`.
@@ -197,7 +208,7 @@ Notes:
 ### 🧪 API Testing
 
 Project memakai **Bruno** (collection file-based di folder `API_Test/` pada repo backend).
-Sudah berisi request untuk Auth, Todo, Bundle, Merchandise & User. Setiap modul API baru
+Sudah berisi request untuk Auth, Todo, Bundle, Merchandise, User, Ticket, Order, dan Checkin. Setiap modul API baru
 **wajib menambahkan folder request-nya** ke `API_Test/`, mengikuti pola folder `Todo/`.
 Collection ikut di-commit dan di-review di branch `be`.
 

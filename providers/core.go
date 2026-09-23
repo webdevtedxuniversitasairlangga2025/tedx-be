@@ -24,6 +24,10 @@ import (
 	categoryRepo "github.com/webdevtedxuniversitasairlangga/modules/categories/repository"
 	categoryService "github.com/webdevtedxuniversitasairlangga/modules/categories/service"
 
+	checkInHandler "github.com/webdevtedxuniversitasairlangga/modules/checkin/handler"
+	checkInRepo "github.com/webdevtedxuniversitasairlangga/modules/checkin/repository"
+	checkInService "github.com/webdevtedxuniversitasairlangga/modules/checkin/service"
+
 	orderHandler "github.com/webdevtedxuniversitasairlangga/modules/order/handler"
 	orderRepo "github.com/webdevtedxuniversitasairlangga/modules/order/repository"
 	orderService "github.com/webdevtedxuniversitasairlangga/modules/order/service"
@@ -138,6 +142,15 @@ func RegisterDependencies(injector *do.Injector) {
 	do.Provide(
 		injector, func(i *do.Injector) (orderHandler.OrderHandler, error) {
 			return orderHandler.NewOrderHandler(i, orderSvc), nil
+		},
+	)
+
+	checkInRepository := checkInRepo.NewCheckInRepository(db)
+	checkInSvc := checkInService.NewCheckInService(checkInRepository, db)
+
+	do.Provide(
+		injector, func(i *do.Injector) (checkInHandler.CheckInHandler, error) {
+			return checkInHandler.NewCheckInHandler(i, checkInSvc), nil
 		},
 	)
 
