@@ -15,7 +15,7 @@ mengerjakan fitur pertamamu.
 | Auth | JWT access token ([golang-jwt v4](https://github.com/golang-jwt/jwt)) + refresh token opaque |
 | Dependency Injection | [samber/do](https://github.com/samber/do) |
 | Config | [godotenv](https://github.com/joho/godotenv) + [viper](https://github.com/spf13/viper) |
-| Email | [Brevo](https://www.brevo.com) transactional API |
+| Email | SMTP via [gomail.v2](https://gopkg.in/gomail.v2) (Gmail-compatible) |
 | Live reload (dev) | [air](https://github.com/air-verse/air) |
 
 ---

@@ -55,7 +55,8 @@ func toTierResponse(t entities.TicketTier) dto.TicketTierResponse {
 		Price:       t.Price.StringFixed(2),
 		Quota:       t.Quota,
 		QuotaFilled: t.QuotaFilled,
-		QuotaLeft:   t.Quota - t.QuotaFilled,
+		QuotaHeld:   t.QuotaHeld,
+		QuotaLeft:   t.Quota - t.QuotaFilled - t.QuotaHeld,
 		SaleStart:   t.SaleStart,
 		SaleEnd:     t.SaleEnd,
 		IsActive:    t.IsActive,
@@ -202,7 +203,7 @@ func (s *ticketService) UpdateTier(ctx context.Context, ticketId, tierId uuid.UU
 		tier.Price = price
 	}
 	if req.Quota != nil {
-		if *req.Quota < tier.QuotaFilled {
+		if *req.Quota < tier.QuotaFilled+tier.QuotaHeld {
 			return dto.TicketTierResponse{}, dto.ErrQuotaBelowFilled
 		}
 		tier.Quota = *req.Quota

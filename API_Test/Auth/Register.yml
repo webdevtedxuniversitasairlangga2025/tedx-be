@@ -10,17 +10,17 @@ http:
     type: json
     data: |-
       {
-        "name": "Rizal Admin",
-        "email": "mohamad.rizal.nurochman-2024@fst.unair.ac.id",
+        "name": "Admin TEDxUA",
+        "email": "admin@tedxunair.com",
         "password": "password123",
-        "role":"admin"
+        "role": "admin"
       }
   auth: inherit
 
 runtime:
   variables:
     - name: base_url
-      value: http://localhost:8888/api/v1
+      value: https://tedxuniversitasairlangga.com
     - name: email
       value: pelajarbintangrumy@gmail.com
     - name: password

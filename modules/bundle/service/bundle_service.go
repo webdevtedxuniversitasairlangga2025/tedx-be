@@ -132,6 +132,10 @@ func (s *bundleService) GetByID(ctx context.Context, id string) (dto.BundleDetai
 		return dto.BundleDetailResponse{}, dto.ErrBundleNotFound
 	}
 
+	if !bundle.IsActive {
+		return dto.BundleDetailResponse{}, dto.ErrBundleNotFound
+	}
+
 	return toDetailResponse(bundle), nil
 }
 

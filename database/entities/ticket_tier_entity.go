@@ -15,6 +15,7 @@ type TicketTier struct {
 	Price       decimal.Decimal	`gorm:"type:numeric(10,2);not null"`
 	Quota       int             `gorm:"not null;default:0"`
 	QuotaFilled int             `gorm:"not null;default:0"`
+	QuotaHeld   int             `gorm:"not null;default:0"`
 	SaleStart   *time.Time      `gorm:"type:timestamp with time zone"`
 	SaleEnd     *time.Time      `gorm:"type:timestamp with time zone"`
 	IsActive    bool            `gorm:"default:true"`

@@ -10,12 +10,14 @@ const (
 	ENUM_PAGINATION_PER_PAGE = 10
 	ENUM_PAGINATION_PAGE     = 1
 
-	ENUM_ORDER_STATUS_PENDING 	= "pending"
-	ENUM_ORDER_STATUS_PAID 		= "paid"
-	ENUM_ORDER_STATUS_FAILED 	= "failed"
-	ENUM_ORDER_STATUS_CANCELLED 	= "cancelled"
-	ENUM_ORDER_STATUS_EXPIRED	= "expired"
-	ENUM_ORDER_STATUS_REFUNDED 	= "refunded"
+	ENUM_ORDER_STATUS_PENDING           = "pending"
+	ENUM_ORDER_STATUS_AWAITING_APPROVAL = "awaiting_approval"
+	ENUM_ORDER_STATUS_PAID              = "paid"
+	ENUM_ORDER_STATUS_REJECTED          = "rejected"
+	ENUM_ORDER_STATUS_FAILED            = "failed"
+	ENUM_ORDER_STATUS_CANCELLED         = "cancelled"
+	ENUM_ORDER_STATUS_EXPIRED           = "expired"
+	ENUM_ORDER_STATUS_REFUNDED          = "refunded"
 
 	ENUM_AUDIENCE_TYPE_UNAIR 	= "unair"
 	ENUM_AUDIENCE_TYPE_UMUM 	= "umum"
