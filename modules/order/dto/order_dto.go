@@ -35,6 +35,7 @@ var (
 	ErrQuantityOutOfRange       = errors.New("quantity must be between 1 and 5")
 	ErrOrderNotAwaitingApproval = errors.New("order not awaiting approval")
 	ErrOrderExpired             = errors.New("order expired")
+	ErrOrderProofRequired       = errors.New("payment proof required before approve")
 	ErrAttendeesCountMismatch   = errors.New("attendees count must match quantity")
 	ErrInvalidUser              = errors.New("invalid user id")
 )

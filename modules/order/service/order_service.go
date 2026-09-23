@@ -298,6 +298,10 @@ func (s *orderService) Approve(ctx context.Context, adminID string, id string) (
 		if time.Now().After(order.ExpiredAt) {
 			return dto.ErrOrderExpired
 		}
+		// wajib bukti bayar sebelum approve (audit)
+		if order.PaymentProofURL == nil || *order.PaymentProofURL == "" {
+			return dto.ErrOrderProofRequired
+		}
 		tier, err := s.repo.GetTierForUpdate(ctx, tx, order.TicketTierID)
 		if err != nil {
 			return dto.ErrTicketTierNotFound
