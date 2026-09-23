@@ -10,7 +10,14 @@ var (
 	ErrInvalidChecker         = errors.New("invalid checker id")
 	ErrAttendeeTicketNotFound = errors.New("attendee ticket not found")
 	ErrTicketAlreadyUsed      = errors.New("ticket already used")
+	ErrTicketNotPaid          = errors.New("ticket order is not paid")
 	ErrCheckInNotApplied      = errors.New("ticket check-in was not applied")
+)
+
+const (
+	MESSAGE_FAILED_GET_DATA_FROM_BODY = "failed get data from body"
+	MESSAGE_FAILED_CHECK_IN           = "failed check in ticket"
+	MESSAGE_SUCCESS_CHECK_IN          = "success check in ticket"
 )
 
 type CheckInRequest struct {

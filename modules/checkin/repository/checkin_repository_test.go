@@ -196,3 +196,29 @@ func TestCheckInRepositoryConcurrentMarkAsUsed(t *testing.T) {
 		t.Fatalf("stored ticket checker = %v, want %v", stored.CheckedBy, successfulTicket.CheckedBy)
 	}
 }
+
+func TestCheckInRepositoryDoesNotCheckInUnpaidOrder(t *testing.T) {
+	db := integrationDatabase(t)
+	repo := NewCheckInRepository(db)
+	fixture, checkers := createAttendeeTicket(t, db, uuid.NewString())
+
+	if err := db.Model(&entities.Order{}).Where("id = ?", fixture.OrderID).Update("status", "awaiting_approval").Error; err != nil {
+		t.Fatalf("set order awaiting approval: %v", err)
+	}
+
+	_, updated, err := repo.MarkAsUsed(context.Background(), nil, fixture.TicketCode, checkers[0])
+	if err != nil {
+		t.Fatalf("MarkAsUsed() error = %v", err)
+	}
+	if updated {
+		t.Fatal("MarkAsUsed() updated = true, want false for unpaid order")
+	}
+
+	stored, err := repo.FindByTicketCode(context.Background(), nil, fixture.TicketCode)
+	if err != nil {
+		t.Fatalf("FindByTicketCode() error = %v", err)
+	}
+	if stored.IsUsed {
+		t.Fatal("ticket is_used = true, want false")
+	}
+}

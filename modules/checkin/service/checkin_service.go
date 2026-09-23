@@ -10,6 +10,7 @@ import (
 	"github.com/webdevtedxuniversitasairlangga/database/entities"
 	"github.com/webdevtedxuniversitasairlangga/modules/checkin/dto"
 	"github.com/webdevtedxuniversitasairlangga/modules/checkin/repository"
+	"github.com/webdevtedxuniversitasairlangga/pkg/constants"
 	"gorm.io/gorm"
 )
 
@@ -68,6 +69,9 @@ func (s *checkInService) CheckIn(ctx context.Context, checkerID string, req dto.
 	}
 	if ticket.IsUsed {
 		return dto.CheckInResponse{}, dto.ErrTicketAlreadyUsed
+	}
+	if ticket.Order.Status != constants.ENUM_ORDER_STATUS_PAID {
+		return dto.CheckInResponse{}, dto.ErrTicketNotPaid
 	}
 
 	return dto.CheckInResponse{}, dto.ErrCheckInNotApplied
