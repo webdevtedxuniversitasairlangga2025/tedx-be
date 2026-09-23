@@ -13,6 +13,7 @@ import (
 type OrderRepository interface {
 	Create(ctx context.Context, tx *gorm.DB, order entities.Order) (entities.Order, error)
 	GetByID(ctx context.Context, tx *gorm.DB, id uuid.UUID) (entities.Order, error)
+	GetByIDForUpdate(ctx context.Context, tx *gorm.DB, id uuid.UUID) (entities.Order, error)
 	GetAllByUserID(ctx context.Context, tx *gorm.DB, userID uuid.UUID, limit, offset int) ([]entities.Order, int64, error)
 	GetAll(ctx context.Context, tx *gorm.DB, status *string, limit, offset int) ([]entities.Order, int64, error)
 	Update(ctx context.Context, tx *gorm.DB, order entities.Order) (entities.Order, error)
@@ -20,6 +21,7 @@ type OrderRepository interface {
 	UpdateTier(ctx context.Context, tx *gorm.DB, tier entities.TicketTier) error
 	CreateAttendeeTickets(ctx context.Context, tx *gorm.DB, tickets []entities.AttendeeTicket) error
 	FindExpiredAwaitingApproval(ctx context.Context, tx *gorm.DB) ([]entities.Order, error)
+	MarkTicketsSent(ctx context.Context, orderID uuid.UUID) error
 }
 
 type orderRepository struct {
@@ -49,6 +51,15 @@ func (r *orderRepository) GetByID(ctx context.Context, tx *gorm.DB, id uuid.UUID
 	db := r.dbOrTx(tx)
 	var order entities.Order
 	if err := db.WithContext(ctx).Preload("AttendeeTickets").Where("id = ?", id).Take(&order).Error; err != nil {
+		return entities.Order{}, err
+	}
+	return order, nil
+}
+
+func (r *orderRepository) GetByIDForUpdate(ctx context.Context, tx *gorm.DB, id uuid.UUID) (entities.Order, error) {
+	db := r.dbOrTx(tx)
+	var order entities.Order
+	if err := db.WithContext(ctx).Clauses(clause.Locking{Strength: "UPDATE"}).Preload("AttendeeTickets").Where("id = ?", id).Take(&order).Error; err != nil {
 		return entities.Order{}, err
 	}
 	return order, nil
@@ -119,4 +130,10 @@ func (r *orderRepository) FindExpiredAwaitingApproval(ctx context.Context, tx *g
 		return nil, err
 	}
 	return orders, nil
+}
+
+func (r *orderRepository) MarkTicketsSent(ctx context.Context, orderID uuid.UUID) error {
+	return r.db.WithContext(ctx).Model(&entities.AttendeeTicket{}).
+		Where("order_id = ?", orderID).
+		Updates(map[string]any{"is_sent": true, "sent_at": time.Now()}).Error
 }

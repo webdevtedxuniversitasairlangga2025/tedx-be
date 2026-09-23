@@ -287,7 +287,7 @@ func (s *orderService) Approve(ctx context.Context, adminID string, id string) (
 	}
 	var result dto.OrderResponse
 	err = s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		order, err := s.repo.GetByID(ctx, tx, oid)
+		order, err := s.repo.GetByIDForUpdate(ctx, tx, oid)
 		if err != nil {
 			return dto.ErrOrderNotFound
 		}
@@ -336,15 +336,13 @@ func (s *orderService) Approve(ctx context.Context, adminID string, id string) (
 	}
 	var buyerEmail string
 	var buyerName string
-	if len(result.AttendeeTickets) > 0 {
+	var buyer entities.User
+	if err := s.db.WithContext(ctx).Where("id = ?", result.UserID).Take(&buyer).Error; err == nil {
+		buyerEmail = buyer.Email
+		buyerName = buyer.Name
+	} else if len(result.AttendeeTickets) > 0 {
 		buyerEmail = result.AttendeeTickets[0].AttendeeEmail
 		buyerName = result.AttendeeTickets[0].AttendeeName
-	} else {
-		var buyer entities.User
-		if err := s.db.WithContext(ctx).Where("id = ?", result.UserID).Take(&buyer).Error; err == nil {
-			buyerEmail = buyer.Email
-			buyerName = buyer.Name
-		}
 	}
 	if buyerEmail != "" {
 		var ticketsHTML string
@@ -377,13 +375,12 @@ func (s *orderService) Approve(ctx context.Context, adminID string, id string) (
 			"TicketsHTML": template.HTML(ticketsHTML),
 		}
 
-		body, err := utils.RenderEmailTemplate("ticket_approved.html", emailData)
-		if err != nil {
+		if body, err := utils.RenderEmailTemplate("ticket_approved.html", emailData); err != nil {
 			log.Printf("gagal render email template: %v", err)
+		} else if err := utils.SendMailWithEmbeds(buyerEmail, "TEDx Ticket Approved - "+result.OrderNumber, body, embeds); err != nil {
+			log.Printf("gagal kirim email tiket ke %s: %v", buyerEmail, err)
 		} else {
-			if err := utils.SendMailWithEmbeds(buyerEmail, "TEDx Ticket Approved - "+result.OrderNumber, body, embeds); err != nil {
-				log.Printf("gagal kirim email tiket ke %s: %v", buyerEmail, err)
-			}
+			_ = s.repo.MarkTicketsSent(ctx, uuid.MustParse(result.ID))
 		}
 	}
 	return result, nil
@@ -400,7 +397,7 @@ func (s *orderService) Reject(ctx context.Context, adminID string, id string, re
 	}
 	var result dto.OrderResponse
 	err = s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		order, err := s.repo.GetByID(ctx, tx, oid)
+		order, err := s.repo.GetByIDForUpdate(ctx, tx, oid)
 		if err != nil {
 			return dto.ErrOrderNotFound
 		}
@@ -475,7 +472,7 @@ func (s *orderService) ReleaseExpiredHolds(ctx context.Context) (int64, error) {
 	var count int64
 	for _, o := range orders {
 		err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-			fresh, err := s.repo.GetByID(ctx, tx, o.ID)
+			fresh, err := s.repo.GetByIDForUpdate(ctx, tx, o.ID)
 			if err != nil {
 				return nil
 			}
@@ -530,15 +527,13 @@ func (s *orderService) ResendEmail(ctx context.Context, adminID string, id strin
 
 	var buyerEmail string
 	var buyerName string
-	if len(result.AttendeeTickets) > 0 {
+	var buyer entities.User
+	if err := s.db.WithContext(ctx).Where("id = ?", result.UserID).Take(&buyer).Error; err == nil {
+		buyerEmail = buyer.Email
+		buyerName = buyer.Name
+	} else if len(result.AttendeeTickets) > 0 {
 		buyerEmail = result.AttendeeTickets[0].AttendeeEmail
 		buyerName = result.AttendeeTickets[0].AttendeeName
-	} else {
-		var buyer entities.User
-		if err := s.db.WithContext(ctx).Where("id = ?", result.UserID).Take(&buyer).Error; err == nil {
-			buyerEmail = buyer.Email
-			buyerName = buyer.Name
-		}
 	}
 
 	if buyerEmail == "" {
@@ -564,7 +559,7 @@ func (s *orderService) ResendEmail(ctx context.Context, adminID string, id strin
 				<td style="text-align: center;">%s</td>
 				<td style="text-align: center;">%s</td>
 				<td style="text-align: center;">%s</td>
-			</tr>`, t.AttendeeName, t.TicketCode, imgTag)
+			</tr>`, template.HTMLEscapeString(t.AttendeeName), t.TicketCode, imgTag)
 	}
 
 	emailData := map[string]any{
@@ -581,8 +576,9 @@ func (s *orderService) ResendEmail(ctx context.Context, adminID string, id strin
 	}
 
 	if err := utils.SendMailWithEmbeds(buyerEmail, "TEDx Ticket Approved - "+result.OrderNumber, body, embeds); err != nil {
-		log.Printf("gagal kirim email tiket ke %s: %v", buyerEmail, err)
+		return fmt.Errorf("gagal kirim email tiket ke %s: %v", buyerEmail, err)
 	}
+	_ = s.repo.MarkTicketsSent(ctx, oid)
 
 	return nil
 }

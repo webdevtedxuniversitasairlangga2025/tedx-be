@@ -11,6 +11,7 @@ import (
 	"gopkg.in/gomail.v2"
 )
 
+//go:embed email-template/*.html
 var emailTemplates embed.FS
 
 func RenderEmailTemplate[T any](templateName string, data T) (string, error) {
