@@ -14,11 +14,15 @@ type TicketRepository interface {
 	Create(ctx context.Context, ticket *entities.Ticket) (*entities.Ticket, error)
 	Update(ctx context.Context, ticket *entities.Ticket) error
 	Delete(ctx context.Context, id uuid.UUID) error
+	SoftDelete(ctx context.Context, id uuid.UUID) error
 
 	FindTierByID(ctx context.Context, id uuid.UUID) (*entities.TicketTier, error)
 	CreateTier(ctx context.Context, tier *entities.TicketTier) error
 	UpdateTier(ctx context.Context, tier *entities.TicketTier) error
 	DeleteTier(ctx context.Context, ticketId, tierId uuid.UUID) (int64, error)
+	SoftDeleteTier(ctx context.Context, ticketId, tierId uuid.UUID) error
+	CountTierOrders(ctx context.Context, tierID uuid.UUID) (int64, error)
+	CountTicketOrders(ctx context.Context, ticketID uuid.UUID) (int64, error)
 }
 
 type ticketRepositoryImpl struct {
@@ -77,6 +81,20 @@ func (r *ticketRepositoryImpl) Delete(ctx context.Context, id uuid.UUID) error {
 	})
 }
 
+// SoftDelete — nonaktifkan ticket + tier (paket audit; orders tidak boleh cascade).
+func (r *ticketRepositoryImpl) SoftDelete(ctx context.Context, id uuid.UUID) error {
+	return r.db.WithContext(ctx).Transaction(func(t *gorm.DB) error {
+		if err := t.Model(&entities.TicketTier{}).
+			Where("ticket_id = ?", id).
+			Update("is_active", false).Error; err != nil {
+			return err
+		}
+		return t.Model(&entities.Ticket{}).
+			Where("id = ?", id).
+			Update("is_active", false).Error
+	})
+}
+
 func (r *ticketRepositoryImpl) FindTierByID(ctx context.Context, id uuid.UUID) (*entities.TicketTier, error) {
 	var tier entities.TicketTier
 
@@ -100,4 +118,30 @@ func (r *ticketRepositoryImpl) DeleteTier(ctx context.Context, ticketId, tierId 
 		Delete(&entities.TicketTier{})
 
 	return result.RowsAffected, result.Error
+}
+
+func (r *ticketRepositoryImpl) SoftDeleteTier(ctx context.Context, ticketId, tierId uuid.UUID) error {
+	return r.db.WithContext(ctx).
+		Model(&entities.TicketTier{}).
+		Where("id = ? AND ticket_id = ?", tierId, ticketId).
+		Update("is_active", false).Error
+}
+
+func (r *ticketRepositoryImpl) CountTierOrders(ctx context.Context, tierID uuid.UUID) (int64, error) {
+	var n int64
+	err := r.db.WithContext(ctx).
+		Model(&entities.Order{}).
+		Where("ticket_tier_id = ?", tierID).
+		Count(&n).Error
+	return n, err
+}
+
+func (r *ticketRepositoryImpl) CountTicketOrders(ctx context.Context, ticketID uuid.UUID) (int64, error) {
+	var n int64
+	err := r.db.WithContext(ctx).
+		Model(&entities.Order{}).
+		Joins("JOIN ticket_tiers ON ticket_tiers.id = orders.ticket_tier_id").
+		Where("ticket_tiers.ticket_id = ?", ticketID).
+		Count(&n).Error
+	return n, err
 }

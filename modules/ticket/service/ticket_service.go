@@ -152,6 +152,14 @@ func (s *ticketService) Delete(ctx context.Context, id uuid.UUID) error {
 	if _, err := s.repo.FindByID(ctx, id); err != nil {
 		return dto.ErrTicketNotFound
 	}
+	// ponytail: orders FK RESTRICT — ada order → soft-delete, tanpa order → hard delete
+	n, err := s.repo.CountTicketOrders(ctx, id)
+	if err != nil {
+		return err
+	}
+	if n > 0 {
+		return s.repo.SoftDelete(ctx, id)
+	}
 	return s.repo.Delete(ctx, id)
 }
 
@@ -229,6 +237,14 @@ func (s *ticketService) UpdateTier(ctx context.Context, ticketId, tierId uuid.UU
 }
 
 func (s *ticketService) DeleteTier(ctx context.Context, ticketId, tierId uuid.UUID) error {
+	// ponytail: orders FK RESTRICT + docs audit — tier berorder → nonaktif, tanpa order → hard delete
+	n, err := s.repo.CountTierOrders(ctx, tierId)
+	if err != nil {
+		return err
+	}
+	if n > 0 {
+		return s.repo.SoftDeleteTier(ctx, ticketId, tierId)
+	}
 	affected, err := s.repo.DeleteTier(ctx, ticketId, tierId)
 	if err != nil {
 		return err
