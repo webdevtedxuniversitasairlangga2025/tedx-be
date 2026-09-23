@@ -366,7 +366,7 @@ func (s *orderService) Approve(ctx context.Context, adminID string, id string) (
 				<td style="text-align: center;">%s</td>
 				<td style="text-align: center;">%s</td>
 				<td style="text-align: center;">%s</td>
-			</tr>`, t.AttendeeName, t.TicketCode, imgTag)
+			</tr>`, template.HTMLEscapeString(t.AttendeeName), t.TicketCode, imgTag)
 		}
 
 		emailData := map[string]any{

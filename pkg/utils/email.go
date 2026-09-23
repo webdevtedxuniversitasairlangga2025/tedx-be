@@ -2,40 +2,22 @@ package utils
 
 import (
 	"bytes"
+	"embed"
 	"fmt"
 	"html/template"
 	"io"
-	"os"
-	"path/filepath"
 
 	"github.com/webdevtedxuniversitasairlangga/config"
 	"gopkg.in/gomail.v2"
 )
 
+var emailTemplates embed.FS
+
 func RenderEmailTemplate[T any](templateName string, data T) (string, error) {
-	possiblePaths := []string{
-		filepath.Join("pkg", "utils", "email-template", templateName),
-		filepath.Join("utils", "email-template", templateName),
-		filepath.Join("email-template", templateName),
-	}
-
-	var tplPath string
-	for _, p := range possiblePaths {
-		if _, err := os.Stat(p); err == nil {
-			tplPath = p
-			break
-		}
-	}
-
-	if tplPath == "" {
-		return "", fmt.Errorf("template file %s tidak ditemukan", templateName)
-	}
-
-	tpl, err := template.ParseFiles(tplPath)
+	tpl, err := template.ParseFS(emailTemplates, "email-template/"+templateName)
 	if err != nil {
 		return "", err
 	}
-
 	var body bytes.Buffer
 	if err := tpl.Execute(&body, data); err != nil {
 		return "", err

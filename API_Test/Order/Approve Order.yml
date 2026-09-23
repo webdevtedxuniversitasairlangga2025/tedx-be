@@ -8,7 +8,8 @@ http:
   url: "{{base_url}}/orders/1a5fd685-b21c-4a9c-ab66-3b3afb7bda7d/approve"
   auth:
     type: bearer
-    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMDE1MzRlYTUtN2Q5My00NjRiLWJlNzItYmQzNDM0OTFhNTBmIiwicm9sZSI6ImFkbWluIiwiaXNzIjoiVGVtcGxhdGUiLCJleHAiOjE3OTAxMTA3ODEsImlhdCI6MTc5MDEwOTg4MX0.kDX4MoTsirTmmIQ8ljV-LZQwk7nxuf8en_41TnFy-dc
+    bearer:
+      token: "{{access_token}}"
 
 runtime:
   variables:
