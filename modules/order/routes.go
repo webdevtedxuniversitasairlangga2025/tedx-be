@@ -28,5 +28,6 @@ func RegisterRoutes(r *gin.RouterGroup, i *do.Injector) {
 		adminGroup.GET("/admin/all", orderHandler.GetAll)
 		adminGroup.PATCH("/:id/approve", orderHandler.Approve)
 		adminGroup.PATCH("/:id/reject", orderHandler.Reject)
+		adminGroup.POST("/:id/resend-email", orderHandler.ResendEmail)
 	}
 }

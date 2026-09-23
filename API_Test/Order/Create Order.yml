@@ -10,8 +10,8 @@ http:
     type: json
     data: |-
       {
-        "ticket_tier_id": "PASTE_TIER_UUID",
-        "quantity": 2
+        "ticket_tier_id": "627647a3-662d-408c-8dc9-fb74b1a1e805",
+        "quantity": 3
       }
   auth:
     type: bearer

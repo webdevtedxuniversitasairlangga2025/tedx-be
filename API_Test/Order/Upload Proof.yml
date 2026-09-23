@@ -5,13 +5,14 @@ info:
 
 http:
   method: PATCH
-  url: "{{base_url}}/orders/PASTE_ORDER_UUID/proof"
+  url: "{{base_url}}/orders/e4a0273e-b4e5-4081-b1b7-f895b0f60a9d/proof"
   body:
-    type: json
-    data: |-
-      {
-        "payment_proof_url": "https://example.com/bukti.jpg"
-      }
+    type: multipart-form
+    data:
+      - name: file
+        type: file
+        value:
+          - c:\Users\Ernest\OneDrive\Dokumen\TEDx Website\repo\tedx-be\API_Test\WIN_20260922_00_08_276_Pro.jpg
   auth:
     type: bearer
     bearer:
