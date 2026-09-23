@@ -107,7 +107,8 @@ func (r *orderRepository) Update(ctx context.Context, tx *gorm.DB, order entitie
 func (r *orderRepository) GetTierForUpdate(ctx context.Context, tx *gorm.DB, tierID uuid.UUID) (entities.TicketTier, error) {
 	db := r.dbOrTx(tx)
 	var tier entities.TicketTier
-	if err := db.WithContext(ctx).Clauses(clause.Locking{Strength: "UPDATE"}).Where("id = ?", tierID).Take(&tier).Error; err != nil {
+	// Unscoped: approve/reject/release tetap temukan tier soft-deleted (ada order FK); Create wajib cek DeletedAt sendiri
+	if err := db.WithContext(ctx).Unscoped().Clauses(clause.Locking{Strength: "UPDATE"}).Where("id = ?", tierID).Take(&tier).Error; err != nil {
 		return entities.TicketTier{}, err
 	}
 	return tier, nil

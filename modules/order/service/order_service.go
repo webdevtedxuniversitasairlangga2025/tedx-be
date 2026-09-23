@@ -126,8 +126,19 @@ func (s *orderService) Create(ctx context.Context, userID string, req dto.OrderC
 		if err != nil {
 			return dto.ErrTicketTierNotFound
 		}
+		// Unscoped di repo → Create harus tolak tier soft-deleted + parent nonaktif/hapus
+		if tier.DeletedAt.Valid {
+			return dto.ErrTicketTierNotFound
+		}
 		if !tier.IsActive {
 			return dto.ErrTicketTierInactive
+		}
+		var parent entities.Ticket
+		if err := tx.WithContext(ctx).First(&parent, "id = ?", tier.TicketID).Error; err != nil {
+			return dto.ErrTicketTierNotFound
+		}
+		if !parent.IsActive {
+			return dto.ErrTicketInactive
 		}
 		now := time.Now()
 		if tier.SaleStart != nil && now.Before(*tier.SaleStart) {
