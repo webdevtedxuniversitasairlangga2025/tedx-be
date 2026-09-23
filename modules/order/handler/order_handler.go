@@ -205,6 +205,12 @@ func (h *orderHandler) UploadProof(ctx *gin.Context) {
 	id := ctx.Param("id")
 	contentType := ctx.GetHeader("Content-Type")
 	if strings.HasPrefix(contentType, "multipart/form-data") {
+		// verifikasi kepemilikan dulu — jangan buang storage ImageKit utk order org lain
+		if _, err := h.orderService.GetByID(ctx.Request.Context(), userID, id); err != nil {
+			res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_UPLOAD_PROOF, err.Error(), nil)
+			ctx.JSON(http.StatusNotFound, res)
+			return
+		}
 		file, err := ctx.FormFile("file")
 		if err != nil {
 			res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_DATA_FROM_BODY, err.Error(), nil)

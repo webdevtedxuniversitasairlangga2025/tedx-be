@@ -83,11 +83,7 @@ func toTicketResponse(t entities.Ticket) dto.TicketResponse {
 }
 
 func (s *ticketService) GetAll(ctx context.Context, filter dto.TicketFilter) ([]dto.TicketResponse, error) {
-	if filter.IsActive == nil {
-		activeOnly := true
-		filter.IsActive = &activeOnly
-	}
-
+	// ponytail: nil = semua (admin list). Public FE sudah kirim is_active=true.
 	tickets, err := s.repo.FindAll(ctx, filter.IsActive)
 	if err != nil {
 		return nil, err
@@ -243,7 +239,14 @@ func (s *ticketService) DeleteTier(ctx context.Context, ticketId, tierId uuid.UU
 		return err
 	}
 	if n > 0 {
-		return s.repo.SoftDeleteTier(ctx, ticketId, tierId)
+		affected, err := s.repo.SoftDeleteTier(ctx, ticketId, tierId)
+		if err != nil {
+			return err
+		}
+		if affected == 0 {
+			return dto.ErrTicketTierNotFound
+		}
+		return nil
 	}
 	affected, err := s.repo.DeleteTier(ctx, ticketId, tierId)
 	if err != nil {

@@ -20,7 +20,7 @@ type TicketRepository interface {
 	CreateTier(ctx context.Context, tier *entities.TicketTier) error
 	UpdateTier(ctx context.Context, tier *entities.TicketTier) error
 	DeleteTier(ctx context.Context, ticketId, tierId uuid.UUID) (int64, error)
-	SoftDeleteTier(ctx context.Context, ticketId, tierId uuid.UUID) error
+	SoftDeleteTier(ctx context.Context, ticketId, tierId uuid.UUID) (int64, error)
 	CountTierOrders(ctx context.Context, tierID uuid.UUID) (int64, error)
 	CountTicketOrders(ctx context.Context, ticketID uuid.UUID) (int64, error)
 }
@@ -120,11 +120,12 @@ func (r *ticketRepositoryImpl) DeleteTier(ctx context.Context, ticketId, tierId 
 	return result.RowsAffected, result.Error
 }
 
-func (r *ticketRepositoryImpl) SoftDeleteTier(ctx context.Context, ticketId, tierId uuid.UUID) error {
-	return r.db.WithContext(ctx).
+func (r *ticketRepositoryImpl) SoftDeleteTier(ctx context.Context, ticketId, tierId uuid.UUID) (int64, error) {
+	res := r.db.WithContext(ctx).
 		Model(&entities.TicketTier{}).
 		Where("id = ? AND ticket_id = ?", tierId, ticketId).
-		Update("is_active", false).Error
+		Update("is_active", false)
+	return res.RowsAffected, res.Error
 }
 
 func (r *ticketRepositoryImpl) CountTierOrders(ctx context.Context, tierID uuid.UUID) (int64, error) {

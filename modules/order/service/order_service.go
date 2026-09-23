@@ -238,6 +238,9 @@ func (s *orderService) GetMyOrders(ctx context.Context, userID string, req dto.P
 	if req.PerPage <= 0 {
 		req.PerPage = constants.ENUM_PAGINATION_PER_PAGE
 	}
+	if req.PerPage > 100 {
+		req.PerPage = 100 // ponytail: cap — cegah per_page=100000
+	}
 	offset := (req.Page - 1) * req.PerPage
 	orders, total, err := s.repo.GetAllByUserID(ctx, nil, uid, req.PerPage, offset)
 	if err != nil {
@@ -260,6 +263,9 @@ func (s *orderService) GetAll(ctx context.Context, filter dto.OrderFilter, req d
 	}
 	if req.PerPage <= 0 {
 		req.PerPage = constants.ENUM_PAGINATION_PER_PAGE
+	}
+	if req.PerPage > 100 {
+		req.PerPage = 100
 	}
 	offset := (req.Page - 1) * req.PerPage
 	orders, total, err := s.repo.GetAll(ctx, nil, filter.Status, req.PerPage, offset)
@@ -311,8 +317,9 @@ func (s *orderService) Approve(ctx context.Context, adminID string, id string) (
 		} else {
 			tier.QuotaHeld -= order.Quantity
 		}
+		// setelah lepas hold order ini: sisa kuota harus muat quantity (bukan cuma >= 0)
 		available := tier.Quota - tier.QuotaFilled - tier.QuotaHeld
-		if available < 0 {
+		if available < order.Quantity {
 			return dto.ErrQuotaExceeded
 		}
 		tier.QuotaFilled += order.Quantity
