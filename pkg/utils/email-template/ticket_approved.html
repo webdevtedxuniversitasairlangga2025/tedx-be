@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html>
-<body>
-    <h2>Pembayaran Berhasil!</h2>
-    <p>Berikut adalah detail pesanan dan tiket kamu:</p>
+<body style="font-family: Arial, sans-serif; color: #222;">
+    <h2>Payment Verified</h2>
+    <p>Your payment has been successfully verified!</p>
+    <p>Please present the barcode below at the event venue for ticket verification and entry.</p>
     
     <table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; max-width: 600px;">
         <tr style="background-color: #f2f2f2;">
@@ -25,5 +26,8 @@
         </tr>
         {{.TicketsHTML}}
     </table>
+
+    <p><strong>Keep this ticket safe</strong> and make sure the barcode is clearly visible when entering the event.</p>
+    <p>See you at <strong>Pre-Event 2, TEDxUniversitasAirlangga</strong>!</p>
 </body>
 </html>
