@@ -32,6 +32,7 @@ type OrderService interface {
 	UploadProof(ctx context.Context, userID string, id string, req dto.OrderUploadProofRequest) (dto.OrderResponse, error)
 	ReleaseExpiredHolds(ctx context.Context) (int64, error)
 	ResendEmail(ctx context.Context, adminID string, id string) error
+	GetProofURL(ctx context.Context, id string) (string, error)
 }
 
 type orderService struct {
@@ -504,6 +505,21 @@ func (s *orderService) ReleaseExpiredHolds(ctx context.Context) (int64, error) {
 	}
 	return count, nil
 }
+func (s *orderService) GetProofURL(ctx context.Context, id string) (string, error) {
+	oid, err := uuid.Parse(id)
+	if err != nil {
+		return "", dto.ErrOrderNotFound
+	}
+	order, err := s.repo.GetByID(ctx, nil, oid)
+	if err != nil {
+		return "", dto.ErrOrderNotFound
+	}
+	if order.PaymentProofURL == nil || *order.PaymentProofURL == "" {
+		return "", fmt.Errorf("payment proof not uploaded")
+	}
+	return *order.PaymentProofURL, nil
+}
+
 func (s *orderService) ResendEmail(ctx context.Context, adminID string, id string) error {
 	_, err := uuid.Parse(adminID)
 	if err != nil {

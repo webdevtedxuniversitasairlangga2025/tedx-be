@@ -26,6 +26,7 @@ func RegisterRoutes(r *gin.RouterGroup, i *do.Injector) {
 	adminGroup.Use(middlewares.Authenticate(jwtSvc), middlewares.AuthorizeAdmin(jwtSvc))
 	{
 		adminGroup.GET("/admin/all", orderHandler.GetAll)
+		adminGroup.GET("/:id/proof", orderHandler.GetProof)
 		adminGroup.PATCH("/:id/approve", orderHandler.Approve)
 		adminGroup.PATCH("/:id/reject", orderHandler.Reject)
 		adminGroup.POST("/:id/resend-email", orderHandler.ResendEmail)

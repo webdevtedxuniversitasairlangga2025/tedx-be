@@ -8,9 +8,11 @@ import (
 	"io"
 	"mime/multipart"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -29,6 +31,7 @@ type OrderHandler interface {
 	Reject(ctx *gin.Context)
 	UploadProof(ctx *gin.Context)
 	ResendEmail(ctx *gin.Context)
+	GetProof(ctx *gin.Context)
 }
 
 type orderHandler struct {
@@ -263,4 +266,58 @@ func (h *orderHandler) ResendEmail(ctx *gin.Context) {
 
 	res := utils.BuildResponseSuccess("Email tiket berhasil dikirim ulang", nil)
 	ctx.JSON(http.StatusOK, res)
+}
+
+// proofHostAllowed — allowlist anti-SSRF: hanya host ImageKit yang boleh di-proxy.
+func proofHostAllowed(host string) bool {
+	return host == "ik.imagekit.io" || strings.HasSuffix(host, ".imagekit.io")
+}
+
+// GetProof — stream gambar bukti bayar lewat domain BE (admin),
+// agar tetap bisa dibuka walau ik.imagekit.io diblokir/DNS-hijack di jaringan pemanggil.
+func (h *orderHandler) GetProof(ctx *gin.Context) {
+	proofURL, err := h.orderService.GetProofURL(ctx.Request.Context(), ctx.Param("id"))
+	if err != nil {
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_ORDER, err.Error(), nil)
+		ctx.JSON(http.StatusNotFound, res)
+		return
+	}
+
+	u, err := url.Parse(proofURL)
+	if err != nil || u.Scheme != "https" || !proofHostAllowed(u.Hostname()) {
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_ORDER, "invalid proof host", nil)
+		ctx.JSON(http.StatusBadRequest, res)
+		return
+	}
+
+	client := &http.Client{
+		Timeout: 10 * time.Second,
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse // jangan ikut redirect (SSRF via redirect)
+		},
+	}
+	req, err := http.NewRequestWithContext(ctx.Request.Context(), http.MethodGet, proofURL, nil)
+	if err != nil {
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_ORDER, err.Error(), nil)
+		ctx.JSON(http.StatusBadGateway, res)
+		return
+	}
+	resp, err := client.Do(req)
+	if err != nil {
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_ORDER, err.Error(), nil)
+		ctx.JSON(http.StatusBadGateway, res)
+		return
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_ORDER, fmt.Sprintf("upstream %d", resp.StatusCode), nil)
+		ctx.JSON(http.StatusBadGateway, res)
+		return
+	}
+
+	contentType := resp.Header.Get("Content-Type")
+	if contentType == "" {
+		contentType = "image/jpeg"
+	}
+	ctx.DataFromReader(http.StatusOK, resp.ContentLength, contentType, resp.Body, nil)
 }
