@@ -6,10 +6,11 @@ import (
 )
 
 type Ticket struct {
-	ID          uuid.UUID `gorm:"type:uuid;primaryKey;default:uuid_generate_v4()"`
-	Name        string    `gorm:"size:255;not null"`
-	Description string    `gorm:"type:text;not null"`
-	IsActive    bool      `gorm:"default:true"`
+	ID          uuid.UUID      `gorm:"type:uuid;primaryKey;default:uuid_generate_v4()"`
+	Name        string         `gorm:"size:255;not null"`
+	Description string         `gorm:"type:text;not null"`
+	IsActive    bool           `gorm:"default:true"`
+	DeletedAt   gorm.DeletedAt `gorm:"index" json:"deleted_at"`
 
 	TicketTiers []TicketTier
 

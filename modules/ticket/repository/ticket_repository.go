@@ -73,25 +73,20 @@ func (r *ticketRepositoryImpl) Update(ctx context.Context, ticket *entities.Tick
 
 func (r *ticketRepositoryImpl) Delete(ctx context.Context, id uuid.UUID) error {
 	return r.db.WithContext(ctx).Transaction(func(t *gorm.DB) error {
-		if err := t.Where("ticket_id = ?", id).Delete(&entities.TicketTier{}).Error; err != nil {
+		if err := t.Unscoped().Where("ticket_id = ?", id).Delete(&entities.TicketTier{}).Error; err != nil {
 			return err
 		}
-
-		return t.Where("id = ?", id).Delete(&entities.Ticket{}).Error
+		return t.Unscoped().Where("id = ?", id).Delete(&entities.Ticket{}).Error
 	})
 }
 
-// SoftDelete — nonaktifkan ticket + tier (paket audit; orders tidak boleh cascade).
+// SoftDelete — set deleted_at (hilang dari list admin+user; row tetap utk FK order).
 func (r *ticketRepositoryImpl) SoftDelete(ctx context.Context, id uuid.UUID) error {
 	return r.db.WithContext(ctx).Transaction(func(t *gorm.DB) error {
-		if err := t.Model(&entities.TicketTier{}).
-			Where("ticket_id = ?", id).
-			Update("is_active", false).Error; err != nil {
+		if err := t.Delete(&entities.Ticket{}, id).Error; err != nil {
 			return err
 		}
-		return t.Model(&entities.Ticket{}).
-			Where("id = ?", id).
-			Update("is_active", false).Error
+		return nil
 	})
 }
 
@@ -122,9 +117,8 @@ func (r *ticketRepositoryImpl) DeleteTier(ctx context.Context, ticketId, tierId 
 
 func (r *ticketRepositoryImpl) SoftDeleteTier(ctx context.Context, ticketId, tierId uuid.UUID) (int64, error) {
 	res := r.db.WithContext(ctx).
-		Model(&entities.TicketTier{}).
 		Where("id = ? AND ticket_id = ?", tierId, ticketId).
-		Update("is_active", false)
+		Delete(&entities.TicketTier{})
 	return res.RowsAffected, res.Error
 }
 

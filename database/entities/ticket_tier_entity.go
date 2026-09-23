@@ -19,6 +19,7 @@ type TicketTier struct {
 	SaleStart   *time.Time      `gorm:"type:timestamp with time zone"`
 	SaleEnd     *time.Time      `gorm:"type:timestamp with time zone"`
 	IsActive    bool            `gorm:"default:true"`
+	DeletedAt   gorm.DeletedAt  `gorm:"index" json:"deleted_at"`
 	Ticket      Ticket          `gorm:"foreignKey:TicketID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 
 	Orders []Order
