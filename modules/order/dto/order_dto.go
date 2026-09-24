@@ -14,6 +14,7 @@ const (
 	MESSAGE_FAILED_REJECT_ORDER         = "failed reject order"
 	MESSAGE_FAILED_UPLOAD_PROOF         = "failed upload payment proof"
 	MESSAGE_FAILED_RELEASE_EXPIRED      = "failed release expired holds"
+	MESSAGE_FAILED_DELETE_ORDER         = "failed delete order"
 
 	MESSAGE_SUCCESS_CREATE_ORDER    = "success create order"
 	MESSAGE_SUCCESS_GET_LIST_ORDER  = "success get list order"
@@ -22,6 +23,7 @@ const (
 	MESSAGE_SUCCESS_REJECT_ORDER    = "success reject order"
 	MESSAGE_SUCCESS_UPLOAD_PROOF    = "success upload payment proof"
 	MESSAGE_SUCCESS_RELEASE_EXPIRED = "success release expired holds"
+	MESSAGE_SUCCESS_DELETE_ORDER    = "success delete order"
 )
 
 var (
@@ -52,6 +54,9 @@ type OrderCreateRequest struct {
 	TicketTierID string                  `json:"ticket_tier_id" binding:"required"`
 	Quantity     int                     `json:"quantity" binding:"required,min=1,max=5"`
 	Attendees    []AttendeeCreateRequest `json:"attendees" binding:"omitempty,dive"`
+	// buyer_phone dari form IdentifyStepper — simpan ke users.telp_number bila kosong
+	// (buyer_phone di response = users.telp_number, bukan field order)
+	BuyerPhone *string `json:"buyer_phone" binding:"omitempty,max=20"`
 }
 
 type OrderRejectRequest struct {
@@ -81,6 +86,9 @@ type AttendeeTicketResponse struct {
 type OrderResponse struct {
 	ID              string                   `json:"id"`
 	UserID          string                   `json:"user_id"`
+	BuyerName       string                   `json:"buyer_name"`
+	BuyerPhone      *string                  `json:"buyer_phone"`
+	BuyerEmail      string                   `json:"buyer_email"`
 	TicketTierID    string                   `json:"ticket_tier_id"`
 	OrderNumber     string                   `json:"order_number"`
 	Quantity        int                      `json:"quantity"`

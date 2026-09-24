@@ -12,6 +12,9 @@ services:
         condition: service_healthy
     expose:
       - "8888"
+    ports:
+      # lokal testing: FE dev → http://localhost:8888
+      - "8888:8888"
     environment:
       - APP_ENV=production
       - GIN_MODE=release

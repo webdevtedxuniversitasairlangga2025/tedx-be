@@ -31,5 +31,6 @@ func RegisterRoutes(r *gin.RouterGroup, i *do.Injector) {
 		adminGroup.PATCH("/:id/reject", orderHandler.Reject)
 		adminGroup.POST("/:id/resend-email", orderHandler.ResendEmail)
 		adminGroup.GET("/admin/export", orderHandler.Export)
+		adminGroup.DELETE("/:id", orderHandler.Delete)
 	}
 }

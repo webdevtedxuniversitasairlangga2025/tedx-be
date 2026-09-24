@@ -31,6 +31,7 @@ type Order struct {
 	User                  User            `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT"`
 	TicketTier            TicketTier      `gorm:"foreignKey:TicketTierID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT"`
 	ApprovedByUser        *User           `gorm:"foreignKey:ApprovedBy;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
+	DeletedAt             gorm.DeletedAt  `gorm:"index" json:"deleted_at"`
 
 	AttendeeTickets []AttendeeTicket
 

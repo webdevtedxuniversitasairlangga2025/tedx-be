@@ -35,6 +35,7 @@ type OrderService interface {
 	ResendEmail(ctx context.Context, adminID string, id string) error
 	GetProofURL(ctx context.Context, id string) (string, error)
 	ExportExcel(ctx context.Context) ([]byte, error)
+	Delete(ctx context.Context, id string) error
 }
 
 type orderService struct {
@@ -115,6 +116,9 @@ func toOrderResponse(o entities.Order) dto.OrderResponse {
 	return dto.OrderResponse{
 		ID:              o.ID.String(),
 		UserID:          o.UserID.String(),
+		BuyerName:       o.User.Name,
+		BuyerPhone:      o.User.TelpNumber,
+		BuyerEmail:      o.User.Email,
 		TicketTierID:    o.TicketTierID.String(),
 		OrderNumber:     o.OrderNumber,
 		Quantity:        o.Quantity,
@@ -221,6 +225,14 @@ func (s *orderService) Create(ctx context.Context, userID string, req dto.OrderC
 			var buyer entities.User
 			if err := tx.WithContext(ctx).Where("id = ?", uid).Take(&buyer).Error; err != nil {
 				return err
+			}
+			// ponytail: phone dari form IdentifyStepper → users.telp_number bila masih kosong
+			// (response buyer_phone = users.telp_number)
+			if req.BuyerPhone != nil && *req.BuyerPhone != "" && buyer.TelpNumber == nil {
+				buyer.TelpNumber = req.BuyerPhone
+				if err := tx.WithContext(ctx).Save(&buyer).Error; err != nil {
+					return err
+				}
 			}
 			phone := buyer.TelpNumber
 			for i := 0; i < req.Quantity; i++ {
@@ -574,10 +586,22 @@ func (s *orderService) GetProofURL(ctx context.Context, id string) (string, erro
 	if err != nil {
 		return "", dto.ErrOrderNotFound
 	}
-	if order.PaymentProofURL == nil || *order.PaymentProofURL == "" {
-		return "", fmt.Errorf("payment proof not uploaded")
+	if order.PaymentProofURL == nil {
+		return "", dto.ErrOrderProofRequired
 	}
 	return *order.PaymentProofURL, nil
+}
+
+// Delete — soft-delete history pembayaran (row tetap utk FK attendee)
+func (s *orderService) Delete(ctx context.Context, id string) error {
+	oid, err := uuid.Parse(id)
+	if err != nil {
+		return dto.ErrOrderNotFound
+	}
+	if _, err := s.repo.GetByID(ctx, nil, oid); err != nil {
+		return dto.ErrOrderNotFound
+	}
+	return s.repo.SoftDelete(ctx, nil, oid)
 }
 
 func (s *orderService) ResendEmail(ctx context.Context, adminID string, id string) error {

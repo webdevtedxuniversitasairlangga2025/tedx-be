@@ -33,6 +33,7 @@ type OrderHandler interface {
 	ResendEmail(ctx *gin.Context)
 	GetProof(ctx *gin.Context)
 	Export(ctx *gin.Context)
+	Delete(ctx *gin.Context)
 }
 
 type orderHandler struct {
@@ -340,4 +341,15 @@ func (h *orderHandler) Export(ctx *gin.Context) {
 	filename := fmt.Sprintf("orders-export-%s.xlsx", time.Now().Format("20060102-150405"))
 	ctx.Header("Content-Disposition", "attachment; filename="+filename)
 	ctx.Data(http.StatusOK, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", data)
+}
+
+func (h *orderHandler) Delete(ctx *gin.Context) {
+	id := ctx.Param("id")
+	if err := h.orderService.Delete(ctx.Request.Context(), id); err != nil {
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_DELETE_ORDER, err.Error(), nil)
+		ctx.JSON(http.StatusInternalServerError, res)
+		return
+	}
+	res := utils.BuildResponseSuccess(dto.MESSAGE_SUCCESS_DELETE_ORDER, nil)
+	ctx.JSON(http.StatusOK, res)
 }

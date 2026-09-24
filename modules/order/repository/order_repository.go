@@ -18,6 +18,7 @@ type OrderRepository interface {
 	GetAllForExport(ctx context.Context, tx *gorm.DB) ([]entities.Order, error)
 	GetAll(ctx context.Context, tx *gorm.DB, status *string, limit, offset int) ([]entities.Order, int64, error)
 	Update(ctx context.Context, tx *gorm.DB, order entities.Order) (entities.Order, error)
+	SoftDelete(ctx context.Context, tx *gorm.DB, id uuid.UUID) error
 	GetTierForUpdate(ctx context.Context, tx *gorm.DB, tierID uuid.UUID) (entities.TicketTier, error)
 	UpdateTier(ctx context.Context, tx *gorm.DB, tier entities.TicketTier) error
 	CreateAttendeeTickets(ctx context.Context, tx *gorm.DB, tickets []entities.AttendeeTicket) error
@@ -92,10 +93,15 @@ func (r *orderRepository) GetAll(ctx context.Context, tx *gorm.DB, status *strin
 		return nil, 0, err
 	}
 	var orders []entities.Order
-	if err := query.Preload("AttendeeTickets").Order("created_at desc").Limit(limit).Offset(offset).Find(&orders).Error; err != nil {
+	if err := query.Preload("AttendeeTickets").Preload("User").Order("created_at desc").Limit(limit).Offset(offset).Find(&orders).Error; err != nil {
 		return nil, 0, err
 	}
 	return orders, total, nil
+}
+
+// SoftDelete — sembunyikan history dari list (row tetap utk FK attendee).
+func (r *orderRepository) SoftDelete(ctx context.Context, tx *gorm.DB, id uuid.UUID) error {
+	return r.dbOrTx(tx).WithContext(ctx).Delete(&entities.Order{}, id).Error
 }
 
 func (r *orderRepository) GetAllForExport(ctx context.Context, tx *gorm.DB) ([]entities.Order, error) {
