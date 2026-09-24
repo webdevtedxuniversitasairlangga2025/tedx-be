@@ -59,6 +59,8 @@ type OrderCreateRequest struct {
 	// buyer_name dari form IdentifyStepper — koreksi users.name (tampil di admin)
 	// (email akun tidak diubah: identitas login + risiko konflik unique)
 	BuyerName *string `json:"buyer_name" binding:"omitempty,max=150"`
+	// buyer_email dari form IdentifyStepper — snapshot di orders.buyer_email (tujuan e-ticket)
+	BuyerEmail *string `json:"buyer_email" binding:"omitempty,email,max=225"`
 	// buyer_phone dari form IdentifyStepper — simpan ke users.telp_number bila kosong
 	// (buyer_phone di response = users.telp_number, bukan field order)
 	BuyerPhone *string `json:"buyer_phone" binding:"omitempty,max=20"`

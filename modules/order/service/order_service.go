@@ -114,12 +114,17 @@ func toOrderResponse(o entities.Order) dto.OrderResponse {
 		s := o.ApprovedBy.String()
 		approvedBy = &s
 	}
+	// BuyerEmail: email form (snapshot order) didahulukan, fallback email akun.
+	buyerEmail := o.User.Email
+	if o.BuyerEmail != nil && *o.BuyerEmail != "" {
+		buyerEmail = *o.BuyerEmail
+	}
 	return dto.OrderResponse{
 		ID:              o.ID.String(),
 		UserID:          o.UserID.String(),
 		BuyerName:       o.User.Name,
 		BuyerPhone:      o.User.TelpNumber,
-		BuyerEmail:      o.User.Email,
+		BuyerEmail:      buyerEmail,
 		TicketTierID:    o.TicketTierID.String(),
 		OrderNumber:     o.OrderNumber,
 		Quantity:        o.Quantity,
@@ -198,6 +203,7 @@ func (s *orderService) Create(ctx context.Context, userID string, req dto.OrderC
 			TotalAmount:  tier.Price.Mul(decimal.NewFromInt(int64(req.Quantity))),
 			Status:       constants.ENUM_ORDER_STATUS_AWAITING_APPROVAL,
 			ExpiredAt:    now.Add(15 * time.Minute),
+			BuyerEmail:   req.BuyerEmail,
 		}
 		saved, err := s.repo.Create(ctx, tx, order)
 		if err != nil {
@@ -243,6 +249,11 @@ func (s *orderService) Create(ctx context.Context, userID string, req dto.OrderC
 				}
 			}
 			phone := buyer.TelpNumber
+			// email tiket per baris ikut email form bila ada (fallback email akun)
+			attendeeEmail := buyer.Email
+			if req.BuyerEmail != nil && *req.BuyerEmail != "" {
+				attendeeEmail = *req.BuyerEmail
+			}
 			for i := 0; i < req.Quantity; i++ {
 				code, err := s.generateUniqueTicketCode(ctx, tx, reserved)
 				if err != nil {
@@ -253,7 +264,7 @@ func (s *orderService) Create(ctx context.Context, userID string, req dto.OrderC
 					OrderID:       saved.ID,
 					TicketCode:    code,
 					AttendeeName:  buyer.Name,
-					AttendeeEmail: buyer.Email,
+					AttendeeEmail: attendeeEmail,
 					AttendeePhone: phone,
 					AudienceType:  constants.ENUM_AUDIENCE_TYPE_UMUM,
 				})
@@ -417,10 +428,15 @@ func (s *orderService) Approve(ctx context.Context, adminID string, id string) (
 	var buyerEmail string
 	var buyerName string
 	var buyer entities.User
+	// Tujuan e-ticket: email form (result.BuyerEmail) didahulukan, fallback akun/attendee.
+	buyerEmail = result.BuyerEmail
 	if err := s.db.WithContext(ctx).Where("id = ?", result.UserID).Take(&buyer).Error; err == nil {
-		buyerEmail = buyer.Email
 		buyerName = buyer.Name
-	} else if len(result.AttendeeTickets) > 0 {
+		if buyerEmail == "" {
+			buyerEmail = buyer.Email
+		}
+	}
+	if buyerEmail == "" && len(result.AttendeeTickets) > 0 {
 		buyerEmail = result.AttendeeTickets[0].AttendeeEmail
 		buyerName = result.AttendeeTickets[0].AttendeeName
 	}
@@ -689,10 +705,15 @@ func (s *orderService) ResendEmail(ctx context.Context, adminID string, id strin
 	var buyerEmail string
 	var buyerName string
 	var buyer entities.User
+	// Tujuan e-ticket: email form (result.BuyerEmail) didahulukan, fallback akun/attendee.
+	buyerEmail = result.BuyerEmail
 	if err := s.db.WithContext(ctx).Where("id = ?", result.UserID).Take(&buyer).Error; err == nil {
-		buyerEmail = buyer.Email
 		buyerName = buyer.Name
-	} else if len(result.AttendeeTickets) > 0 {
+		if buyerEmail == "" {
+			buyerEmail = buyer.Email
+		}
+	}
+	if buyerEmail == "" && len(result.AttendeeTickets) > 0 {
 		buyerEmail = result.AttendeeTickets[0].AttendeeEmail
 		buyerName = result.AttendeeTickets[0].AttendeeName
 	}
