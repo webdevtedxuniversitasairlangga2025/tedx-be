@@ -36,6 +36,7 @@ type OrderService interface {
 	GetProofURL(ctx context.Context, id string) (string, error)
 	ExportExcel(ctx context.Context) ([]byte, error)
 	Delete(ctx context.Context, id string) error
+	Cancel(ctx context.Context, userID string, id string) (dto.OrderResponse, error)
 }
 
 type orderService struct {
@@ -226,10 +227,17 @@ func (s *orderService) Create(ctx context.Context, userID string, req dto.OrderC
 			if err := tx.WithContext(ctx).Where("id = ?", uid).Take(&buyer).Error; err != nil {
 				return err
 			}
-			// ponytail: phone dari form IdentifyStepper → users.telp_number bila masih kosong
-			// (response buyer_phone = users.telp_number)
-			if req.BuyerPhone != nil && *req.BuyerPhone != "" && buyer.TelpNumber == nil {
+			// ponytail: nama+phone dari form IdentifyStepper → profile buyer
+			// (buyer_name koreksi users.name utk kolom admin; email akun tidak diubah)
+			nameChanged := req.BuyerName != nil && *req.BuyerName != "" && *req.BuyerName != buyer.Name
+			phoneChanged := req.BuyerPhone != nil && *req.BuyerPhone != "" && buyer.TelpNumber == nil
+			if nameChanged {
+				buyer.Name = *req.BuyerName
+			}
+			if phoneChanged {
 				buyer.TelpNumber = req.BuyerPhone
+			}
+			if nameChanged || phoneChanged {
 				if err := tx.WithContext(ctx).Save(&buyer).Error; err != nil {
 					return err
 				}
@@ -535,6 +543,59 @@ func (s *orderService) UploadProof(ctx context.Context, userID string, id string
 		return dto.OrderResponse{}, err
 	}
 	return toOrderResponse(updated), nil
+}
+
+// Cancel — batalkan order awaiting milik sendiri dan lepas hold kuota.
+// Idempoten untuk status cancelled agar retry CONFIRM tidak menumpuk order.
+func (s *orderService) Cancel(ctx context.Context, userID string, id string) (dto.OrderResponse, error) {
+	uid, err := uuid.Parse(userID)
+	if err != nil {
+		return dto.OrderResponse{}, dto.ErrInvalidUser
+	}
+	oid, err := uuid.Parse(id)
+	if err != nil {
+		return dto.OrderResponse{}, dto.ErrOrderNotFound
+	}
+	var result dto.OrderResponse
+	err = s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		order, err := s.repo.GetByIDForUpdate(ctx, tx, oid)
+		if err != nil {
+			return dto.ErrOrderNotFound
+		}
+		if order.UserID != uid {
+			return dto.ErrOrderNotFound
+		}
+		if order.Status == constants.ENUM_ORDER_STATUS_CANCELLED {
+			result = toOrderResponse(order)
+			return nil
+		}
+		if order.Status != constants.ENUM_ORDER_STATUS_AWAITING_APPROVAL {
+			return dto.ErrOrderNotAwaitingApproval
+		}
+		tier, err := s.repo.GetTierForUpdate(ctx, tx, order.TicketTierID)
+		if err != nil {
+			return dto.ErrTicketTierNotFound
+		}
+		if tier.QuotaHeld >= order.Quantity {
+			tier.QuotaHeld -= order.Quantity
+		} else {
+			tier.QuotaHeld = 0
+		}
+		if err := s.repo.UpdateTier(ctx, tx, tier); err != nil {
+			return err
+		}
+		order.Status = constants.ENUM_ORDER_STATUS_CANCELLED
+		updated, err := s.repo.Update(ctx, tx, order)
+		if err != nil {
+			return err
+		}
+		result = toOrderResponse(updated)
+		return nil
+	})
+	if err != nil {
+		return dto.OrderResponse{}, err
+	}
+	return result, nil
 }
 
 func (s *orderService) ReleaseExpiredHolds(ctx context.Context) (int64, error) {

@@ -20,6 +20,7 @@ func RegisterRoutes(r *gin.RouterGroup, i *do.Injector) {
 		userGroup.GET("", orderHandler.GetMyOrders)
 		userGroup.GET("/:id", orderHandler.GetByID)
 		userGroup.PATCH("/:id/proof", orderHandler.UploadProof)
+		userGroup.POST("/:id/cancel", orderHandler.Cancel)
 	}
 
 	adminGroup := r.Group("/orders")

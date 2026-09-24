@@ -34,6 +34,7 @@ type OrderHandler interface {
 	GetProof(ctx *gin.Context)
 	Export(ctx *gin.Context)
 	Delete(ctx *gin.Context)
+	Cancel(ctx *gin.Context)
 }
 
 type orderHandler struct {
@@ -351,5 +352,24 @@ func (h *orderHandler) Delete(ctx *gin.Context) {
 		return
 	}
 	res := utils.BuildResponseSuccess(dto.MESSAGE_SUCCESS_DELETE_ORDER, nil)
+	ctx.JSON(http.StatusOK, res)
+}
+
+// Cancel — user batalkan order awaiting miliknya sendiri (lepas hold kuota).
+func (h *orderHandler) Cancel(ctx *gin.Context) {
+	userID := ctx.MustGet("user_id").(string)
+	id := ctx.Param("id")
+	result, err := h.orderService.Cancel(ctx.Request.Context(), userID, id)
+	if err != nil {
+		if err == dto.ErrOrderNotFound {
+			res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_CANCEL_ORDER, err.Error(), nil)
+			ctx.JSON(http.StatusNotFound, res)
+			return
+		}
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_CANCEL_ORDER, err.Error(), nil)
+		ctx.JSON(http.StatusBadRequest, res)
+		return
+	}
+	res := utils.BuildResponseSuccess(dto.MESSAGE_SUCCESS_CANCEL_ORDER, result)
 	ctx.JSON(http.StatusOK, res)
 }
