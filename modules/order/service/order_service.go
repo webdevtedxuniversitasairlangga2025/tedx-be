@@ -19,6 +19,7 @@ import (
 	"github.com/webdevtedxuniversitasairlangga/modules/order/repository"
 	"github.com/webdevtedxuniversitasairlangga/pkg/constants"
 	"github.com/webdevtedxuniversitasairlangga/pkg/utils"
+	"github.com/xuri/excelize/v2"
 	"gorm.io/gorm"
 )
 
@@ -33,6 +34,7 @@ type OrderService interface {
 	ReleaseExpiredHolds(ctx context.Context) (int64, error)
 	ResendEmail(ctx context.Context, adminID string, id string) error
 	GetProofURL(ctx context.Context, id string) (string, error)
+	ExportExcel(ctx context.Context) ([]byte, error)
 }
 
 type orderService struct {
@@ -620,4 +622,101 @@ func (s *orderService) ResendEmail(ctx context.Context, adminID string, id strin
 	_ = s.repo.MarkTicketsSent(ctx, oid)
 
 	return nil
+}
+
+func (s *orderService) ExportExcel(ctx context.Context) ([]byte, error) {
+	orders, err := s.repo.GetAllForExport(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	f := excelize.NewFile()
+	sheet := "Orders"
+	f.SetSheetName(f.GetSheetName(0), sheet)
+
+	headers := []string{
+		"Order ID", "Order Number", "User Name", "User Email",
+		"Ticket Name", "Tier", "Quantity", "Unit Price", "Total Amount",
+		"Status", "Expired At", "Paid At", "Approved By", "Approved At",
+		"Rejected Reason", "Payment Proof URL", "Order Created At", "Order Updated At",
+		"Ticket ID", "Ticket Code", "Attendee Name", "Attendee Email", "Attendee Phone",
+		"Audience Type", "Institution", "Is Sent", "Sent At",
+		"Is Used", "Used At", "Checked By", "Ticket Created At",
+	}
+	for i, h := range headers {
+		cell, _ := excelize.CoordinatesToCellName(i+1, 1)
+		f.SetCellValue(sheet, cell, h)
+	}
+
+	const layout = "2006-01-02 15:04:05"
+	row := 2
+	for _, o := range orders {
+		approvedBy, approvedAt, paidAt, rejectedReason, proofURL := "", "", "", "", ""
+		if o.ApprovedByUser != nil {
+			approvedBy = o.ApprovedByUser.Name
+		}
+		if o.ApprovedAt != nil {
+			approvedAt = o.ApprovedAt.Format(layout)
+		}
+		if o.PaidAt != nil {
+			paidAt = o.PaidAt.Format(layout)
+		}
+		if o.RejectedReason != nil {
+			rejectedReason = *o.RejectedReason
+		}
+		if o.PaymentProofURL != nil {
+			proofURL = *o.PaymentProofURL
+		}
+
+		tickets := o.AttendeeTickets
+		if len(tickets) == 0 {
+			tickets = []entities.AttendeeTicket{{}}
+		}
+
+		for _, t := range tickets {
+			phone, institution, sentAt, usedAt, checkedBy := "", "", "", "", ""
+			if t.AttendeePhone != nil {
+				phone = *t.AttendeePhone
+			}
+			if t.Institution != nil {
+				institution = *t.Institution
+			}
+			if t.SentAt != nil {
+				sentAt = t.SentAt.Format(layout)
+			}
+			if t.UsedAt != nil {
+				usedAt = t.UsedAt.Format(layout)
+			}
+			if t.CheckedByUser != nil {
+				checkedBy = t.CheckedByUser.Name
+			}
+			ticketID, ticketCode, ticketCreatedAt := "", "", ""
+			if t.ID != uuid.Nil {
+				ticketID = t.ID.String()
+				ticketCode = t.TicketCode
+				ticketCreatedAt = t.CreatedAt.Format(layout)
+			}
+			values := []any{
+				o.ID.String(), o.OrderNumber, o.User.Name, o.User.Email,
+				o.TicketTier.Ticket.Name, o.TicketTier.Tier, o.Quantity,
+				o.UnitPrice.String(), o.TotalAmount.String(), o.Status,
+				o.ExpiredAt.Format(layout), paidAt, approvedBy, approvedAt,
+				rejectedReason, proofURL, o.CreatedAt.Format(layout), o.UpdatedAt.Format(layout),
+				ticketID, ticketCode, t.AttendeeName, t.AttendeeEmail, phone,
+				t.AudienceType, institution, t.IsSent, sentAt,
+				t.IsUsed, usedAt, checkedBy, ticketCreatedAt,
+			}
+			for i, v := range values {
+				cell, _ := excelize.CoordinatesToCellName(i+1, row)
+				f.SetCellValue(sheet, cell, v)
+			}
+			row++
+		}
+	}
+
+	buf, err := f.WriteToBuffer()
+	if err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
 }

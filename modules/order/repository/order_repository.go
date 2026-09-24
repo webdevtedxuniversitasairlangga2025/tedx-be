@@ -15,6 +15,7 @@ type OrderRepository interface {
 	GetByID(ctx context.Context, tx *gorm.DB, id uuid.UUID) (entities.Order, error)
 	GetByIDForUpdate(ctx context.Context, tx *gorm.DB, id uuid.UUID) (entities.Order, error)
 	GetAllByUserID(ctx context.Context, tx *gorm.DB, userID uuid.UUID, limit, offset int) ([]entities.Order, int64, error)
+	GetAllForExport(ctx context.Context, tx *gorm.DB) ([]entities.Order, error)
 	GetAll(ctx context.Context, tx *gorm.DB, status *string, limit, offset int) ([]entities.Order, int64, error)
 	Update(ctx context.Context, tx *gorm.DB, order entities.Order) (entities.Order, error)
 	GetTierForUpdate(ctx context.Context, tx *gorm.DB, tierID uuid.UUID) (entities.TicketTier, error)
@@ -94,6 +95,21 @@ func (r *orderRepository) GetAll(ctx context.Context, tx *gorm.DB, status *strin
 		return nil, 0, err
 	}
 	return orders, total, nil
+}
+
+func (r *orderRepository) GetAllForExport(ctx context.Context, tx *gorm.DB) ([]entities.Order, error) {
+	db := r.dbOrTx(tx)
+	var orders []entities.Order
+	if err := db.WithContext(ctx).
+		Preload("User").
+		Preload("ApprovedByUser").
+		Preload("TicketTier.Ticket").
+		Preload("AttendeeTickets.CheckedByUser").
+		Order("created_at asc").
+		Find(&orders).Error; err != nil {
+		return nil, err
+	}
+	return orders, nil
 }
 
 func (r *orderRepository) Update(ctx context.Context, tx *gorm.DB, order entities.Order) (entities.Order, error) {

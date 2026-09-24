@@ -32,6 +32,7 @@ type OrderHandler interface {
 	UploadProof(ctx *gin.Context)
 	ResendEmail(ctx *gin.Context)
 	GetProof(ctx *gin.Context)
+	Export(ctx *gin.Context)
 }
 
 type orderHandler struct {
@@ -326,4 +327,17 @@ func (h *orderHandler) GetProof(ctx *gin.Context) {
 		contentType = "image/jpeg"
 	}
 	ctx.DataFromReader(http.StatusOK, resp.ContentLength, contentType, resp.Body, nil)
+}
+
+func (h *orderHandler) Export(ctx *gin.Context) {
+	data, err := h.orderService.ExportExcel(ctx.Request.Context())
+	if err != nil {
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_LIST_ORDER, err.Error(), nil)
+		ctx.JSON(http.StatusInternalServerError, res)
+		return
+	}
+
+	filename := fmt.Sprintf("orders-export-%s.xlsx", time.Now().Format("20060102-150405"))
+	ctx.Header("Content-Disposition", "attachment; filename="+filename)
+	ctx.Data(http.StatusOK, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", data)
 }
