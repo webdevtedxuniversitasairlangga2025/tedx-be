@@ -480,6 +480,7 @@ func (s *orderService) UploadProof(ctx context.Context, userID string, id string
 		return dto.OrderResponse{}, dto.ErrOrderExpired
 	}
 	order.PaymentProofURL = &req.PaymentProofURL
+	order.ExpiredAt = time.Now().Add(24 * time.Hour)
 	updated, err := s.repo.Update(ctx, nil, order)
 	if err != nil {
 		return dto.OrderResponse{}, err
