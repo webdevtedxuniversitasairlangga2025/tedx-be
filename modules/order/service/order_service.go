@@ -52,10 +52,36 @@ func generateOrderNumber() string {
 	return fmt.Sprintf("ORD-%s-%s", time.Now().Format("20060102"), hex.EncodeToString(b))
 }
 
-func generateTicketCode() string {
-	b := make([]byte, 16)
+const ticketCodeCharset = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+
+func randomTicketCode() string {
+	b := make([]byte, 6)
 	rand.Read(b)
-	return hex.EncodeToString(b)
+	code := make([]byte, 6)
+	for i, v := range b {
+		code[i] = ticketCodeCharset[int(v)%len(ticketCodeCharset)]
+	}
+	return string(code)
+}
+
+// generateUniqueTicketCode generate kode 6 karakter dan pastikan belum
+// dipakai di DB maupun di batch order yang sama (reserved).
+func (s *orderService) generateUniqueTicketCode(ctx context.Context, tx *gorm.DB, reserved map[string]bool) (string, error) {
+	for i := 0; i < 10; i++ {
+		code := randomTicketCode()
+		if reserved[code] {
+			continue
+		}
+		exists, err := s.repo.TicketCodeExists(ctx, tx, code)
+		if err != nil {
+			return "", err
+		}
+		if !exists {
+			reserved[code] = true
+			return code, nil
+		}
+	}
+	return "", fmt.Errorf("gagal generate kode tiket unik, coba lagi")
 }
 
 func toAttendeeResponse(a entities.AttendeeTicket) dto.AttendeeTicketResponse {
@@ -173,12 +199,17 @@ func (s *orderService) Create(ctx context.Context, userID string, req dto.OrderC
 			return err
 		}
 		tickets := make([]entities.AttendeeTicket, 0, req.Quantity)
+		reserved := make(map[string]bool)
 		if len(req.Attendees) > 0 {
 			for _, a := range req.Attendees {
+				code, err := s.generateUniqueTicketCode(ctx, tx, reserved)
+				if err != nil {
+					return err
+				}
 				tickets = append(tickets, entities.AttendeeTicket{
 					ID:            uuid.New(),
 					OrderID:       saved.ID,
-					TicketCode:    generateTicketCode(),
+					TicketCode:    code,
 					AttendeeName:  a.AttendeeName,
 					AttendeeEmail: a.AttendeeEmail,
 					AttendeePhone: a.AttendeePhone,
@@ -193,10 +224,14 @@ func (s *orderService) Create(ctx context.Context, userID string, req dto.OrderC
 			}
 			phone := buyer.TelpNumber
 			for i := 0; i < req.Quantity; i++ {
+				code, err := s.generateUniqueTicketCode(ctx, tx, reserved)
+				if err != nil {
+					return err
+				}
 				tickets = append(tickets, entities.AttendeeTicket{
 					ID:            uuid.New(),
 					OrderID:       saved.ID,
-					TicketCode:    generateTicketCode(),
+					TicketCode:    code,
 					AttendeeName:  buyer.Name,
 					AttendeeEmail: buyer.Email,
 					AttendeePhone: phone,

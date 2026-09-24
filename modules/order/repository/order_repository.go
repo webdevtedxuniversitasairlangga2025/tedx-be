@@ -23,6 +23,7 @@ type OrderRepository interface {
 	CreateAttendeeTickets(ctx context.Context, tx *gorm.DB, tickets []entities.AttendeeTicket) error
 	FindExpiredAwaitingApproval(ctx context.Context, tx *gorm.DB) ([]entities.Order, error)
 	MarkTicketsSent(ctx context.Context, orderID uuid.UUID) error
+	TicketCodeExists(ctx context.Context, tx *gorm.DB, code string) (bool, error)
 }
 
 type orderRepository struct {
@@ -153,4 +154,14 @@ func (r *orderRepository) MarkTicketsSent(ctx context.Context, orderID uuid.UUID
 	return r.db.WithContext(ctx).Model(&entities.AttendeeTicket{}).
 		Where("order_id = ?", orderID).
 		Updates(map[string]any{"is_sent": true, "sent_at": time.Now()}).Error
+}
+
+func (r *orderRepository) TicketCodeExists(ctx context.Context, tx *gorm.DB, code string) (bool, error) {
+	db := r.dbOrTx(tx)
+	var count int64
+	if err := db.WithContext(ctx).Model(&entities.AttendeeTicket{}).
+		Where("ticket_code = ?", code).Count(&count).Error; err != nil {
+		return false, err
+	}
+	return count > 0, nil
 }
