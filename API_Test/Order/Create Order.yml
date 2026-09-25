@@ -11,7 +11,10 @@ http:
     data: |-
       {
         "ticket_tier_id": "627647a3-662d-408c-8dc9-fb74b1a1e805",
-        "quantity": 3
+        "quantity": 3,
+        "buyer_name": "Nama dari form IdentifyStepper",
+        "buyer_email": "buyerForm@example.com",
+        "buyer_phone": "081234567890"
       }
   auth:
     type: bearer

@@ -342,13 +342,18 @@ Transaksi pembelian tiket lewat Midtrans. Satu order = pembelian satu tier denga
 | `quantity` | int | Jumlah tiket, **1–5 per order**. |
 | `unit_price` | decimal | **Snapshot** harga tier saat beli. |
 | `total_amount` | decimal | `unit_price × quantity`. |
-| `status` | varchar | `pending`, `paid`, `failed`, `cancelled`, `expired`, `refunded`. |
+| `status` | varchar | `pending`, `awaiting_approval`, `paid`, `failed`, `cancelled`, `expired`, `refunded`. |
+| `buyer_email` | varchar, nullable | Snapshot email form pembeli (tujuan e-ticket); `users.email` tidak diubah. |
+| `payment_proof_url` | varchar, nullable | URL bukti bayar (ImageKit). Wajib sebelum approve. |
 | `midtrans_transaction_id` | varchar, nullable | ID transaksi dari Midtrans. |
 | `snap_token` | varchar, nullable | Token Snap Midtrans. |
 | `snap_redirect_url` | varchar, nullable | URL halaman bayar Midtrans. |
 | `payment_type` | varchar, nullable | Metode bayar (VA, e-wallet, dll). |
 | `expired_at` | timestamptz | Batas waktu bayar (auto-cancel bila lewat). |
 | `paid_at` | timestamptz, nullable | Waktu pembayaran berhasil. |
+| `approved_by`, `approved_at` | uuid/timestamptz, nullable | Admin + waktu approve/reject. |
+| `rejected_reason` | text, nullable | Alasan reject. |
+| `deleted_at` | timestamptz, nullable | Soft-delete history (row tetap untuk FK attendee). |
 | `created_at`, `updated_at` | timestamptz | Audit waktu. |
 
 **Status order (state machine):**
