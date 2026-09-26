@@ -1,0 +1,28 @@
+info:
+  name: Scan Ticket with Typo
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: "{{base_url}}/checkins/scan"
+  body:
+    type: json
+    data: |-
+      {
+        "ticket_code": "K7P 2QX"
+      }
+  headers:
+    - name: Authorization
+      value: "Bearer {{access_token}}"
+
+runtime:
+  variables:
+    - name: base_url
+      value: http://localhost:8888/api/v1
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

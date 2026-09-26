@@ -16,8 +16,9 @@ var (
 
 const (
 	MESSAGE_FAILED_GET_DATA_FROM_BODY = "failed get data from body"
-	MESSAGE_FAILED_CHECK_IN           = "failed check in ticket"
-	MESSAGE_SUCCESS_CHECK_IN          = "success check in ticket"
+	MESSAGE_FAILED_CHECK_IN            = "failed check in ticket"
+	MESSAGE_FAILED_INVALID_TICKET_CODE = "invalid ticket code"
+	MESSAGE_SUCCESS_CHECK_IN           = "success check in ticket"
 )
 
 type CheckInRequest struct {
