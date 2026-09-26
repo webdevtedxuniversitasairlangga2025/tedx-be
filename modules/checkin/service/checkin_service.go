@@ -48,7 +48,7 @@ func (s *checkInService) CheckIn(ctx context.Context, checkerID string, req dto.
 	if err != nil || checkerUUID == uuid.Nil {
 		return dto.CheckInResponse{}, dto.ErrInvalidChecker
 	}
-	if strings.TrimSpace(req.TicketCode) == "" || utf8.RuneCountInString(req.TicketCode) > 255 {
+	if strings.TrimSpace(req.TicketCode) == "" || utf8.RuneCountInString(req.TicketCode) > 255 || strings.Contains(req.TicketCode, " ") {
 		return dto.CheckInResponse{}, dto.ErrInvalidTicketCode
 	}
 
@@ -68,7 +68,7 @@ func (s *checkInService) CheckIn(ctx context.Context, checkerID string, req dto.
 		return dto.CheckInResponse{}, err
 	}
 	if ticket.IsUsed {
-		return dto.CheckInResponse{}, dto.ErrTicketAlreadyUsed
+		return toResponse(ticket), dto.ErrTicketAlreadyUsed
 	}
 	if ticket.Order.Status != constants.ENUM_ORDER_STATUS_PAID {
 		return dto.CheckInResponse{}, dto.ErrTicketNotPaid

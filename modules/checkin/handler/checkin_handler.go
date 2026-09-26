@@ -34,12 +34,21 @@ func (h *checkInHandler) CheckIn(ctx *gin.Context) {
 	result, err := h.service.CheckIn(ctx.Request.Context(), ctx.MustGet("user_id").(string), req)
 	if err != nil {
 		status := http.StatusBadRequest
+		message := dto.MESSAGE_FAILED_CHECK_IN
+		var data interface{}
+
 		if errors.Is(err, dto.ErrAttendeeTicketNotFound) {
 			status = http.StatusNotFound
-		} else if errors.Is(err, dto.ErrTicketAlreadyUsed) || errors.Is(err, dto.ErrTicketNotPaid) {
+		} else if errors.Is(err, dto.ErrTicketAlreadyUsed) {
 			status = http.StatusConflict
+			data = result
+		} else if errors.Is(err, dto.ErrTicketNotPaid) {
+			status = http.StatusConflict
+		} else if errors.Is(err, dto.ErrInvalidTicketCode) {
+			message = dto.MESSAGE_FAILED_INVALID_TICKET_CODE
 		}
-		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_CHECK_IN, err.Error(), nil)
+
+		res := utils.BuildResponseFailed(message, err.Error(), data)
 		ctx.JSON(status, res)
 		return
 	}
