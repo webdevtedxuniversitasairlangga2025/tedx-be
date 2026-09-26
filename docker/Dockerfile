@@ -22,7 +22,7 @@ WORKDIR /app
 
 COPY --from=build /app/server /app/server
 
-RUN mkdir -p /app/config/logs && chown -R appuser:appgroup /app
+RUN mkdir -p /app/config/logs /app/uploads && chown -R appuser:appgroup /app
 
 USER appuser
 

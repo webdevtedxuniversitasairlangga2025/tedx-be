@@ -12,6 +12,7 @@ import (
 	"github.com/webdevtedxuniversitasairlangga/modules/bundle"
 	"github.com/webdevtedxuniversitasairlangga/modules/categories"
 	"github.com/webdevtedxuniversitasairlangga/modules/checkin"
+	"github.com/webdevtedxuniversitasairlangga/modules/files"
 	"github.com/webdevtedxuniversitasairlangga/modules/merchandise"
 	"github.com/webdevtedxuniversitasairlangga/modules/order"
 	"github.com/webdevtedxuniversitasairlangga/modules/ticket"
@@ -63,6 +64,7 @@ func main() {
 		ticket.RegisterRoutes(v1, injector)
 		order.RegisterRoutes(v1, injector)
 		checkin.RegisterRoutes(v1, injector)
+		files.RegisterRoutes(v1)
 	}
 
 	run(server)

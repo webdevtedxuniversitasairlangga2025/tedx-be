@@ -2,10 +2,13 @@ package service
 
 import (
 	"context"
+	"fmt"
+	"mime/multipart"
 
 	"github.com/webdevtedxuniversitasairlangga/database/entities"
 	"github.com/webdevtedxuniversitasairlangga/modules/bundle/dto"
 	"github.com/webdevtedxuniversitasairlangga/modules/bundle/repository"
+	"github.com/webdevtedxuniversitasairlangga/pkg/storage"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
@@ -20,6 +23,7 @@ type BundleService interface {
 	Update(ctx context.Context, id string, req dto.BundleUpdateRequest) (dto.BundleResponse, error)
 	Delete(ctx context.Context, id string) error
 	AddImage(ctx context.Context, bundleID string, req dto.BundleImageCreateRequest) (dto.BundleImageResponse, error)
+	UploadImageFile(ctx context.Context, bundleID string, file *multipart.FileHeader) (dto.BundleImageResponse, error)
 	DeleteImage(ctx context.Context, bundleID, imageID string) error
 }
 
@@ -238,6 +242,40 @@ func (s *bundleService) AddImage(ctx context.Context, bundleID string, req dto.B
 		ID:       uuid.New(),
 		BundleID: bid,
 		ImageURL: req.ImageURL,
+	}
+
+	created, err := s.bundleRepository.CreateImage(ctx, s.db, image)
+	if err != nil {
+		return dto.BundleImageResponse{}, err
+	}
+
+	return toImageResponse(created), nil
+}
+
+// UploadImageFile — upload file gambar ke disk lokal (prefix public) lalu catat URL publiknya.
+func (s *bundleService) UploadImageFile(ctx context.Context, bundleID string, file *multipart.FileHeader) (dto.BundleImageResponse, error) {
+	bid, err := uuid.Parse(bundleID)
+	if err != nil {
+		return dto.BundleImageResponse{}, dto.ErrBundleNotFound
+	}
+
+	if _, err := s.bundleRepository.GetByID(ctx, s.db, bid); err != nil {
+		return dto.BundleImageResponse{}, dto.ErrBundleNotFound
+	}
+
+	key, err := storage.SavePublicFile(file, "bundles/"+bid.String())
+	if err != nil {
+		return dto.BundleImageResponse{}, err
+	}
+	base, ok := storage.FilePublicBase()
+	if !ok {
+		return dto.BundleImageResponse{}, fmt.Errorf("FILE_PUBLIC_URL not set")
+	}
+
+	image := entities.BundleImage{
+		ID:       uuid.New(),
+		BundleID: bid,
+		ImageURL: base + "/files/" + key,
 	}
 
 	created, err := s.bundleRepository.CreateImage(ctx, s.db, image)

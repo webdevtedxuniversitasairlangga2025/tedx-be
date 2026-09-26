@@ -2,12 +2,15 @@ package service
 
 import (
 	"context"
+	"fmt"
+	"mime/multipart"
 
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"github.com/webdevtedxuniversitasairlangga/database/entities"
 	"github.com/webdevtedxuniversitasairlangga/modules/merchandise/dto"
 	"github.com/webdevtedxuniversitasairlangga/modules/merchandise/repository"
+	"github.com/webdevtedxuniversitasairlangga/pkg/storage"
 )
 
 var maxPrice = decimal.RequireFromString("99999999.99")
@@ -20,6 +23,7 @@ type MerchandiseService interface {
 	Delete(ctx context.Context, id uuid.UUID) error
 
 	AddImage(ctx context.Context, merchId uuid.UUID, req dto.MerchImageRequest) error
+	UploadImageFile(ctx context.Context, merchId uuid.UUID, file *multipart.FileHeader) (dto.MerchImageResponse, error)
 	DeleteImage(ctx context.Context, merchId, imageId uuid.UUID) error
 }
 
@@ -240,6 +244,34 @@ func (s *merchandiseService) AddImage(ctx context.Context, merchId uuid.UUID, re
 	}
 
 	return s.repo.AddImage(ctx, image)
+}
+
+// UploadImageFile — upload file gambar ke disk lokal (prefix public) lalu catat URL publiknya.
+func (s *merchandiseService) UploadImageFile(ctx context.Context, merchId uuid.UUID, file *multipart.FileHeader) (dto.MerchImageResponse, error) {
+	if _, err := s.repo.FindByID(ctx, merchId); err != nil {
+		return dto.MerchImageResponse{}, dto.ErrMerchandiseNotFound
+	}
+
+	key, err := storage.SavePublicFile(file, "merchandise/"+merchId.String())
+	if err != nil {
+		return dto.MerchImageResponse{}, err
+	}
+	base, ok := storage.FilePublicBase()
+	if !ok {
+		return dto.MerchImageResponse{}, fmt.Errorf("FILE_PUBLIC_URL not set")
+	}
+
+	image := &entities.MerchImage{
+		ID:            uuid.New(),
+		MerchandiseID: merchId,
+		ImageURL:      base + "/files/" + key,
+	}
+
+	if err := s.repo.AddImage(ctx, image); err != nil {
+		return dto.MerchImageResponse{}, err
+	}
+
+	return toImageResponse(*image), nil
 }
 
 func (s *merchandiseService) DeleteImage(ctx context.Context, merchId, imageId uuid.UUID) error {

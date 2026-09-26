@@ -7,9 +7,14 @@ services:
     restart: unless-stopped
     volumes:
       - ./.env:/app/.env:ro
+      - uploads-data:/app/uploads
     depends_on:
       db:
         condition: service_healthy
+      # MinIO diparkir lokal (image butuh login registry).
+      # Aktifkan lagi di VPS: uncomment blok minio di bawah.
+      # minio:
+      #   condition: service_healthy
     expose:
       - "8888"
     ports:
@@ -21,6 +26,14 @@ services:
       - DB_HOST=db
       - FRONTEND_URL=${FRONTEND_URL}
       - JWT_SECRET=${JWT_SECRET}
+      - MINIO_ENDPOINT=minio:9000
+      - MINIO_ACCESS_KEY=${MINIO_ROOT_USER:-minioadmin}
+      - MINIO_SECRET_KEY=${MINIO_ROOT_PASSWORD:-minioadmin}
+      - MINIO_BUCKET=${MINIO_BUCKET:-tedx-assets}
+      - MINIO_USE_SSL=false
+      - MINIO_PUBLIC_URL=${MINIO_PUBLIC_URL:-http://localhost:9000}
+      - UPLOAD_DIR=/app/uploads
+      - FILE_PUBLIC_URL=${FILE_PUBLIC_URL:-http://localhost:8888/api/v1}
   
     logging:
       driver: json-file
@@ -84,5 +97,59 @@ services:
           cpus: "0.25"
           memory: 128M
 
+  minio:
+    # DIPARKIR lokal: image butuh login registry. Aktifkan via:
+    #   docker compose --profile minio up -d
+    profiles: ["minio"]
+    image: quay.io/minio/minio:latest
+    container_name: tedx-minio
+    restart: unless-stopped
+    command: server /data
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+
+  # Inisialisasi sekali jalan: buat bucket + buka prefix public/ untuk dibaca publik.
+  mc:
+    # DIPARKIR: image minio/mc butuh login registry.
+    # Aktifkan lagi di VPS (registry bisa): uncomment service minio + mc ini.
+    profiles: ["minio"]
+    image: quay.io/minio/mc:latest
+    container_name: tedx-mc
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 $${MINIO_ROOT_USER:-minioadmin} $${MINIO_ROOT_PASSWORD:-minioadmin} &&
+      mc mb -p local/$${MINIO_BUCKET:-tedx-assets} &&
+      mc anonymous set download local/$${MINIO_BUCKET:-tedx-assets}/public/ &&
+      exit 0"
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER:-minioadmin}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD:-minioadmin}
+      - MINIO_BUCKET=${MINIO_BUCKET:-tedx-assets}
+    restart: "no"
+
 volumes:
   db-data:
+  minio-data:
+  uploads-data:

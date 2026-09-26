@@ -24,6 +24,7 @@ func RegisterRoutes(server *gin.RouterGroup, injector *do.Injector) {
 			adminRoutes.PATCH("/:id", bundleController.Update)
 			adminRoutes.DELETE("/:id", bundleController.Delete)
 			adminRoutes.POST("/:id/images", bundleController.AddImage)
+			adminRoutes.POST("/:id/images/upload", bundleController.UploadImageFile)
 			adminRoutes.DELETE("/:id/images/:imageId", bundleController.DeleteImage)
 		}
 	}

@@ -2,6 +2,7 @@ package handler
 
 import (
 	"bytes"
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -19,6 +20,7 @@ import (
 	"github.com/samber/do"
 	"github.com/webdevtedxuniversitasairlangga/modules/order/dto"
 	"github.com/webdevtedxuniversitasairlangga/modules/order/service"
+	"github.com/webdevtedxuniversitasairlangga/pkg/storage"
 	"github.com/webdevtedxuniversitasairlangga/pkg/utils"
 )
 
@@ -203,6 +205,47 @@ func uploadToImageKit(fileHeader *multipart.FileHeader) (string, error) {
 	return out.URL, nil
 }
 
+// uploadProofFile — simpan bukti bayar: MinIO bila MINIO_ENDPOINT diset
+// (balik "minio:key"), else disk lokal ("local:key"). ImageKit dipertahankan
+// sbg fallback terakhir bila keduanya tak tersedia.
+func uploadProofFile(ctx context.Context, fileHeader *multipart.FileHeader) (string, error) {
+	ext := strings.ToLower(filepath.Ext(fileHeader.Filename))
+	var contentType string
+	switch ext {
+	case ".jpg", ".jpeg":
+		contentType = "image/jpeg"
+	case ".png":
+		contentType = "image/png"
+	case ".webp":
+		contentType = "image/webp"
+	default:
+		return "", fmt.Errorf("only jpg, jpeg, png, webp allowed")
+	}
+	f, err := fileHeader.Open()
+	if err != nil {
+		return "", err
+	}
+	defer f.Close()
+	data, err := io.ReadAll(f)
+	if err != nil {
+		return "", err
+	}
+	key := fmt.Sprintf("orders/%s%s", uuid.New().String(), ext)
+	if sc, ok := storage.NewFromEnv(); ok {
+		if err := sc.EnsureBucket(ctx); err != nil {
+			return "", err
+		}
+		if err := sc.Put(ctx, key, data, contentType); err != nil {
+			return "", err
+		}
+		return "minio:" + key, nil
+	}
+	if err := storage.SaveFile(key, data); err != nil {
+		return "", err
+	}
+	return "local:" + key, nil
+}
+
 func (h *orderHandler) UploadProof(ctx *gin.Context) {
 	userID := ctx.MustGet("user_id").(string)
 	id := ctx.Param("id")
@@ -231,7 +274,7 @@ func (h *orderHandler) UploadProof(ctx *gin.Context) {
 			ctx.JSON(http.StatusBadRequest, res)
 			return
 		}
-		url, err := uploadToImageKit(file)
+		url, err := uploadProofFile(ctx.Request.Context(), file)
 		if err != nil {
 			res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_UPLOAD_PROOF, err.Error(), nil)
 			ctx.JSON(http.StatusBadRequest, res)
@@ -289,6 +332,39 @@ func (h *orderHandler) GetProof(ctx *gin.Context) {
 	if err != nil {
 		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_ORDER, err.Error(), nil)
 		ctx.JSON(http.StatusNotFound, res)
+		return
+	}
+
+	// Bukti di MinIO ("minio:key") — stream langsung, tanpa lewat ImageKit.
+	if strings.HasPrefix(proofURL, "minio:") {
+		sc, ok := storage.NewFromEnv()
+		if !ok {
+			res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_ORDER, "storage not configured", nil)
+			ctx.JSON(http.StatusBadGateway, res)
+			return
+		}
+		data, contentType, err := sc.Get(ctx.Request.Context(), strings.TrimPrefix(proofURL, "minio:"))
+		if err != nil {
+			res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_ORDER, err.Error(), nil)
+			ctx.JSON(http.StatusBadGateway, res)
+			return
+		}
+		if contentType == "" {
+			contentType = "image/jpeg"
+		}
+		ctx.Data(http.StatusOK, contentType, data)
+		return
+	}
+
+	// Bukti di disk lokal ("local:key") — stream langsung (butuh auth admin).
+	if strings.HasPrefix(proofURL, "local:") {
+		data, err := storage.ReadFile(strings.TrimPrefix(proofURL, "local:"))
+		if err != nil {
+			res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_ORDER, err.Error(), nil)
+			ctx.JSON(http.StatusBadGateway, res)
+			return
+		}
+		ctx.Data(http.StatusOK, http.DetectContentType(data), data)
 		return
 	}
 

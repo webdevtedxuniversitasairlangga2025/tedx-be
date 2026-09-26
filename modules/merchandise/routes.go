@@ -28,6 +28,7 @@ func RegisterRoutes(r *gin.RouterGroup, i *do.Injector) {
 		adminGroup.DELETE("/:id", merchandiseHandler.Delete)
 
 		adminGroup.POST("/:id/images", merchandiseHandler.AddImage)
+		adminGroup.POST("/:id/images/upload", merchandiseHandler.UploadImageFile)
 		adminGroup.DELETE("/:id/images/:imageId", merchandiseHandler.DeleteImage)
 	}
 }

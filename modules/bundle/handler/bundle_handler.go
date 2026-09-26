@@ -18,6 +18,7 @@ type (
 		Update(ctx *gin.Context)
 		Delete(ctx *gin.Context)
 		AddImage(ctx *gin.Context)
+		UploadImageFile(ctx *gin.Context)
 		DeleteImage(ctx *gin.Context)
 	}
 
@@ -129,6 +130,28 @@ func (c *bundleHandler) AddImage(ctx *gin.Context) {
 	}
 
 	result, err := c.bundleService.AddImage(ctx.Request.Context(), bundleID, req)
+	if err != nil {
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_ADD_BUNDLE_IMAGE, err.Error(), nil)
+		ctx.JSON(http.StatusBadRequest, res)
+		return
+	}
+
+	res := utils.BuildResponseSuccess(dto.MESSAGE_SUCCESS_ADD_BUNDLE_IMAGE, result)
+	ctx.JSON(http.StatusCreated, res)
+}
+
+// UploadImageFile — terima file multipart "file", simpan ke MinIO, catat URL publik.
+func (c *bundleHandler) UploadImageFile(ctx *gin.Context) {
+	bundleID := ctx.Param("id")
+
+	file, err := ctx.FormFile("file")
+	if err != nil {
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_DATA_FROM_BODY, err.Error(), nil)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
+		return
+	}
+
+	result, err := c.bundleService.UploadImageFile(ctx.Request.Context(), bundleID, file)
 	if err != nil {
 		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_ADD_BUNDLE_IMAGE, err.Error(), nil)
 		ctx.JSON(http.StatusBadRequest, res)

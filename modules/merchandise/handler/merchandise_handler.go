@@ -19,6 +19,7 @@ type (
 		Update(ctx *gin.Context)
 		Delete(ctx *gin.Context)
 		AddImage(ctx *gin.Context)
+		UploadImageFile(ctx *gin.Context)
 		DeleteImage(ctx *gin.Context)
 	}
 
@@ -154,6 +155,33 @@ func (h *merchandiseHandler) AddImage(c *gin.Context) {
 	}
 
 	res := utils.BuildResponseSuccess(dto.MESSAGE_SUCCESS_ADD_MERCHANDISE_IMAGE, nil)
+	c.JSON(http.StatusCreated, res)
+}
+
+// UploadImageFile — terima file multipart "file", simpan ke MinIO, catat URL publik.
+func (h *merchandiseHandler) UploadImageFile(c *gin.Context) {
+	merchId, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_ADD_MERCHANDISE_IMAGE, err.Error(), nil)
+		c.JSON(http.StatusBadRequest, res)
+		return
+	}
+
+	file, err := c.FormFile("file")
+	if err != nil {
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_DATA_FROM_BODY, err.Error(), nil)
+		c.AbortWithStatusJSON(http.StatusBadRequest, res)
+		return
+	}
+
+	result, err := h.service.UploadImageFile(c.Request.Context(), merchId, file)
+	if err != nil {
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_ADD_MERCHANDISE_IMAGE, err.Error(), nil)
+		c.JSON(http.StatusBadRequest, res)
+		return
+	}
+
+	res := utils.BuildResponseSuccess(dto.MESSAGE_SUCCESS_ADD_MERCHANDISE_IMAGE, result)
 	c.JSON(http.StatusCreated, res)
 }
 
