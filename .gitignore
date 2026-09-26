@@ -4,7 +4,7 @@ graphify-out
 *.env
 !.env.example
 .env.*
-storage/
+/storage/
 assets/
 volumes/
 .idea/
