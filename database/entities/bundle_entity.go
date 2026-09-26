@@ -11,6 +11,11 @@ type Bundle struct {
 	Name        string          `gorm:"size:255;not null"`
 	Description string          `gorm:"type:text;not null"`
 	Price       decimal.Decimal `gorm:"type:numeric(10,2);not null"`
+	// Size & Material nullable agar baris lama tetap valid; wajib diisi saat create baru.
+	Size        *string         `gorm:"size:100"`
+	Material    *string         `gorm:"size:255"`
+	// GformURL link pembelian per bundle; kosong → pakai link GForm global di FE.
+	GformURL    *string         `gorm:"size:500"`
 	IsActive    bool            `gorm:"default:true"`
 
 	BundleImages []BundleImage `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`

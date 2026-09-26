@@ -36,12 +36,18 @@ type (
 		Name        string `json:"name" form:"name" binding:"required,min=1,max=255"`
 		Description string `json:"description" form:"description" binding:"required,min=1"`
 		Price       string `json:"price" form:"price" binding:"required"`
+		Size        string `json:"size" form:"size" binding:"required,min=1,max=100"`
+		Material    string `json:"material" form:"material" binding:"required,min=1,max=255"`
+		GformURL    string `json:"gform_url" form:"gform_url" binding:"omitempty,url,max=500"`
 	}
 
 	BundleUpdateRequest struct {
 		Name        *string `json:"name" form:"name" binding:"omitempty,min=1,max=255"`
 		Description *string `json:"description" form:"description" binding:"omitempty,min=1"`
 		Price       *string `json:"price" form:"price" binding:"omitempty"`
+		Size        *string `json:"size" form:"size" binding:"omitempty,min=1,max=100"`
+		Material    *string `json:"material" form:"material" binding:"omitempty,min=1,max=255"`
+		GformURL    *string `json:"gform_url" form:"gform_url" binding:"omitempty,url,max=500"`
 		IsActive    *bool   `json:"is_active" form:"is_active"`
 	}
 
@@ -63,7 +69,11 @@ type (
 		Name        string    `json:"name"`
 		Description string    `json:"description"`
 		Price       string    `json:"price"`
+		Size        string    `json:"size"`
+		Material    string    `json:"material"`
+		GformURL    string    `json:"gform_url"`
 		IsActive    bool      `json:"is_active"`
+		Images      []BundleImageResponse `json:"images"`
 		CreatedAt   time.Time `json:"created_at"`
 		UpdatedAt   time.Time `json:"updated_at"`
 	}

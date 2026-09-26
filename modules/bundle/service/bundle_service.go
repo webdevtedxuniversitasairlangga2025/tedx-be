@@ -36,12 +36,30 @@ func NewBundleService(bundleRepo repository.BundleRepository, db *gorm.DB) Bundl
 }
 
 func toResponse(b entities.Bundle) dto.BundleResponse {
+	images := make([]dto.BundleImageResponse, 0, len(b.BundleImages))
+	for _, img := range b.BundleImages {
+		images = append(images, toImageResponse(img))
+	}
+	size, material, gformURL := "", "", ""
+	if b.Size != nil {
+		size = *b.Size
+	}
+	if b.Material != nil {
+		material = *b.Material
+	}
+	if b.GformURL != nil {
+		gformURL = *b.GformURL
+	}
 	return dto.BundleResponse{
 		ID:          b.ID.String(),
 		Name:        b.Name,
 		Description: b.Description,
 		Price:       b.Price.StringFixed(2),
+		Size:        size,
+		Material:    material,
+		GformURL:    gformURL,
 		IsActive:    b.IsActive,
+		Images:      images,
 		CreatedAt:   b.CreatedAt,
 		UpdatedAt:   b.UpdatedAt,
 	}
@@ -90,7 +108,12 @@ func (s *bundleService) Create(ctx context.Context, req dto.BundleCreateRequest)
 		Name:        req.Name,
 		Description: req.Description,
 		Price:       price,
+		Size:        &req.Size,
+		Material:    &req.Material,
 		IsActive:    true,
+	}
+	if req.GformURL != "" {
+		bundle.GformURL = &req.GformURL
 	}
 
 	created, err := s.bundleRepository.Create(ctx, s.db, bundle)
@@ -162,6 +185,19 @@ func (s *bundleService) Update(ctx context.Context, id string, req dto.BundleUpd
 			return dto.BundleResponse{}, err
 		}
 		bundle.Price = price
+	}
+	if req.Size != nil {
+		bundle.Size = req.Size
+	}
+	if req.Material != nil {
+		bundle.Material = req.Material
+	}
+	if req.GformURL != nil {
+		if *req.GformURL == "" {
+			bundle.GformURL = nil
+		} else {
+			bundle.GformURL = req.GformURL
+		}
 	}
 	if req.IsActive != nil {
 		bundle.IsActive = *req.IsActive

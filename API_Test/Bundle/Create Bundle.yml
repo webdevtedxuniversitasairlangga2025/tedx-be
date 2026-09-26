@@ -15,7 +15,10 @@ http:
       {
         "name": "Bundle Hemat TEDx",
         "description": "Paket kaos + totebag + sticker",
-        "price": "150000.00"
+        "price": "150000.00",
+        "size": "All size",
+        "material": "Cotton combed 30s",
+        "gform_url": "https://docs.google.com/forms/d/e/xxx/viewform"
       }
 
 runtime:

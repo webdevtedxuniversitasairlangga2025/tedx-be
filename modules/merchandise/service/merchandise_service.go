@@ -51,6 +51,9 @@ func toResponse(m entities.Merchandise) dto.MerchandiseResponse {
 		Name:        m.Name,
 		Description: m.Description,
 		Price:       m.Price.StringFixed(2),
+		Size:        derefStr(m.Size),
+		Material:    derefStr(m.Material),
+		GformURL:    derefStr(m.GformURL),
 		Category: dto.CategoryResponse{
 			ID:   m.Category.ID.String(),
 			Name: m.Category.Name,
@@ -103,8 +106,15 @@ func (s *merchandiseService) GetByID(ctx context.Context, id uuid.UUID) (dto.Mer
 	return toResponse(*merch), nil
 }
 
-func parsePrice(raw string) (decimal.Decimal, error) {
-	price, err := decimal.NewFromString(raw)
+// derefStr — NULL DB → "" (baris lama tanpa size/material tetap valid).
+func derefStr(s *string) string {
+	if s == nil {
+		return ""
+	}
+	return *s
+}
+
+func parsePrice(raw string) (decimal.Decimal, error) {	price, err := decimal.NewFromString(raw)
 	if err != nil {
 		return decimal.Decimal{}, dto.ErrInvalidPrice
 	}
@@ -136,7 +146,12 @@ func (s *merchandiseService) Create(ctx context.Context, req dto.MerchandiseCrea
 		Description: req.Description,
 		Price:       price,
 		CategoryID:  categoryID,
+		Size:        &req.Size,
+		Material:    &req.Material,
 		IsActive:    true,
+	}
+	if req.GformURL != "" {
+		merch.GformURL = &req.GformURL
 	}
 
 	created, err := s.repo.Create(ctx, merch)
@@ -180,6 +195,19 @@ func (s *merchandiseService) Update(ctx context.Context, id uuid.UUID, req dto.M
 		}
 		merch.CategoryID = categoryID
 		merch.Category = *category
+	}
+	if req.Size != nil {
+		merch.Size = req.Size
+	}
+	if req.Material != nil {
+		merch.Material = req.Material
+	}
+	if req.GformURL != nil {
+		if *req.GformURL == "" {
+			merch.GformURL = nil
+		} else {
+			merch.GformURL = req.GformURL
+		}
 	}
 	if req.IsActive != nil {
 		merch.IsActive = *req.IsActive

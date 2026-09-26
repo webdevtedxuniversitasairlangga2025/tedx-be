@@ -239,6 +239,9 @@ Katalog produk merchandise. **Display saja** — tidak ada transaksi di backend.
 | `name` | varchar | Nama produk. |
 | `description` | text | Deskripsi panjang. |
 | `price` | decimal | Harga tampilan. |
+| `size` | varchar, nullable | Ukuran label bebas (mis. `M`, `XL`, `A5`); wajib saat create. |
+| `material` | varchar, nullable | Bahan; wajib saat create. |
+| `gform_url` | varchar, nullable | Link GForm pembelian per produk; kosong = link global FE. |
 | `category_id` | uuid, FK → `categories.id` | Kategori produk. |
 | `is_active` | boolean | Sembunyikan dari katalog bila `false`. |
 | `created_at`, `updated_at` | timestamptz | Audit waktu. |
@@ -281,6 +284,9 @@ Katalog paket (bundle). Sama seperti merch: **display saja**, checkout via Googl
 | `name` | varchar | Nama bundle. |
 | `description` | text | Deskripsi. |
 | `price` | decimal | Harga tampilan. |
+| `size` | varchar, nullable | Ukuran label bebas (mis. `M`, `XL`, `A5`); wajib saat create. |
+| `material` | varchar, nullable | Bahan; wajib saat create. |
+| `gform_url` | varchar, nullable | Link GForm pembelian per bundle; kosong = link global FE. |
 | `is_active` | boolean | Sembunyikan bila `false`. |
 | `created_at`, `updated_at` | timestamptz | Audit waktu. |
 

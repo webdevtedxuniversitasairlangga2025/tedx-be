@@ -37,6 +37,9 @@ type MerchandiseCreateRequest struct {
 	Description string `json:"description" binding:"required,min=1"`
 	Price       string `json:"price" binding:"required"`
 	CategoryID  string `json:"category_id" binding:"required,uuid4"`
+	Size        string `json:"size" binding:"required,min=1,max=100"`
+	Material    string `json:"material" binding:"required,min=1,max=255"`
+	GformURL    string `json:"gform_url" binding:"omitempty,url,max=500"`
 }
 
 type MerchandiseUpdateRequest struct {
@@ -44,6 +47,9 @@ type MerchandiseUpdateRequest struct {
 	Description *string `json:"description" binding:"omitempty,min=1"`
 	Price       *string `json:"price" binding:"omitempty"`
 	CategoryID  *string `json:"category_id" binding:"omitempty,uuid4"`
+	Size        *string `json:"size" binding:"omitempty,min=1,max=100"`
+	Material    *string `json:"material" binding:"omitempty,min=1,max=255"`
+	GformURL    *string `json:"gform_url" binding:"omitempty,url,max=500"`
 	IsActive    *bool   `json:"is_active"`
 }
 
@@ -71,6 +77,9 @@ type MerchandiseResponse struct {
 	Name        string               `json:"name"`
 	Description string               `json:"description"`
 	Price       string               `json:"price"`
+	Size        string               `json:"size"`
+	Material    string               `json:"material"`
+	GformURL    string               `json:"gform_url"`
 	Category    CategoryResponse     `json:"category"`
 	IsActive    bool                 `json:"is_active"`
 	CreatedAt   time.Time            `json:"created_at"`

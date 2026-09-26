@@ -49,7 +49,7 @@ func (r *bundleRepository) GetAll(ctx context.Context, tx *gorm.DB, isActive *bo
 		tx = r.db
 	}
 
-	query := tx.WithContext(ctx).Model(&entities.Bundle{})
+	query := tx.WithContext(ctx).Model(&entities.Bundle{}).Preload("BundleImages")
 	if isActive != nil {
 		query = query.Where("is_active = ?", *isActive)
 	}
