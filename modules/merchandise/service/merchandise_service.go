@@ -226,10 +226,20 @@ func (s *merchandiseService) Update(ctx context.Context, id uuid.UUID, req dto.M
 
 func (s *merchandiseService) Delete(ctx context.Context, id uuid.UUID) error {
 
-	if _, err := s.repo.FindByID(ctx, id); err != nil {
+	merch, err := s.repo.FindByID(ctx, id)
+	if err != nil {
 		return err
 	}
-	return s.repo.Delete(ctx, id)
+
+	if err := s.repo.Delete(ctx, id); err != nil {
+		return err
+	}
+
+	// ponytail: best-effort — file yatim dibersihkan, gagal hapus tidak menggagalkan request
+	for _, img := range merch.MerchImages {
+		storage.RemovePublicURL(img.ImageURL)
+	}
+	return nil
 }
 
 func (s *merchandiseService) AddImage(ctx context.Context, merchId uuid.UUID, req dto.MerchImageRequest) error {
@@ -276,8 +286,16 @@ func (s *merchandiseService) UploadImageFile(ctx context.Context, merchId uuid.U
 
 func (s *merchandiseService) DeleteImage(ctx context.Context, merchId, imageId uuid.UUID) error {
 
-	if _, err := s.repo.FindByID(ctx, merchId); err != nil {
+	merch, err := s.repo.FindByID(ctx, merchId)
+	if err != nil {
 		return err
+	}
+	imageURL := ""
+	for _, img := range merch.MerchImages {
+		if img.ID == imageId {
+			imageURL = img.ImageURL
+			break
+		}
 	}
 
 	affected, err := s.repo.DeleteImage(ctx, merchId, imageId)
@@ -288,5 +306,7 @@ func (s *merchandiseService) DeleteImage(ctx context.Context, merchId, imageId u
 		return dto.ErrMerchImageNotFound
 	}
 
+	// ponytail: best-effort
+	storage.RemovePublicURL(imageURL)
 	return nil
 }

@@ -221,11 +221,20 @@ func (s *bundleService) Delete(ctx context.Context, id string) error {
 		return dto.ErrBundleNotFound
 	}
 
-	if _, err := s.bundleRepository.GetByID(ctx, s.db, bid); err != nil {
+	bundle, err := s.bundleRepository.GetByIDWithImages(ctx, s.db, bid)
+	if err != nil {
 		return dto.ErrBundleNotFound
 	}
 
-	return s.bundleRepository.Delete(ctx, s.db, bid)
+	if err := s.bundleRepository.Delete(ctx, s.db, bid); err != nil {
+		return err
+	}
+
+	// ponytail: best-effort — file yatim dibersihkan, gagal hapus tidak menggagalkan request
+	for _, img := range bundle.BundleImages {
+		storage.RemovePublicURL(img.ImageURL)
+	}
+	return nil
 }
 
 func (s *bundleService) AddImage(ctx context.Context, bundleID string, req dto.BundleImageCreateRequest) (dto.BundleImageResponse, error) {
@@ -297,8 +306,16 @@ func (s *bundleService) DeleteImage(ctx context.Context, bundleID, imageID strin
 		return dto.ErrBundleImageNotFound
 	}
 
-	if _, err := s.bundleRepository.GetByID(ctx, s.db, bid); err != nil {
+	bundle, err := s.bundleRepository.GetByIDWithImages(ctx, s.db, bid)
+	if err != nil {
 		return dto.ErrBundleNotFound
+	}
+	imageURL := ""
+	for _, img := range bundle.BundleImages {
+		if img.ID == iid {
+			imageURL = img.ImageURL
+			break
+		}
 	}
 
 	affected, err := s.bundleRepository.DeleteImage(ctx, s.db, iid, bid)
@@ -310,5 +327,7 @@ func (s *bundleService) DeleteImage(ctx context.Context, bundleID, imageID strin
 		return dto.ErrBundleImageNotFound
 	}
 
+	// ponytail: best-effort
+	storage.RemovePublicURL(imageURL)
 	return nil
 }

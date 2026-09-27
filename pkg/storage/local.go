@@ -3,7 +3,9 @@ package storage
 import (
 	"fmt"
 	"io"
+	"log"
 	"mime/multipart"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -94,4 +96,49 @@ func SavePublicFile(fileHeader *multipart.FileHeader, prefix string) (string, er
 		return "", err
 	}
 	return key, nil
+}
+
+// DeleteFile — hapus <dir>/<key>; tidak ada = sukses (idempoten).
+func DeleteFile(key string) error {
+	k, err := cleanKey(key)
+	if err != nil {
+		return err
+	}
+	if err := os.Remove(filepath.Join(Dir(), k)); err != nil && !os.IsNotExist(err) {
+		return err
+	}
+	return nil
+}
+
+// KeyFromPublicURL — ambil key dari URL publik ".../files/<key>".
+// ok=false untuk URL luar (ImageKit/unsplash/dll) — jangan dihapus.
+func KeyFromPublicURL(rawURL string) (string, bool) {
+	u, err := url.Parse(strings.TrimSpace(rawURL))
+	if err != nil || u.Path == "" {
+		return "", false
+	}
+	idx := strings.Index(u.Path, "/files/")
+	if idx < 0 {
+		return "", false
+	}
+	key := strings.TrimPrefix(u.Path[idx:], "/files/")
+	if !strings.HasPrefix(key, "public/") {
+		return "", false
+	}
+	if _, err := cleanKey(key); err != nil {
+		return "", false
+	}
+	return key, true
+}
+
+// RemovePublicURL — hapus file untuk URL publik, best-effort (log saja bila gagal).
+// URL luar/ilegal diabaikan.
+func RemovePublicURL(rawURL string) {
+	key, ok := KeyFromPublicURL(rawURL)
+	if !ok {
+		return
+	}
+	if err := DeleteFile(key); err != nil {
+		log.Printf("storage: gagal hapus file %s: %v", key, err)
+	}
 }
