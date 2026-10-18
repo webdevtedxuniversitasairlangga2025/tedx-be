@@ -2,7 +2,6 @@ package handler
 
 import (
 	"bytes"
-	"context"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -205,53 +204,12 @@ func uploadToImageKit(fileHeader *multipart.FileHeader) (string, error) {
 	return out.URL, nil
 }
 
-// uploadProofFile — simpan bukti bayar: MinIO bila MINIO_ENDPOINT diset
-// (balik "minio:key"), else disk lokal ("local:key"). ImageKit dipertahankan
-// sbg fallback terakhir bila keduanya tak tersedia.
-func uploadProofFile(ctx context.Context, fileHeader *multipart.FileHeader) (string, error) {
-	ext := strings.ToLower(filepath.Ext(fileHeader.Filename))
-	var contentType string
-	switch ext {
-	case ".jpg", ".jpeg":
-		contentType = "image/jpeg"
-	case ".png":
-		contentType = "image/png"
-	case ".webp":
-		contentType = "image/webp"
-	default:
-		return "", fmt.Errorf("only jpg, jpeg, png, webp allowed")
-	}
-	f, err := fileHeader.Open()
-	if err != nil {
-		return "", err
-	}
-	defer f.Close()
-	data, err := io.ReadAll(f)
-	if err != nil {
-		return "", err
-	}
-	key := fmt.Sprintf("orders/%s%s", uuid.New().String(), ext)
-	if sc, ok := storage.NewFromEnv(); ok {
-		if err := sc.EnsureBucket(ctx); err != nil {
-			return "", err
-		}
-		if err := sc.Put(ctx, key, data, contentType); err != nil {
-			return "", err
-		}
-		return "minio:" + key, nil
-	}
-	if err := storage.SaveFile(key, data); err != nil {
-		return "", err
-	}
-	return "local:" + key, nil
-}
-
 func (h *orderHandler) UploadProof(ctx *gin.Context) {
 	userID := ctx.MustGet("user_id").(string)
 	id := ctx.Param("id")
 	contentType := ctx.GetHeader("Content-Type")
 	if strings.HasPrefix(contentType, "multipart/form-data") {
-		// verifikasi kepemilikan dulu — jangan buang storage ImageKit utk order org lain
+		// verifikasi kepemilikan dulu — jangan upload ke storage utk order org lain
 		if _, err := h.orderService.GetByID(ctx.Request.Context(), userID, id); err != nil {
 			res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_UPLOAD_PROOF, err.Error(), nil)
 			ctx.JSON(http.StatusNotFound, res)
@@ -274,7 +232,7 @@ func (h *orderHandler) UploadProof(ctx *gin.Context) {
 			ctx.JSON(http.StatusBadRequest, res)
 			return
 		}
-		url, err := uploadProofFile(ctx.Request.Context(), file)
+		url, err := storage.UploadProof(ctx.Request.Context(), file)
 		if err != nil {
 			res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_UPLOAD_PROOF, err.Error(), nil)
 			ctx.JSON(http.StatusBadRequest, res)
@@ -320,13 +278,17 @@ func (h *orderHandler) ResendEmail(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, res)
 }
 
-// proofHostAllowed — allowlist anti-SSRF: hanya host ImageKit yang boleh di-proxy.
+// proofHostAllowed — allowlist anti-SSRF: hanya host CDN bukti bayar
+// (Cloudinary untuk upload baru, ImageKit untuk data lama) yang boleh di-proxy.
 func proofHostAllowed(host string) bool {
+	if host == "res.cloudinary.com" || strings.HasSuffix(host, ".res.cloudinary.com") {
+		return true
+	}
 	return host == "ik.imagekit.io" || strings.HasSuffix(host, ".imagekit.io")
 }
 
 // GetProof — stream gambar bukti bayar lewat domain BE (admin),
-// agar tetap bisa dibuka walau ik.imagekit.io diblokir/DNS-hijack di jaringan pemanggil.
+// agar tetap bisa dibuka walau CDN storage (ImageKit/Cloudinary) diblokir/DNS-hijack.
 func (h *orderHandler) GetProof(ctx *gin.Context) {
 	proofURL, err := h.orderService.GetProofURL(ctx.Request.Context(), ctx.Param("id"))
 	if err != nil {
