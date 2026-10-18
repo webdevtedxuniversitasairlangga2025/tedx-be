@@ -23,7 +23,7 @@ type OrderRepository interface {
 	UpdateTier(ctx context.Context, tx *gorm.DB, tier entities.TicketTier) error
 	CreateAttendeeTickets(ctx context.Context, tx *gorm.DB, tickets []entities.AttendeeTicket) error
 	FindExpiredAwaitingApproval(ctx context.Context, tx *gorm.DB) ([]entities.Order, error)
-	MarkTicketsSent(ctx context.Context, orderID uuid.UUID) error
+	MarkTicketsSentByIDs(ctx context.Context, ids []uuid.UUID) error
 	TicketCodeExists(ctx context.Context, tx *gorm.DB, code string) (bool, error)
 }
 
@@ -156,9 +156,9 @@ func (r *orderRepository) FindExpiredAwaitingApproval(ctx context.Context, tx *g
 	return orders, nil
 }
 
-func (r *orderRepository) MarkTicketsSent(ctx context.Context, orderID uuid.UUID) error {
+func (r *orderRepository) MarkTicketsSentByIDs(ctx context.Context, ids []uuid.UUID) error {
 	return r.db.WithContext(ctx).Model(&entities.AttendeeTicket{}).
-		Where("order_id = ?", orderID).
+		Where("id IN ?", ids).
 		Updates(map[string]any{"is_sent": true, "sent_at": time.Now()}).Error
 }
 
