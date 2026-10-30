@@ -14,5 +14,6 @@ func RegisterRoutes(r *gin.RouterGroup, i *do.Injector) {
 	jwtSvc := do.MustInvokeNamed[authService.JWTService](i, constants.JWTService)
 
 	checkInRoutes := r.Group("/checkins", middlewares.Authenticate(jwtSvc), middlewares.AuthorizeAdmin(jwtSvc))
+	checkInRoutes.GET("/:ticket_code", checkInHandler.Lookup)
 	checkInRoutes.POST("/scan", checkInHandler.CheckIn)
 }

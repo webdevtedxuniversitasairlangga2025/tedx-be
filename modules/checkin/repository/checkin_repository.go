@@ -12,6 +12,7 @@ import (
 type CheckInRepository interface {
 	MarkAsUsed(ctx context.Context, tx *gorm.DB, ticketCode string, checkedBy uuid.UUID) (entities.AttendeeTicket, bool, error)
 	FindByTicketCode(ctx context.Context, tx *gorm.DB, ticketCode string) (entities.AttendeeTicket, error)
+	FindDetailByTicketCode(ctx context.Context, tx *gorm.DB, ticketCode string) (entities.AttendeeTicket, error)
 }
 
 type checkInRepository struct {
@@ -56,6 +57,21 @@ func (r *checkInRepository) FindByTicketCode(ctx context.Context, tx *gorm.DB, t
 
 	var ticket entities.AttendeeTicket
 	if err := tx.WithContext(ctx).Preload("Order").Where("ticket_code = ?", ticketCode).Take(&ticket).Error; err != nil {
+		return entities.AttendeeTicket{}, err
+	}
+
+	return ticket, nil
+}
+
+// FindDetailByTicketCode membaca tiket beserta pesanan, tier, dan nama tiketnya.
+// Read-only: tidak mengubah apa pun (berbeda dengan MarkAsUsed).
+func (r *checkInRepository) FindDetailByTicketCode(ctx context.Context, tx *gorm.DB, ticketCode string) (entities.AttendeeTicket, error) {
+	if tx == nil {
+		tx = r.db
+	}
+
+	var ticket entities.AttendeeTicket
+	if err := tx.WithContext(ctx).Preload("Order.TicketTier.Ticket").Where("ticket_code = ?", ticketCode).Take(&ticket).Error; err != nil {
 		return entities.AttendeeTicket{}, err
 	}
 

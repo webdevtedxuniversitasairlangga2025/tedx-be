@@ -13,6 +13,7 @@ import (
 
 type CheckInHandler interface {
 	CheckIn(ctx *gin.Context)
+	Lookup(ctx *gin.Context)
 }
 
 type checkInHandler struct {
@@ -54,5 +55,24 @@ func (h *checkInHandler) CheckIn(ctx *gin.Context) {
 	}
 
 	res := utils.BuildResponseSuccess(dto.MESSAGE_SUCCESS_CHECK_IN, result)
+	ctx.JSON(http.StatusOK, res)
+}
+
+func (h *checkInHandler) Lookup(ctx *gin.Context) {
+	result, err := h.service.Lookup(ctx.Request.Context(), ctx.Param("ticket_code"))
+	if err != nil {
+		status := http.StatusInternalServerError
+		if errors.Is(err, dto.ErrAttendeeTicketNotFound) {
+			status = http.StatusNotFound
+		} else if errors.Is(err, dto.ErrInvalidTicketCode) {
+			status = http.StatusBadRequest
+		}
+
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_TICKET_DETAIL, err.Error(), nil)
+		ctx.JSON(status, res)
+		return
+	}
+
+	res := utils.BuildResponseSuccess(dto.MESSAGE_SUCCESS_GET_TICKET_DETAIL, result)
 	ctx.JSON(http.StatusOK, res)
 }

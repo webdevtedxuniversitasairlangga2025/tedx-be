@@ -192,7 +192,13 @@ Notes:
 
 | Method | Path | Body |
 |--------|------|------|
+| GET | `/:ticket_code` | — (read-only lookup, tidak mengubah status tiket) |
 | POST | `/scan` | `ticket_code` |
+
+`GET /:ticket_code` mengembalikan detail peserta untuk halaman registrasi: `ticket_code`,
+`attendee_name`, `attendee_email`, `attendee_phone`, `ticket_name`, `tier_name`,
+`order_status`, `is_used`, `used_at`, `checked_by`. Alur registrasi: lookup dulu, lalu
+`POST /scan` saat admin menekan konfirmasi.
 
 The same endpoint accepts a code obtained from a phone scanner or entered manually.
 Only tickets whose order has status `paid` can check in. A successful scan marks the

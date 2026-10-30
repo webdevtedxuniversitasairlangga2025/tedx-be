@@ -16,6 +16,7 @@ import (
 
 type CheckInService interface {
 	CheckIn(ctx context.Context, checkerID string, req dto.CheckInRequest) (dto.CheckInResponse, error)
+	Lookup(ctx context.Context, ticketCode string) (dto.TicketDetailResponse, error)
 }
 
 type checkInService struct {
@@ -25,6 +26,32 @@ type checkInService struct {
 
 func NewCheckInService(repository repository.CheckInRepository, db *gorm.DB) CheckInService {
 	return &checkInService{repository: repository, db: db}
+}
+
+func isValidTicketCode(code string) bool {
+	return strings.TrimSpace(code) != "" && utf8.RuneCountInString(code) <= 255 && !strings.Contains(code, " ")
+}
+
+func toDetailResponse(ticket entities.AttendeeTicket) dto.TicketDetailResponse {
+	var checkedBy *string
+	if ticket.CheckedBy != nil {
+		id := ticket.CheckedBy.String()
+		checkedBy = &id
+	}
+
+	return dto.TicketDetailResponse{
+		ID:            ticket.ID.String(),
+		TicketCode:    ticket.TicketCode,
+		AttendeeName:  ticket.AttendeeName,
+		AttendeeEmail: ticket.AttendeeEmail,
+		AttendeePhone: ticket.AttendeePhone,
+		TicketName:    ticket.Order.TicketTier.Ticket.Name,
+		TierName:      ticket.Order.TicketTier.Tier,
+		OrderStatus:   ticket.Order.Status,
+		IsUsed:        ticket.IsUsed,
+		UsedAt:        ticket.UsedAt,
+		CheckedBy:     checkedBy,
+	}
 }
 
 func toResponse(ticket entities.AttendeeTicket) dto.CheckInResponse {
@@ -48,7 +75,7 @@ func (s *checkInService) CheckIn(ctx context.Context, checkerID string, req dto.
 	if err != nil || checkerUUID == uuid.Nil {
 		return dto.CheckInResponse{}, dto.ErrInvalidChecker
 	}
-	if strings.TrimSpace(req.TicketCode) == "" || utf8.RuneCountInString(req.TicketCode) > 255 || strings.Contains(req.TicketCode, " ") {
+	if !isValidTicketCode(req.TicketCode) {
 		return dto.CheckInResponse{}, dto.ErrInvalidTicketCode
 	}
 
@@ -75,4 +102,23 @@ func (s *checkInService) CheckIn(ctx context.Context, checkerID string, req dto.
 	}
 
 	return dto.CheckInResponse{}, dto.ErrCheckInNotApplied
+}
+
+// Lookup mengembalikan detail tiket tanpa menandainya terpakai. Dipakai halaman
+// registrasi untuk menampilkan data peserta sebelum admin menekan konfirmasi
+// (konfirmasi sendiri tetap lewat CheckIn / POST /checkins/scan).
+func (s *checkInService) Lookup(ctx context.Context, ticketCode string) (dto.TicketDetailResponse, error) {
+	if !isValidTicketCode(ticketCode) {
+		return dto.TicketDetailResponse{}, dto.ErrInvalidTicketCode
+	}
+
+	ticket, err := s.repository.FindDetailByTicketCode(ctx, s.db, ticketCode)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return dto.TicketDetailResponse{}, dto.ErrAttendeeTicketNotFound
+		}
+		return dto.TicketDetailResponse{}, err
+	}
+
+	return toDetailResponse(ticket), nil
 }

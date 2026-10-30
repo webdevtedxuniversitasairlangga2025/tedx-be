@@ -19,6 +19,9 @@ const (
 	MESSAGE_FAILED_CHECK_IN            = "failed check in ticket"
 	MESSAGE_FAILED_INVALID_TICKET_CODE = "invalid ticket code"
 	MESSAGE_SUCCESS_CHECK_IN           = "success check in ticket"
+
+	MESSAGE_FAILED_GET_TICKET_DETAIL  = "failed get ticket detail"
+	MESSAGE_SUCCESS_GET_TICKET_DETAIL = "success get ticket detail"
 )
 
 type CheckInRequest struct {
@@ -31,4 +34,20 @@ type CheckInResponse struct {
 	IsUsed       bool       `json:"is_used"`
 	UsedAt       *time.Time `json:"used_at"`
 	CheckedBy    *string    `json:"checked_by"`
+}
+
+// TicketDetailResponse adalah ringkasan tiket peserta untuk halaman registrasi
+// (lookup read-only, tidak mengubah status tiket).
+type TicketDetailResponse struct {
+	ID            string     `json:"id"`
+	TicketCode    string     `json:"ticket_code"`
+	AttendeeName  string     `json:"attendee_name"`
+	AttendeeEmail string     `json:"attendee_email"`
+	AttendeePhone *string    `json:"attendee_phone"`
+	TicketName    string     `json:"ticket_name"`
+	TierName      string     `json:"tier_name"`
+	OrderStatus   string     `json:"order_status"`
+	IsUsed        bool       `json:"is_used"`
+	UsedAt        *time.Time `json:"used_at"`
+	CheckedBy     *string    `json:"checked_by"`
 }
