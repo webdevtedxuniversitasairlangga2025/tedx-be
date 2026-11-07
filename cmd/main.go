@@ -15,6 +15,7 @@ import (
 	"github.com/webdevtedxuniversitasairlangga/modules/files"
 	"github.com/webdevtedxuniversitasairlangga/modules/merchandise"
 	"github.com/webdevtedxuniversitasairlangga/modules/order"
+	"github.com/webdevtedxuniversitasairlangga/modules/referral"
 	"github.com/webdevtedxuniversitasairlangga/modules/ticket"
 	"github.com/webdevtedxuniversitasairlangga/modules/todo"
 	"github.com/webdevtedxuniversitasairlangga/modules/user"
@@ -63,6 +64,7 @@ func main() {
 		user.RegisterRoutes(v1, injector)
 		ticket.RegisterRoutes(v1, injector)
 		order.RegisterRoutes(v1, injector)
+		referral.RegisterRoutes(v1, injector)
 		checkin.RegisterRoutes(v1, injector)
 		files.RegisterRoutes(v1)
 	}

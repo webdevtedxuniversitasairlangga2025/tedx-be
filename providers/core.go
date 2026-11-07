@@ -31,6 +31,9 @@ import (
 	orderHandler "github.com/webdevtedxuniversitasairlangga/modules/order/handler"
 	orderRepo "github.com/webdevtedxuniversitasairlangga/modules/order/repository"
 	orderService "github.com/webdevtedxuniversitasairlangga/modules/order/service"
+	referralHandler "github.com/webdevtedxuniversitasairlangga/modules/referral/handler"
+	referralRepo "github.com/webdevtedxuniversitasairlangga/modules/referral/repository"
+	referralService "github.com/webdevtedxuniversitasairlangga/modules/referral/service"
 
 	ticketHandler "github.com/webdevtedxuniversitasairlangga/modules/ticket/handler"
 	ticketRepo "github.com/webdevtedxuniversitasairlangga/modules/ticket/repository"
@@ -137,7 +140,12 @@ func RegisterDependencies(injector *do.Injector) {
 	)
 
 	orderRepository := orderRepo.NewOrderRepository(db)
-	orderSvc := orderService.NewOrderService(orderRepository, db)
+	referralRepository := referralRepo.NewReferralRepository(db)
+	referralSvc := referralService.NewReferralService(referralRepository, db)
+	orderSvc := orderService.NewOrderService(orderRepository, referralRepository, db)
+	do.Provide(injector, func(i *do.Injector) (referralHandler.ReferralHandler, error) {
+		return referralHandler.NewReferralHandler(referralSvc), nil
+	})
 
 	do.Provide(
 		injector, func(i *do.Injector) (orderHandler.OrderHandler, error) {

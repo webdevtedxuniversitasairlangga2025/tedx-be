@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"crypto/rand"
+	"errors"
 
 	"encoding/hex"
 	"fmt"
@@ -18,6 +19,9 @@ import (
 	"github.com/webdevtedxuniversitasairlangga/database/entities"
 	"github.com/webdevtedxuniversitasairlangga/modules/order/dto"
 	"github.com/webdevtedxuniversitasairlangga/modules/order/repository"
+	referralDTO "github.com/webdevtedxuniversitasairlangga/modules/referral/dto"
+	referralRepo "github.com/webdevtedxuniversitasairlangga/modules/referral/repository"
+	referralService "github.com/webdevtedxuniversitasairlangga/modules/referral/service"
 	"github.com/webdevtedxuniversitasairlangga/pkg/constants"
 	"github.com/webdevtedxuniversitasairlangga/pkg/utils"
 	"github.com/xuri/excelize/v2"
@@ -41,12 +45,13 @@ type OrderService interface {
 }
 
 type orderService struct {
-	repo repository.OrderRepository
-	db   *gorm.DB
+	repo         repository.OrderRepository
+	referralRepo referralRepo.ReferralRepository
+	db           *gorm.DB
 }
 
-func NewOrderService(repo repository.OrderRepository, db *gorm.DB) OrderService {
-	return &orderService{repo: repo, db: db}
+func NewOrderService(repo repository.OrderRepository, referralRepository referralRepo.ReferralRepository, db *gorm.DB) OrderService {
+	return &orderService{repo: repo, referralRepo: referralRepository, db: db}
 }
 
 func generateOrderNumber() string {
@@ -120,27 +125,47 @@ func toOrderResponse(o entities.Order) dto.OrderResponse {
 	if o.BuyerEmail != nil && *o.BuyerEmail != "" {
 		buyerEmail = *o.BuyerEmail
 	}
+	var referralCode *string
+	if o.ReferralCodeSnapshot != nil {
+		referralCode = o.ReferralCodeSnapshot
+	}
+	referralNotice := ""
+	if referralCode != nil && o.ReferralDiscountedCount == 0 {
+		referralNotice = "Kode referral tidak dapat diterapkan saat order dibuat. Order dilanjutkan dengan harga normal."
+	}
+	referralAllocations := make([]dto.ReferralAllocationResponse, 0, len(o.ReferralClaims))
+	for _, claim := range o.ReferralClaims {
+		referralAllocations = append(referralAllocations, dto.ReferralAllocationResponse{
+			AttendeePosition: claim.AttendeePosition,
+			DiscountAmount:   claim.DiscountAmount.StringFixed(2),
+		})
+	}
 	return dto.OrderResponse{
-		ID:              o.ID.String(),
-		UserID:          o.UserID.String(),
-		BuyerName:       o.User.Name,
-		BuyerPhone:      o.User.TelpNumber,
-		BuyerEmail:      buyerEmail,
-		TicketTierID:    o.TicketTierID.String(),
-		OrderNumber:     o.OrderNumber,
-		Quantity:        o.Quantity,
-		UnitPrice:       o.UnitPrice.StringFixed(2),
-		TotalAmount:     o.TotalAmount.StringFixed(2),
-		Status:          o.Status,
-		ExpiredAt:       o.ExpiredAt,
-		PaidAt:          o.PaidAt,
-		ApprovedBy:      approvedBy,
-		ApprovedAt:      o.ApprovedAt,
-		RejectedReason:  o.RejectedReason,
-		PaymentProofURL: o.PaymentProofURL,
-		CreatedAt:       o.CreatedAt,
-		UpdatedAt:       o.UpdatedAt,
-		AttendeeTickets: tickets,
+		ID:                      o.ID.String(),
+		UserID:                  o.UserID.String(),
+		BuyerName:               o.User.Name,
+		BuyerPhone:              o.User.TelpNumber,
+		BuyerEmail:              buyerEmail,
+		TicketTierID:            o.TicketTierID.String(),
+		OrderNumber:             o.OrderNumber,
+		Quantity:                o.Quantity,
+		UnitPrice:               o.UnitPrice.StringFixed(2),
+		TotalAmount:             o.TotalAmount.StringFixed(2),
+		Status:                  o.Status,
+		ExpiredAt:               o.ExpiredAt,
+		PaidAt:                  o.PaidAt,
+		ApprovedBy:              approvedBy,
+		ApprovedAt:              o.ApprovedAt,
+		RejectedReason:          o.RejectedReason,
+		PaymentProofURL:         o.PaymentProofURL,
+		CreatedAt:               o.CreatedAt,
+		UpdatedAt:               o.UpdatedAt,
+		AttendeeTickets:         tickets,
+		ReferralCode:            referralCode,
+		ReferralDiscountedCount: o.ReferralDiscountedCount,
+		ReferralTotalDiscount:   o.ReferralTotalDiscount.StringFixed(2),
+		ReferralAllocations:     referralAllocations,
+		ReferralNotice:          referralNotice,
 	}
 }
 
@@ -190,21 +215,78 @@ func (s *orderService) Create(ctx context.Context, userID string, req dto.OrderC
 		if available < req.Quantity {
 			return dto.ErrQuotaExceeded
 		}
+		var referralCode *entities.ReferralCode
+		var referralAllocations []referralDTO.ReferralAllocation
+		var referralDiscount decimal.Decimal
+		attendees := req.Attendees
+		if len(attendees) == 0 {
+			var buyer entities.User
+			if err := tx.WithContext(ctx).Where("id = ?", uid).Take(&buyer).Error; err != nil {
+				return err
+			}
+			email := buyer.Email
+			if req.BuyerEmail != nil && *req.BuyerEmail != "" {
+				email = *req.BuyerEmail
+			}
+			attendees = make([]dto.AttendeeCreateRequest, req.Quantity)
+			for i := range attendees {
+				attendees[i] = dto.AttendeeCreateRequest{AttendeeEmail: email}
+			}
+		}
+		if req.ReferralCode != nil && strings.TrimSpace(*req.ReferralCode) != "" {
+			code, err := s.referralRepo.GetByCode(ctx, tx, referralService.NormalizeReferralCode(*req.ReferralCode), true)
+			if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+				return err
+			}
+			if err == nil && code.IsActive {
+				redeemed, err := s.referralRepo.CountRedeemed(ctx, tx, code.ID)
+				if err != nil {
+					return err
+				}
+				claimed, err := s.referralRepo.FindClaimedEmails(ctx, tx, code.ID)
+				if err != nil {
+					return err
+				}
+				remaining := code.Quota - code.QuotaHeld - int(redeemed)
+				inputs := make([]referralDTO.ReferralAttendeeInput, len(attendees))
+				for i, attendee := range attendees {
+					inputs[i] = referralDTO.ReferralAttendeeInput{Email: attendee.AttendeeEmail, UnitPrice: tier.Price}
+				}
+				referralAllocations = referralService.AllocateDiscount(inputs, claimed, remaining, code.DiscountPerTicket)
+				if len(referralAllocations) > 0 {
+					referralCode = &code
+					referralDiscount = code.DiscountPerTicket.Mul(decimal.NewFromInt(int64(len(referralAllocations))))
+					code.QuotaHeld += len(referralAllocations)
+					if err := tx.WithContext(ctx).Model(&entities.ReferralCode{}).Where("id = ?", code.ID).Update("quota_held", code.QuotaHeld).Error; err != nil {
+						return err
+					}
+				}
+			}
+		}
 		tier.QuotaHeld += req.Quantity
 		if err := s.repo.UpdateTier(ctx, tx, tier); err != nil {
 			return err
 		}
 		order := entities.Order{
-			ID:           uuid.New(),
-			UserID:       uid,
-			TicketTierID: tierID,
-			OrderNumber:  generateOrderNumber(),
-			Quantity:     req.Quantity,
-			UnitPrice:    tier.Price,
-			TotalAmount:  tier.Price.Mul(decimal.NewFromInt(int64(req.Quantity))),
-			Status:       constants.ENUM_ORDER_STATUS_AWAITING_APPROVAL,
-			ExpiredAt:    now.Add(15 * time.Minute),
-			BuyerEmail:   req.BuyerEmail,
+			ID:                      uuid.New(),
+			UserID:                  uid,
+			TicketTierID:            tierID,
+			OrderNumber:             generateOrderNumber(),
+			Quantity:                req.Quantity,
+			UnitPrice:               tier.Price,
+			TotalAmount:             tier.Price.Mul(decimal.NewFromInt(int64(req.Quantity))).Sub(referralDiscount),
+			Status:                  constants.ENUM_ORDER_STATUS_AWAITING_APPROVAL,
+			ExpiredAt:               now.Add(15 * time.Minute),
+			BuyerEmail:              req.BuyerEmail,
+			ReferralDiscountedCount: len(referralAllocations),
+			ReferralTotalDiscount:   referralDiscount,
+		}
+		if req.ReferralCode != nil && strings.TrimSpace(*req.ReferralCode) != "" {
+			codeSnapshot := referralService.NormalizeReferralCode(*req.ReferralCode)
+			order.ReferralCodeSnapshot = &codeSnapshot
+		}
+		if referralCode != nil {
+			order.ReferralCodeID = &referralCode.ID
 		}
 		saved, err := s.repo.Create(ctx, tx, order)
 		if err != nil {
@@ -273,6 +355,22 @@ func (s *orderService) Create(ctx context.Context, userID string, req dto.OrderC
 		}
 		if err := s.repo.CreateAttendeeTickets(ctx, tx, tickets); err != nil {
 			return err
+		}
+		if referralCode != nil {
+			claims := make([]entities.ReferralClaim, 0, len(referralAllocations))
+			for _, allocation := range referralAllocations {
+				claims = append(claims, entities.ReferralClaim{
+					ReferralCodeID:   referralCode.ID,
+					OrderID:          saved.ID,
+					AttendeeEmail:    referralService.NormalizeAttendeeEmail(attendees[allocation.AttendeePosition].AttendeeEmail),
+					AttendeePosition: allocation.AttendeePosition,
+					DiscountAmount:   allocation.DiscountAmount,
+					Status:           entities.ReferralClaimHeld,
+				})
+			}
+			if err := s.referralRepo.CreateClaims(ctx, tx, claims); err != nil {
+				return err
+			}
 		}
 		created = toOrderResponse(saved)
 		return nil
@@ -408,6 +506,21 @@ func (s *orderService) Approve(ctx context.Context, adminID string, id string) (
 		}
 		now := time.Now()
 		order.Status = constants.ENUM_ORDER_STATUS_PAID
+		if order.ReferralCodeID != nil {
+			if err := s.referralRepo.RedeemClaims(ctx, tx, order.ID); err != nil {
+				return err
+			}
+			if err := tx.WithContext(ctx).Unscoped().Model(&entities.ReferralCode{}).
+				Where("id = ? AND quota_held >= ?", *order.ReferralCodeID, order.ReferralDiscountedCount).
+				Update("quota_held", gorm.Expr("quota_held - ?", order.ReferralDiscountedCount)).Error; err != nil {
+				return err
+			}
+			if err := tx.WithContext(ctx).Unscoped().Model(&entities.ReferralCode{}).
+				Where("id = ?", *order.ReferralCodeID).
+				Update("quota_used", gorm.Expr("quota_used + ?", order.ReferralDiscountedCount)).Error; err != nil {
+				return err
+			}
+		}
 		order.PaidAt = &now
 		order.ApprovedBy = &adminUID
 		order.ApprovedAt = &now
@@ -465,6 +578,11 @@ func (s *orderService) Reject(ctx context.Context, adminID string, id string, re
 		}
 		now := time.Now()
 		order.Status = constants.ENUM_ORDER_STATUS_REJECTED
+		if order.ReferralCodeID != nil {
+			if _, err := s.referralRepo.ReleaseClaims(ctx, tx, *order.ReferralCodeID, order.ID); err != nil {
+				return err
+			}
+		}
 		order.RejectedReason = &req.Reason
 		order.ApprovedBy = &adminUID
 		order.ApprovedAt = &now
@@ -552,6 +670,11 @@ func (s *orderService) Cancel(ctx context.Context, userID string, id string) (dt
 			return err
 		}
 		order.Status = constants.ENUM_ORDER_STATUS_CANCELLED
+		if order.ReferralCodeID != nil {
+			if _, err := s.referralRepo.ReleaseClaims(ctx, tx, *order.ReferralCodeID, order.ID); err != nil {
+				return err
+			}
+		}
 		updated, err := s.repo.Update(ctx, tx, order)
 		if err != nil {
 			return err
@@ -596,6 +719,11 @@ func (s *orderService) ReleaseExpiredHolds(ctx context.Context) (int64, error) {
 				return err
 			}
 			fresh.Status = constants.ENUM_ORDER_STATUS_EXPIRED
+			if fresh.ReferralCodeID != nil {
+				if _, err := s.referralRepo.ReleaseClaims(ctx, tx, *fresh.ReferralCodeID, fresh.ID); err != nil {
+					return err
+				}
+			}
 			_, err = s.repo.Update(ctx, tx, fresh)
 			return err
 		})

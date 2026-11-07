@@ -1,0 +1,95 @@
+- generic [ref=f9e3]:
+  - banner [ref=f9e4]:
+    - generic [ref=f9e5]:
+      - link [ref=f9e6] [cursor=pointer]:
+        - /url: /
+        - img "TEDx Universitas Airlangga" [ref=f9e7]
+      - navigation [ref=f9e8]:
+        - link "Home" [ref=f9e9] [cursor=pointer]:
+          - /url: /
+        - button "About" [ref=f9e12] [cursor=pointer]
+        - button "Events" [ref=f9e17] [cursor=pointer]
+        - button "Shops" [ref=f9e22] [cursor=pointer]
+        - link "LFSS" [ref=f9e26] [cursor=pointer]:
+          - /url: /lfss
+        - link "Art Showcase" [ref=f9e27] [cursor=pointer]:
+          - /url: /art-showcase
+        - link "Sponsorship" [ref=f9e28] [cursor=pointer]:
+          - /url: /sponsorship
+      - button "dejongfrenkie26@gmail.com" [ref=f9e30] [cursor=pointer]
+  - main [ref=f9e33]:
+    - generic [ref=f9e34]:
+      - heading "TEDx Universitas Airlangga Tickets" [level=1] [ref=f9e35]
+      - img "TEDx Universitas Airlangga" [ref=f9e37]
+      - generic [ref=f9e38]:
+        - img "Pintu melengkung dengan akar mycelium" [ref=f9e39]
+        - navigation "Navigasi event" [ref=f9e40]:
+          - button "MAIN EVENT" [ref=f9e42] [cursor=pointer]
+          - button "PRE-EVENT" [ref=f9e45] [cursor=pointer]
+    - generic [ref=f9e47]:
+      - generic [ref=f9e49]:
+        - heading [level=2] [ref=f9e50]:
+          - img "Main Event" [ref=f9e51]
+        - generic [ref=f9e52]:
+          - figure "Peta lokasi Main Event" [ref=f9e53]:
+            - iframe [ref=f9e55]
+          - article [ref=f9e57]:
+            - generic:
+              - img "Mylo, maskot TEDxUA"
+            - generic [ref=f9e59]:
+              - heading "SAVE THE DATE" [level=3] [ref=f9e60]
+              - list [ref=f9e61]:
+                - listitem [ref=f9e62]:
+                  - generic [ref=f9e65]: Saturday, 21 November 2026
+                - listitem [ref=f9e66]:
+                  - generic [ref=f9e70]: 09:00 AM - 16.00 PM
+                - listitem [ref=f9e71]:
+                  - generic [ref=f9e75]: The Capital Hotel Jl. Raya Jemursari No. 258, Prapen, Kec. Tenggilis Mejoyo, Surabaya 60299
+      - generic [ref=f9e77]:
+        - heading [level=2] [ref=f9e78]:
+          - img "Pre-Event" [ref=f9e79]
+        - generic [ref=f9e80]:
+          - article [ref=f9e81]:
+            - generic:
+              - img "Mylo, maskot TEDxUA"
+            - generic [ref=f9e83]:
+              - heading "SAVE THE DATE" [level=3] [ref=f9e84]
+              - list [ref=f9e85]:
+                - listitem [ref=f9e86]:
+                  - generic [ref=f9e89]: Saturday, 31 October 2026
+                - listitem [ref=f9e90]:
+                  - generic [ref=f9e94]: 09:00 AM
+                - listitem [ref=f9e95]:
+                  - generic [ref=f9e99]: ETHNIC’A ( Jl.Jawa No. 25, Gubeng, Surabaya, Jawa Timur )
+          - figure "Peta lokasi Pre-Event" [ref=f9e100]:
+            - iframe [ref=f9e102]
+      - generic [ref=f9e104]:
+        - paragraph [ref=f9e105]: Pick Your Ticket!
+        - generic [ref=f9e107]:
+          - button "Scroll tiket ke kiri" [disabled]
+          - button "Scroll tiket ke kanan" [ref=f9e108] [cursor=pointer]
+          - list [ref=f9e111]:
+            - listitem [ref=f9e112]
+            - listitem [ref=f9e117]
+            - listitem [ref=f9e122]
+            - listitem [ref=f9e127]
+            - listitem [ref=f9e132]
+        - button "SUPPORT AND INFORMATION" [ref=f9e138] [cursor=pointer]
+  - contentinfo:
+    - generic:
+      - generic [ref=f9e141]:
+        - img "TEDx Universitas Airlangga" [ref=f9e142]
+        - paragraph [ref=f9e143]: TEDxUniversitasAirlangga is organized by an independent community within the scope of BEM FEB Universitas Airlangga to spread new ideas and spark conversation at the university level.
+      - generic [ref=f9e144]:
+        - generic [ref=f9e145]: Connect With Us
+        - generic [ref=f9e146]:
+          - link "Instagram" [ref=f9e147] [cursor=pointer]:
+            - /url: https://www.instagram.com/tedxuniversitasairlangga/
+          - link "TikTok" [ref=f9e152] [cursor=pointer]:
+            - /url: https://www.tiktok.com/@tedxunair
+          - link "LinkedIn" [ref=f9e155] [cursor=pointer]:
+            - /url: https://www.linkedin.com/company/tedxuniversitasairlangga/
+        - generic [ref=f9e158]: "Beneath What We See: The Mycelium"
+    - generic [ref=f9e159]:
+      - paragraph [ref=f9e160]: ©2026 All Rights Reserved
+      - paragraph [ref=f9e161]: This independent TEDx event is operated under license from TED

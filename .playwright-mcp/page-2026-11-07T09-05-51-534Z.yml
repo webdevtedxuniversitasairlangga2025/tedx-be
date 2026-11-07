@@ -1,0 +1,67 @@
+- generic [ref=f13e217]:
+  - banner [ref=f13e218]:
+    - generic [ref=f13e219]:
+      - link [ref=f13e220] [cursor=pointer]:
+        - /url: /
+        - img "TEDx Universitas Airlangga" [ref=f13e221]
+      - navigation [ref=f13e222]:
+        - link "Home" [ref=f13e223] [cursor=pointer]:
+          - /url: /
+        - button "About" [ref=f13e226] [cursor=pointer]
+        - button "Events" [ref=f13e231] [cursor=pointer]
+        - button "Shops" [ref=f13e236] [cursor=pointer]
+        - link "LFSS" [ref=f13e240] [cursor=pointer]:
+          - /url: /lfss
+        - link "Art Showcase" [ref=f13e241] [cursor=pointer]:
+          - /url: /art-showcase
+        - link "Sponsorship" [ref=f13e242] [cursor=pointer]:
+          - /url: /sponsorship
+      - button "zhafirliban339@gmail.com" [ref=f13e244] [cursor=pointer]
+  - main [ref=f13e246]:
+    - generic [ref=f13e247]:
+      - heading "IDENTITY" [level=1] [ref=f13e248]
+      - img "IDENTITY" [ref=f13e249]
+    - generic [ref=f13e250]:
+      - generic [ref=f13e251]: TEDx Main Event — TEDx Main Event 1
+      - generic [ref=f13e252]: Rp 100.000 / ticket
+      - generic [ref=f13e253]: "1 ticket — Total: Rp 100.000"
+      - generic [ref=f13e254]: "Remaining seats: 2"
+    - generic [ref=f13e259]:
+      - generic [ref=f13e260]:
+        - generic [ref=f13e261]: Ticket 1
+        - generic [ref=f13e262]:
+          - generic [ref=f13e264]:
+            - generic [ref=f13e265]: "Name :"
+            - textbox "Name :" [ref=f13e266]
+          - generic [ref=f13e268]:
+            - generic [ref=f13e269]: "Email :"
+            - textbox "Email :" [ref=f13e270]
+          - generic [ref=f13e272]:
+            - generic [ref=f13e273]: "Phone Number :"
+            - textbox "Phone Number :" [ref=f13e274]
+      - generic [ref=f13e275]:
+        - generic [ref=f13e276]: Kode referral (opsional)
+        - generic [ref=f13e277]:
+          - textbox "Kode referral (opsional)" [ref=f13e278]
+          - button "Terapkan" [ref=f13e279] [cursor=pointer]
+      - generic [ref=f13e280]:
+        - button "CONTINUE" [ref=f13e281] [cursor=pointer]
+        - button "BACK" [ref=f13e283] [cursor=pointer]
+  - contentinfo:
+    - generic:
+      - generic [ref=f13e286]:
+        - img "TEDx Universitas Airlangga" [ref=f13e287]
+        - paragraph [ref=f13e288]: TEDxUniversitasAirlangga is organized by an independent community within the scope of BEM FEB Universitas Airlangga to spread new ideas and spark conversation at the university level.
+      - generic [ref=f13e289]:
+        - generic [ref=f13e290]: Connect With Us
+        - generic [ref=f13e291]:
+          - link "Instagram" [ref=f13e292] [cursor=pointer]:
+            - /url: https://www.instagram.com/tedxuniversitasairlangga/
+          - link "TikTok" [ref=f13e297] [cursor=pointer]:
+            - /url: https://www.tiktok.com/@tedxunair
+          - link "LinkedIn" [ref=f13e300] [cursor=pointer]:
+            - /url: https://www.linkedin.com/company/tedxuniversitasairlangga/
+        - generic [ref=f13e303]: "Beneath What We See: The Mycelium"
+    - generic [ref=f13e304]:
+      - paragraph [ref=f13e305]: ©2026 All Rights Reserved
+      - paragraph [ref=f13e306]: This independent TEDx event is operated under license from TED

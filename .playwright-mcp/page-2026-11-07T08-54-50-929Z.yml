@@ -1,0 +1,75 @@
+- generic [ref=f8e3]:
+  - complementary [ref=f8e4]:
+    - generic [ref=f8e6]:
+      - generic [ref=f8e7]: X
+      - generic [ref=f8e9]:
+        - generic [ref=f8e10]:
+          - generic [ref=f8e11]: TEDx
+          - generic [ref=f8e12]: Unair
+        - paragraph [ref=f8e13]: Admin Panel
+    - navigation [ref=f8e14]:
+      - link "Dashboard" [ref=f8e15] [cursor=pointer]:
+        - /url: /admin
+      - link "Bundles" [ref=f8e22] [cursor=pointer]:
+        - /url: /admin/bundles
+      - link "Tickets" [ref=f8e28] [cursor=pointer]:
+        - /url: /admin/tickets
+      - link "Referral" [ref=f8e32] [cursor=pointer]:
+        - /url: /admin/referrals
+      - button "Merchandise" [ref=f8e38] [cursor=pointer]
+      - link "Payments" [ref=f8e46] [cursor=pointer]:
+        - /url: /admin/payments
+      - link "Registrasi Peserta" [ref=f8e50] [cursor=pointer]:
+        - /url: /admin/checkin
+      - link "Users" [ref=f8e57] [cursor=pointer]:
+        - /url: /admin/users
+    - generic [ref=f8e64]:
+      - link "Lihat Website" [ref=f8e65] [cursor=pointer]:
+        - /url: /
+      - button "Logout" [ref=f8e70] [cursor=pointer]
+  - generic [ref=f8e75]:
+    - banner [ref=f8e76]:
+      - generic [ref=f8e77]:
+        - button "Toggle Navigation Menu" [ref=f8e78] [cursor=pointer]
+        - navigation [ref=f8e80]:
+          - generic [ref=f8e81]: Dashboard
+          - generic [ref=f8e84]: referrals
+      - generic [ref=f8e85]:
+        - generic [ref=f8e86]:
+          - paragraph [ref=f8e87]: Admin
+          - paragraph [ref=f8e88]: dejongfrenkie26@gmail.com
+        - generic [ref=f8e89]: A
+    - main [ref=f8e90]:
+      - main [ref=f8e91]:
+        - heading "Kode Referral" [level=1] [ref=f8e92]
+        - generic [ref=f8e93]:
+          - generic [ref=f8e94]:
+            - text: Kode
+            - textbox "Kode" [ref=f8e95]
+          - generic [ref=f8e96]:
+            - text: Diskon per tiket
+            - spinbutton "Diskon per tiket" [ref=f8e97]
+          - generic [ref=f8e98]:
+            - text: Jatah tiket
+            - spinbutton "Jatah tiket" [ref=f8e99]
+          - button "Buat kode" [ref=f8e100] [cursor=pointer]
+        - table [ref=f8e135]:
+          - rowgroup [ref=f8e136]:
+            - row [ref=f8e137]:
+              - columnheader "Kode" [ref=f8e138]
+              - columnheader "Diskon/tiket" [ref=f8e139]
+              - columnheader "Jatah" [ref=f8e140]
+              - columnheader "Ditahan" [ref=f8e141]
+              - columnheader "Tersisa" [ref=f8e142]
+              - columnheader "Status" [ref=f8e143]
+              - columnheader "Aksi" [ref=f8e144]
+          - rowgroup [ref=f8e145]:
+            - row [ref=f8e146]:
+              - cell "PWTESTNOV07" [ref=f8e147]
+              - cell "Rp 1.00" [ref=f8e148]
+              - cell "2" [ref=f8e149]
+              - cell "0" [ref=f8e150]
+              - cell "2" [ref=f8e151]
+              - cell "Nonaktif" [ref=f8e152]
+              - cell [ref=f8e153]:
+                - button "Aktifkan" [ref=f8e154] [cursor=pointer]

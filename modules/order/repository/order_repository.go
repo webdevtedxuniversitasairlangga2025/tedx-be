@@ -53,7 +53,7 @@ func (r *orderRepository) Create(ctx context.Context, tx *gorm.DB, order entitie
 func (r *orderRepository) GetByID(ctx context.Context, tx *gorm.DB, id uuid.UUID) (entities.Order, error) {
 	db := r.dbOrTx(tx)
 	var order entities.Order
-	if err := db.WithContext(ctx).Preload("AttendeeTickets").Where("id = ?", id).Take(&order).Error; err != nil {
+	if err := db.WithContext(ctx).Preload("AttendeeTickets").Preload("ReferralClaims").Where("id = ?", id).Take(&order).Error; err != nil {
 		return entities.Order{}, err
 	}
 	return order, nil
@@ -62,7 +62,7 @@ func (r *orderRepository) GetByID(ctx context.Context, tx *gorm.DB, id uuid.UUID
 func (r *orderRepository) GetByIDForUpdate(ctx context.Context, tx *gorm.DB, id uuid.UUID) (entities.Order, error) {
 	db := r.dbOrTx(tx)
 	var order entities.Order
-	if err := db.WithContext(ctx).Clauses(clause.Locking{Strength: "UPDATE"}).Preload("AttendeeTickets").Where("id = ?", id).Take(&order).Error; err != nil {
+	if err := db.WithContext(ctx).Clauses(clause.Locking{Strength: "UPDATE"}).Preload("AttendeeTickets").Preload("ReferralClaims").Where("id = ?", id).Take(&order).Error; err != nil {
 		return entities.Order{}, err
 	}
 	return order, nil

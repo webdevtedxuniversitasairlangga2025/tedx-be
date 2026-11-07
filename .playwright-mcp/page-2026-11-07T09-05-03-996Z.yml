@@ -1,0 +1,152 @@
+- generic [ref=f13e3]:
+  - banner [ref=f13e4]:
+    - generic [ref=f13e5]:
+      - link [ref=f13e6] [cursor=pointer]:
+        - /url: /
+        - img "TEDx Universitas Airlangga" [ref=f13e7]
+      - navigation [ref=f13e8]:
+        - link "Home" [ref=f13e9] [cursor=pointer]:
+          - /url: /
+        - button "About" [ref=f13e12] [cursor=pointer]
+        - button "Events" [ref=f13e17] [cursor=pointer]
+        - button "Shops" [ref=f13e22] [cursor=pointer]
+        - link "LFSS" [ref=f13e26] [cursor=pointer]:
+          - /url: /lfss
+        - link "Art Showcase" [ref=f13e27] [cursor=pointer]:
+          - /url: /art-showcase
+        - link "Sponsorship" [ref=f13e28] [cursor=pointer]:
+          - /url: /sponsorship
+      - button "zhafirliban339@gmail.com" [ref=f13e30] [cursor=pointer]
+  - main [ref=f13e33]:
+    - generic [ref=f13e34]:
+      - heading "TEDx Universitas Airlangga Tickets" [level=1] [ref=f13e35]
+      - img "TEDx Universitas Airlangga" [ref=f13e37]
+      - generic [ref=f13e38]:
+        - img "Pintu melengkung dengan akar mycelium" [ref=f13e39]
+        - navigation "Navigasi event" [ref=f13e40]:
+          - button "MAIN EVENT" [ref=f13e42] [cursor=pointer]
+          - button "PRE-EVENT" [ref=f13e45] [cursor=pointer]
+    - generic [ref=f13e47]:
+      - generic [ref=f13e49]:
+        - heading [level=2] [ref=f13e50]:
+          - img "Main Event" [ref=f13e51]
+        - generic [ref=f13e52]:
+          - figure "Peta lokasi Main Event" [ref=f13e53]:
+            - iframe [ref=f13e55]
+          - article [ref=f13e57]:
+            - generic:
+              - img "Mylo, maskot TEDxUA"
+            - generic [ref=f13e59]:
+              - heading "SAVE THE DATE" [level=3] [ref=f13e60]
+              - list [ref=f13e61]:
+                - listitem [ref=f13e62]:
+                  - generic [ref=f13e65]: Saturday, 21 November 2026
+                - listitem [ref=f13e66]:
+                  - generic [ref=f13e70]: 09:00 AM - 16.00 PM
+                - listitem [ref=f13e71]:
+                  - generic [ref=f13e75]: The Capital Hotel Jl. Raya Jemursari No. 258, Prapen, Kec. Tenggilis Mejoyo, Surabaya 60299
+      - generic [ref=f13e77]:
+        - heading [level=2] [ref=f13e160]:
+          - img "Pre-Event" [ref=f13e161]
+        - generic [ref=f13e78]:
+          - article [ref=f13e79]:
+            - generic:
+              - img "Mylo, maskot TEDxUA"
+            - generic [ref=f13e81]:
+              - heading "SAVE THE DATE" [level=3] [ref=f13e82]
+              - list [ref=f13e83]:
+                - listitem [ref=f13e84]:
+                  - generic [ref=f13e87]: Saturday, 31 October 2026
+                - listitem [ref=f13e88]:
+                  - generic [ref=f13e92]: 09:00 AM
+                - listitem [ref=f13e93]:
+                  - generic [ref=f13e97]: ETHNIC’A ( Jl.Jawa No. 25, Gubeng, Surabaya, Jawa Timur )
+          - figure "Peta lokasi Pre-Event" [ref=f13e98]:
+            - iframe [ref=f13e100]
+      - generic [ref=f13e102]:
+        - paragraph [ref=f13e103]: Pick Your Ticket!
+        - generic [ref=f13e104]:
+          - generic [ref=f13e105]:
+            - button "Scroll tiket ke kiri" [disabled]
+            - button "Scroll tiket ke kanan" [ref=f13e106] [cursor=pointer]
+            - list [ref=f13e109]:
+              - listitem [ref=f13e110] [cursor=pointer]:
+                - generic [ref=f13e111]:
+                  - img "TEDx Main Event" [ref=f13e162]
+                  - generic [ref=f13e163]:
+                    - generic [ref=f13e164]: TEDx Main Event
+                    - generic [ref=f13e165]: "-"
+                    - generic [ref=f13e166]: TEDx Main Event 1 Price
+                    - generic [ref=f13e167]: Rp 100.000
+                    - generic [ref=f13e168]: 2 seats left
+              - listitem [ref=f13e115]:
+                - generic [ref=f13e116]:
+                  - img "Early Bird" [ref=f13e169]
+                  - generic [ref=f13e170]:
+                    - generic [ref=f13e171]: Early Bird
+                    - generic [ref=f13e172]: Main Event TEDxUNAIR
+                    - generic [ref=f13e173]: Early Bird
+                    - generic [ref=f13e174]: TBA
+                    - generic [ref=f13e175]: Coming Soon
+              - listitem [ref=f13e120]:
+                - generic [ref=f13e121]:
+                  - img "Pre-Sale 1" [ref=f13e176]
+                  - generic [ref=f13e177]:
+                    - generic [ref=f13e178]: Pre-Sale 1
+                    - generic [ref=f13e179]: Main Event TEDxUNAIR
+                    - generic [ref=f13e180]: Pre-Sale 1
+                    - generic [ref=f13e181]: TBA
+                    - generic [ref=f13e182]: Coming Soon
+              - listitem [ref=f13e125]:
+                - generic [ref=f13e126]:
+                  - img "Pre-Sale 2" [ref=f13e183]
+                  - generic [ref=f13e184]:
+                    - generic [ref=f13e185]: Pre-Sale 2
+                    - generic [ref=f13e186]: Main Event TEDxUNAIR
+                    - generic [ref=f13e187]: Pre-Sale 2
+                    - generic [ref=f13e188]: TBA
+                    - generic [ref=f13e189]: Coming Soon
+              - listitem [ref=f13e130]:
+                - generic [ref=f13e131]:
+                  - img "Normal Tickets" [ref=f13e190]
+                  - generic [ref=f13e191]:
+                    - generic [ref=f13e192]: Normal Tickets
+                    - generic [ref=f13e193]: Main Event TEDxUNAIR
+                    - generic [ref=f13e194]: Normal Price
+                    - generic [ref=f13e195]: TBA
+                    - generic [ref=f13e196]: Coming Soon
+          - dialog "Pilih jumlah tiket" [ref=f13e197]:
+            - generic [ref=f13e199]:
+              - generic [ref=f13e200]:
+                - generic [ref=f13e201]: TEDx Main Event — TEDx Main Event 1
+                - generic [ref=f13e202]: Pilih jumlah tiket (maks. 5)
+              - generic [ref=f13e203]:
+                - button "Kurangi jumlah tiket" [disabled] [ref=f13e204]
+                - generic [ref=f13e206]: "1"
+                - button "Tambah jumlah tiket" [ref=f13e207] [cursor=pointer]
+              - generic [ref=f13e209]: "Sisa kuota: 2"
+              - generic [ref=f13e210]:
+                - generic [ref=f13e211]: Rp 100.000 × 1 tiket
+                - generic [ref=f13e212]: Rp 100.000
+              - generic [ref=f13e213]:
+                - button "LANJUT" [ref=f13e214] [cursor=pointer]
+                - button "BATAL" [ref=f13e216] [cursor=pointer]
+        - button "SUPPORT AND INFORMATION" [ref=f13e136] [cursor=pointer]
+  - contentinfo:
+    - generic:
+      - generic [ref=f13e139]:
+        - img "TEDx Universitas Airlangga" [ref=f13e140]
+        - paragraph [ref=f13e141]: TEDxUniversitasAirlangga is organized by an independent community within the scope of BEM FEB Universitas Airlangga to spread new ideas and spark conversation at the university level.
+      - generic [ref=f13e142]:
+        - generic [ref=f13e143]: Connect With Us
+        - generic [ref=f13e144]:
+          - link "Instagram" [ref=f13e145] [cursor=pointer]:
+            - /url: https://www.instagram.com/tedxuniversitasairlangga/
+          - link "TikTok" [ref=f13e150] [cursor=pointer]:
+            - /url: https://www.tiktok.com/@tedxunair
+          - link "LinkedIn" [ref=f13e153] [cursor=pointer]:
+            - /url: https://www.linkedin.com/company/tedxuniversitasairlangga/
+        - generic [ref=f13e156]: "Beneath What We See: The Mycelium"
+    - generic [ref=f13e157]:
+      - paragraph [ref=f13e158]: ©2026 All Rights Reserved
+      - paragraph [ref=f13e159]: This independent TEDx event is operated under license from TED

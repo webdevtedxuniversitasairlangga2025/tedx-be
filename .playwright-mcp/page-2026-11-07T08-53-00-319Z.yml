@@ -1,0 +1,73 @@
+- generic [ref=f7e88]:
+  - complementary [ref=f7e89]:
+    - generic [ref=f7e91]:
+      - generic [ref=f7e92]: X
+      - generic [ref=f7e94]:
+        - generic [ref=f7e95]:
+          - generic [ref=f7e96]: TEDx
+          - generic [ref=f7e97]: Unair
+        - paragraph [ref=f7e98]: Admin Panel
+    - navigation [ref=f7e99]:
+      - link "Dashboard" [ref=f7e100] [cursor=pointer]:
+        - /url: /admin
+      - link "Bundles" [ref=f7e107] [cursor=pointer]:
+        - /url: /admin/bundles
+      - link "Tickets" [ref=f7e113] [cursor=pointer]:
+        - /url: /admin/tickets
+      - link "Referral" [ref=f7e117] [cursor=pointer]:
+        - /url: /admin/referrals
+      - button "Merchandise" [ref=f7e123] [cursor=pointer]
+      - link "Payments" [ref=f7e131] [cursor=pointer]:
+        - /url: /admin/payments
+      - link "Registrasi Peserta" [ref=f7e135] [cursor=pointer]:
+        - /url: /admin/checkin
+      - link "Users" [ref=f7e142] [cursor=pointer]:
+        - /url: /admin/users
+    - generic [ref=f7e149]:
+      - link "Lihat Website" [ref=f7e150] [cursor=pointer]:
+        - /url: /
+      - button "Logout" [ref=f7e155] [cursor=pointer]
+  - generic [ref=f7e160]:
+    - banner [ref=f7e161]:
+      - generic [ref=f7e162]:
+        - button "Toggle Navigation Menu" [ref=f7e163] [cursor=pointer]
+        - navigation [ref=f7e165]:
+          - generic [ref=f7e166]: Dashboard
+      - generic [ref=f7e167]:
+        - generic [ref=f7e168]:
+          - paragraph [ref=f7e169]: Admin
+          - paragraph [ref=f7e170]: dejongfrenkie26@gmail.com
+        - generic [ref=f7e171]: A
+    - main [ref=f7e172]:
+      - generic [ref=f7e173]:
+        - generic [ref=f7e175]:
+          - heading "Selamat datang, Admin" [level=1] [ref=f7e176]
+          - paragraph [ref=f7e177]: Berikut ringkasan data dan modul pengelolaan website TEDx Universitas Airlangga.
+        - generic [ref=f7e178]:
+          - link "Kelola 0 Total Bundles" [ref=f7e179] [cursor=pointer]:
+            - /url: /admin/bundles
+            - generic [ref=f7e180]: Kelola
+            - generic [ref=f7e191]:
+              - paragraph [ref=f7e192]: "0"
+              - paragraph [ref=f7e193]: Total Bundles
+          - link "Kelola 0 Total Merchandise" [ref=f7e194] [cursor=pointer]:
+            - /url: /admin/merchandise
+            - generic [ref=f7e195]: Kelola
+            - generic [ref=f7e205]:
+              - paragraph [ref=f7e206]: "0"
+              - paragraph [ref=f7e207]: Total Merchandise
+          - link "Kelola 4 Pengguna Terdaftar" [ref=f7e208] [cursor=pointer]:
+            - /url: /admin/users
+            - generic [ref=f7e209]: Kelola
+            - generic [ref=f7e221]:
+              - paragraph [ref=f7e222]: "4"
+              - paragraph [ref=f7e223]: Pengguna Terdaftar
+        - generic [ref=f7e224]:
+          - heading "Aksi Cepat" [level=2] [ref=f7e228]
+          - generic [ref=f7e229]:
+            - link "Tambah Bundle Baru" [ref=f7e230] [cursor=pointer]:
+              - /url: /admin/bundles/create
+            - link "Tambah Merchandise Baru" [ref=f7e233] [cursor=pointer]:
+              - /url: /admin/merchandise/create
+            - link "Manajemen Pengguna" [ref=f7e236] [cursor=pointer]:
+              - /url: /admin/users

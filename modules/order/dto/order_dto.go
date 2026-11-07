@@ -6,16 +6,16 @@ import (
 )
 
 const (
-	MESSAGE_FAILED_GET_DATA_FROM_BODY   = "failed get data from body"
-	MESSAGE_FAILED_CREATE_ORDER         = "failed create order"
-	MESSAGE_FAILED_GET_LIST_ORDER       = "failed get list order"
-	MESSAGE_FAILED_GET_ORDER            = "failed get order"
-	MESSAGE_FAILED_APPROVE_ORDER        = "failed approve order"
-	MESSAGE_FAILED_REJECT_ORDER         = "failed reject order"
-	MESSAGE_FAILED_UPLOAD_PROOF         = "failed upload payment proof"
-	MESSAGE_FAILED_RELEASE_EXPIRED      = "failed release expired holds"
-	MESSAGE_FAILED_DELETE_ORDER         = "failed delete order"
-	MESSAGE_FAILED_CANCEL_ORDER         = "failed cancel order"
+	MESSAGE_FAILED_GET_DATA_FROM_BODY = "failed get data from body"
+	MESSAGE_FAILED_CREATE_ORDER       = "failed create order"
+	MESSAGE_FAILED_GET_LIST_ORDER     = "failed get list order"
+	MESSAGE_FAILED_GET_ORDER          = "failed get order"
+	MESSAGE_FAILED_APPROVE_ORDER      = "failed approve order"
+	MESSAGE_FAILED_REJECT_ORDER       = "failed reject order"
+	MESSAGE_FAILED_UPLOAD_PROOF       = "failed upload payment proof"
+	MESSAGE_FAILED_RELEASE_EXPIRED    = "failed release expired holds"
+	MESSAGE_FAILED_DELETE_ORDER       = "failed delete order"
+	MESSAGE_FAILED_CANCEL_ORDER       = "failed cancel order"
 
 	MESSAGE_SUCCESS_CREATE_ORDER    = "success create order"
 	MESSAGE_SUCCESS_GET_LIST_ORDER  = "success get list order"
@@ -63,7 +63,8 @@ type OrderCreateRequest struct {
 	BuyerEmail *string `json:"buyer_email" binding:"omitempty,email,max=225"`
 	// buyer_phone dari form IdentifyStepper — simpan ke users.telp_number bila kosong
 	// (buyer_phone di response = users.telp_number, bukan field order)
-	BuyerPhone *string `json:"buyer_phone" binding:"omitempty,max=20"`
+	BuyerPhone   *string `json:"buyer_phone" binding:"omitempty,max=20"`
+	ReferralCode *string `json:"referral_code" binding:"omitempty,max=100"`
 }
 
 type OrderRejectRequest struct {
@@ -91,26 +92,36 @@ type AttendeeTicketResponse struct {
 }
 
 type OrderResponse struct {
-	ID              string                   `json:"id"`
-	UserID          string                   `json:"user_id"`
-	BuyerName       string                   `json:"buyer_name"`
-	BuyerPhone      *string                  `json:"buyer_phone"`
-	BuyerEmail      string                   `json:"buyer_email"`
-	TicketTierID    string                   `json:"ticket_tier_id"`
-	OrderNumber     string                   `json:"order_number"`
-	Quantity        int                      `json:"quantity"`
-	UnitPrice       string                   `json:"unit_price"`
-	TotalAmount     string                   `json:"total_amount"`
-	Status          string                   `json:"status"`
-	ExpiredAt       time.Time                `json:"expired_at"`
-	PaidAt          *time.Time               `json:"paid_at"`
-	ApprovedBy      *string                  `json:"approved_by"`
-	ApprovedAt      *time.Time               `json:"approved_at"`
-	RejectedReason  *string                  `json:"rejected_reason"`
-	PaymentProofURL *string                  `json:"payment_proof_url"`
-	CreatedAt       time.Time                `json:"created_at"`
-	UpdatedAt       time.Time                `json:"updated_at"`
-	AttendeeTickets []AttendeeTicketResponse `json:"attendee_tickets"`
+	ID                      string                       `json:"id"`
+	UserID                  string                       `json:"user_id"`
+	BuyerName               string                       `json:"buyer_name"`
+	BuyerPhone              *string                      `json:"buyer_phone"`
+	BuyerEmail              string                       `json:"buyer_email"`
+	TicketTierID            string                       `json:"ticket_tier_id"`
+	OrderNumber             string                       `json:"order_number"`
+	Quantity                int                          `json:"quantity"`
+	UnitPrice               string                       `json:"unit_price"`
+	TotalAmount             string                       `json:"total_amount"`
+	Status                  string                       `json:"status"`
+	ExpiredAt               time.Time                    `json:"expired_at"`
+	PaidAt                  *time.Time                   `json:"paid_at"`
+	ApprovedBy              *string                      `json:"approved_by"`
+	ApprovedAt              *time.Time                   `json:"approved_at"`
+	RejectedReason          *string                      `json:"rejected_reason"`
+	PaymentProofURL         *string                      `json:"payment_proof_url"`
+	CreatedAt               time.Time                    `json:"created_at"`
+	UpdatedAt               time.Time                    `json:"updated_at"`
+	AttendeeTickets         []AttendeeTicketResponse     `json:"attendee_tickets"`
+	ReferralCode            *string                      `json:"referral_code,omitempty"`
+	ReferralDiscountedCount int                          `json:"referral_discounted_count"`
+	ReferralTotalDiscount   string                       `json:"referral_total_discount"`
+	ReferralAllocations     []ReferralAllocationResponse `json:"referral_allocations,omitempty"`
+	ReferralNotice          string                       `json:"referral_notice,omitempty"`
+}
+
+type ReferralAllocationResponse struct {
+	AttendeePosition int    `json:"attendee_position"`
+	DiscountAmount   string `json:"discount_amount"`
 }
 
 type PaginationRequest struct {

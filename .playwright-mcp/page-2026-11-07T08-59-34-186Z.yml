@@ -1,0 +1,125 @@
+- generic [ref=f12e227]:
+  - banner [ref=f12e228]:
+    - generic [ref=f12e229]:
+      - link [ref=f12e230] [cursor=pointer]:
+        - /url: /
+        - img "TEDx Universitas Airlangga" [ref=f12e231]
+      - navigation [ref=f12e232]:
+        - link "Home" [ref=f12e233] [cursor=pointer]:
+          - /url: /
+        - button "About" [ref=f12e236] [cursor=pointer]
+        - button "Events" [ref=f12e241] [cursor=pointer]
+        - button "Shops" [ref=f12e246] [cursor=pointer]
+        - link "LFSS" [ref=f12e250] [cursor=pointer]:
+          - /url: /lfss
+        - link "Art Showcase" [ref=f12e251] [cursor=pointer]:
+          - /url: /art-showcase
+        - link "Sponsorship" [ref=f12e252] [cursor=pointer]:
+          - /url: /sponsorship
+      - button "zhafirliban339@gmail.com" [ref=f12e254] [cursor=pointer]
+  - generic [ref=f12e256]:
+    - generic [ref=f12e257]:
+      - img "Akar 1 Background"
+      - img "TEDx Universitas Airlangga" [ref=f12e259]
+      - img "Akar 2 Foreground"
+    - generic [ref=f12e260]:
+      - img "Akar Background Bottom"
+      - generic [ref=f12e261]:
+        - generic [ref=f12e262]:
+          - generic [ref=f12e263]:
+            - img "Akar Behind Mylo"
+            - img "Mylo Mascot" [ref=f12e264]
+          - generic [ref=f12e265]:
+            - generic [ref=f12e266]: Hi, I'm
+            - heading "MYLO" [level=1] [ref=f12e267] [cursor=pointer]
+        - paragraph [ref=f12e270]: I began as something unseen — quiet, unfinished, and easy to overlook. But like every small thing that eventually takes root, I'm here now to guide you through TEDxUniversitas Airlangga 2026, one step at a time.
+      - img "Jamur Kiri"
+      - img "Jamur Kanan"
+    - generic [ref=f12e271]:
+      - img "Akar 6 Background Bottom"
+      - generic [ref=f12e273]:
+        - img "About TEDx" [ref=f12e275]
+        - generic [ref=f12e276]:
+          - img "About TEDx Universitas Airlangga" [ref=f12e277]
+          - generic:
+            - img "Mascot TEDxUA"
+    - generic [ref=f12e278]:
+      - generic [ref=f12e279]:
+        - generic:
+          - img "What's On Previous TEDx Universitas Airlangga"
+        - generic [ref=f12e281] [cursor=pointer]:
+          - img "Video Preview Thumbnail" [ref=f12e282]
+          - button "Play Previous Event Video" [ref=f12e283]:
+            - img "Play Video Button" [ref=f12e284]
+      - img "Rumput Overlay Bottom"
+    - generic [ref=f12e286]:
+      - img "Grand Theme - Beneath What We See The Mycelium" [ref=f12e288]
+      - img "Main Theme Mycelium Illustration" [ref=f12e291]
+      - generic [ref=f12e292]:
+        - paragraph [ref=f12e294]: Far beneath the surface, long before a single flower blooms, a network of mycelium is already at work, unseen, unlit, and uncelebrated. Nothing above ground exists without what moves below it. Though often overlooked, the largest change is rarely born in the spotlight. It is born in silence, in roles unnamed, in effort no one thought to trace back to its source.
+        - paragraph [ref=f12e296]: This theme is an invitation to look beyond the surface, to notice that every individual carries a role, that every action leaves a trace, that meaningful change grows slowly from roots no one applauds. It is a reminder that true contribution is not always visible. But it is always felt, in what stands, in what holds, in what keeps quietly growing long after the credit has gone somewhere else.
+    - generic [ref=f12e297]:
+      - generic [ref=f12e299]:
+        - generic [ref=f12e300]: S
+        - generic [ref=f12e301]: UBTHEME
+      - generic [ref=f12e303]:
+        - generic [ref=f12e304]:
+          - img "Subtheme Card" [ref=f12e307]
+          - generic [ref=f12e308] [cursor=pointer]:
+            - generic [ref=f12e309]:
+              - generic [ref=f12e310]: THE
+              - generic [ref=f12e311]: GARDENERS
+            - generic [ref=f12e314]: OF
+            - generic [ref=f12e315]: BECOMING
+        - generic [ref=f12e319]:
+          - generic [ref=f12e320] [cursor=pointer]:
+            - generic [ref=f12e321]:
+              - generic [ref=f12e322]: THE
+              - generic [ref=f12e323]: INVISIBLE
+            - generic [ref=f12e326]: STRING
+          - img "Subtheme Card" [ref=f12e332]
+        - generic [ref=f12e333]:
+          - img "Subtheme Card" [ref=f12e336]
+          - generic [ref=f12e337] [cursor=pointer]:
+            - generic [ref=f12e338]:
+              - generic [ref=f12e339]: THE
+              - generic [ref=f12e340]: SLOW
+            - generic [ref=f12e343]: UNFOLDING
+      - link "Get To Know More →" [ref=f12e349] [cursor=pointer]:
+        - /url: /about/theme
+        - generic [ref=f12e350]: Get To Know More
+        - generic [ref=f12e351]: →
+    - generic [ref=f12e353]:
+      - generic:
+        - generic "Klik untuk pilih" [ref=f12e354] [cursor=pointer]:
+          - img "Card Merchandise" [ref=f12e355]
+        - generic "Klik untuk pilih" [ref=f12e356] [cursor=pointer]:
+          - img "Card Comson 2" [ref=f12e357]
+        - generic "Buka Card PE 1" [ref=f12e358] [cursor=pointer]:
+          - img "Card PE 1" [ref=f12e359]
+        - generic "Klik untuk pilih" [ref=f12e360] [cursor=pointer]:
+          - img "Card PE 2" [ref=f12e361]
+        - generic "Klik untuk pilih" [ref=f12e362] [cursor=pointer]:
+          - img "Card Ticketing" [ref=f12e363]
+      - button "Sebelumnya" [ref=f12e364] [cursor=pointer]:
+        - img "Tombol Kiri" [ref=f12e365]
+      - button "Selanjutnya" [ref=f12e366] [cursor=pointer]:
+        - img "Tombol Kanan" [ref=f12e367]
+  - contentinfo:
+    - generic:
+      - generic [ref=f12e368]:
+        - img "TEDx Universitas Airlangga" [ref=f12e369]
+        - paragraph [ref=f12e370]: TEDxUniversitasAirlangga is organized by an independent community within the scope of BEM FEB Universitas Airlangga to spread new ideas and spark conversation at the university level.
+      - generic [ref=f12e371]:
+        - generic [ref=f12e372]: Connect With Us
+        - generic [ref=f12e373]:
+          - link "Instagram" [ref=f12e374] [cursor=pointer]:
+            - /url: https://www.instagram.com/tedxuniversitasairlangga/
+          - link "TikTok" [ref=f12e379] [cursor=pointer]:
+            - /url: https://www.tiktok.com/@tedxunair
+          - link "LinkedIn" [ref=f12e382] [cursor=pointer]:
+            - /url: https://www.linkedin.com/company/tedxuniversitasairlangga/
+        - generic [ref=f12e385]: "Beneath What We See: The Mycelium"
+    - generic [ref=f12e386]:
+      - paragraph [ref=f12e387]: ©2026 All Rights Reserved
+      - paragraph [ref=f12e388]: This independent TEDx event is operated under license from TED

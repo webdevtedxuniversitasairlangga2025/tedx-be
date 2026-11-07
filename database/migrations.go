@@ -21,6 +21,8 @@ func Migrate(db *gorm.DB) error {
 		&entities.TicketTier{},
 		&entities.Order{},
 		&entities.AttendeeTicket{},
+		&entities.ReferralCode{},
+		&entities.ReferralClaim{},
 	)
 	if err != nil {
 		return err

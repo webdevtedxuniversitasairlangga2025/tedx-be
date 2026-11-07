@@ -1,0 +1,69 @@
+- generic [ref=f13e309]:
+  - banner [ref=f13e310]:
+    - generic [ref=f13e311]:
+      - link [ref=f13e312] [cursor=pointer]:
+        - /url: /
+        - img "TEDx Universitas Airlangga" [ref=f13e313]
+      - navigation [ref=f13e314]:
+        - link "Home" [ref=f13e315] [cursor=pointer]:
+          - /url: /
+        - button "About" [ref=f13e318] [cursor=pointer]
+        - button "Events" [ref=f13e323] [cursor=pointer]
+        - button "Shops" [ref=f13e328] [cursor=pointer]
+        - link "LFSS" [ref=f13e332] [cursor=pointer]:
+          - /url: /lfss
+        - link "Art Showcase" [ref=f13e333] [cursor=pointer]:
+          - /url: /art-showcase
+        - link "Sponsorship" [ref=f13e334] [cursor=pointer]:
+          - /url: /sponsorship
+      - button "zhafirliban339@gmail.com" [ref=f13e336] [cursor=pointer]
+  - main [ref=f13e338]:
+    - img "TEDx Universitas Airlangga" [ref=f13e340]
+    - generic [ref=f13e341]:
+      - heading "PAYMENT" [level=1] [ref=f13e342]
+      - img "PAYMENT" [ref=f13e343]
+    - generic [ref=f13e345]:
+      - generic [ref=f13e346]:
+        - generic [ref=f13e347]: "Main Event : TEDx Main Event 1"
+        - generic [ref=f13e348]: × 1
+      - generic [ref=f13e349]:
+        - generic [ref=f13e350]: "Order No:"
+        - generic [ref=f13e351]: ORD-20261107-21aa8486
+      - generic [ref=f13e352]:
+        - generic [ref=f13e353]: "Subtotal :"
+        - generic [ref=f13e354]: Rp 100.000 × 1
+      - generic [ref=f13e355]:
+        - generic [ref=f13e356]: "Total :"
+        - generic [ref=f13e357]: Rp 100.000
+    - generic [ref=f13e362]:
+      - generic [ref=f13e363]: "Payment Time Remaining:"
+      - generic [ref=f13e364]: 13:28
+    - heading "Pay" [level=2] [ref=f13e365]
+    - img "QRIS TEDx Universitas Airlangga" [ref=f13e367]
+    - link "DOWNLOAD QRIS" [ref=f13e368] [cursor=pointer]:
+      - /url: /src/assets/images/tickets/qris-code.webp
+    - heading "Upload" [level=2] [ref=f13e372]
+    - generic [ref=f13e374]:
+      - heading "Upload Your Proof of Payment" [level=3] [ref=f13e375]
+      - generic [ref=f13e376] [cursor=pointer]
+    - generic [ref=f13e381]:
+      - button "CONFIRM PAYMENT" [ref=f13e382] [cursor=pointer]
+      - button "BACK" [ref=f13e384] [cursor=pointer]
+  - contentinfo:
+    - generic:
+      - generic [ref=f13e387]:
+        - img "TEDx Universitas Airlangga" [ref=f13e388]
+        - paragraph [ref=f13e389]: TEDxUniversitasAirlangga is organized by an independent community within the scope of BEM FEB Universitas Airlangga to spread new ideas and spark conversation at the university level.
+      - generic [ref=f13e390]:
+        - generic [ref=f13e391]: Connect With Us
+        - generic [ref=f13e392]:
+          - link "Instagram" [ref=f13e393] [cursor=pointer]:
+            - /url: https://www.instagram.com/tedxuniversitasairlangga/
+          - link "TikTok" [ref=f13e398] [cursor=pointer]:
+            - /url: https://www.tiktok.com/@tedxunair
+          - link "LinkedIn" [ref=f13e401] [cursor=pointer]:
+            - /url: https://www.linkedin.com/company/tedxuniversitasairlangga/
+        - generic [ref=f13e404]: "Beneath What We See: The Mycelium"
+    - generic [ref=f13e405]:
+      - paragraph [ref=f13e406]: ©2026 All Rights Reserved
+      - paragraph [ref=f13e407]: This independent TEDx event is operated under license from TED

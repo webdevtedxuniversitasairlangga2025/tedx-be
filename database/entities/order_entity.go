@@ -30,13 +30,18 @@ type Order struct {
 	PaymentProofURL       *string         `gorm:"size:500"`
 	// BuyerEmail snapshot email form IdentifyStepper (tujuan e-ticket).
 	// users.email tidak diubah: identitas login + risiko konflik unique.
-	BuyerEmail            *string         `gorm:"size:225"`
-	User                  User            `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT"`
-	TicketTier            TicketTier      `gorm:"foreignKey:TicketTierID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT"`
-	ApprovedByUser        *User           `gorm:"foreignKey:ApprovedBy;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
-	DeletedAt             gorm.DeletedAt  `gorm:"index" json:"deleted_at"`
+	BuyerEmail              *string         `gorm:"size:225"`
+	ReferralCodeID          *uuid.UUID      `gorm:"type:uuid;index"`
+	ReferralCodeSnapshot    *string         `gorm:"size:100"`
+	ReferralDiscountedCount int             `gorm:"not null;default:0"`
+	ReferralTotalDiscount   decimal.Decimal `gorm:"type:numeric(10,2);not null;default:0"`
+	User                    User            `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT"`
+	TicketTier              TicketTier      `gorm:"foreignKey:TicketTierID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT"`
+	ApprovedByUser          *User           `gorm:"foreignKey:ApprovedBy;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
+	DeletedAt               gorm.DeletedAt  `gorm:"index" json:"deleted_at"`
 
 	AttendeeTickets []AttendeeTicket
+	ReferralClaims  []ReferralClaim
 
 	Timestamp
 }
@@ -49,6 +54,6 @@ func (o *Order) BeforeCreate(_ *gorm.DB) (err error) {
 	if o.Status == "" {
 		o.Status = constants.ENUM_ORDER_STATUS_PENDING
 	}
-	
+
 	return nil
 }
