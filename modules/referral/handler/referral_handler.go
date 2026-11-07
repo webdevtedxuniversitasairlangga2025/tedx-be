@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -75,7 +76,7 @@ func (h *referralHandler) Delete(c *gin.Context) {
 	}
 	if err := h.service.Delete(c.Request.Context(), c.Param("id")); err != nil {
 		status := http.StatusInternalServerError
-		if err == gorm.ErrRecordNotFound {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			status = http.StatusNotFound
 		}
 		c.JSON(status, utils.BuildResponseFailed("failed delete referral code", err.Error(), nil))
