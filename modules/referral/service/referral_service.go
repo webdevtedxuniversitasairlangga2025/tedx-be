@@ -108,8 +108,14 @@ func (s *referralService) Preview(ctx context.Context, req dto.ReferralPreviewRe
 		return response, nil
 	}
 	code, err := s.repo.GetByCode(ctx, nil, NormalizeReferralCode(req.Code), false)
-	if err != nil || !code.IsActive {
-		response.Reason = "Kode referral tidak tersedia. Order dapat dilanjutkan dengan harga normal."
+	if err != nil {
+		response.ReasonCode = dto.ReasonNotFound
+		response.Reason = "Kode referral tidak ditemukan."
+		return response, nil
+	}
+	if !code.IsActive {
+		response.ReasonCode = dto.ReasonInactive
+		response.Reason = "Kode referral sudah tidak aktif."
 		return response, nil
 	}
 	claimed, err := s.repo.FindClaimedEmails(ctx, nil, code.ID)
@@ -131,9 +137,27 @@ func (s *referralService) Preview(ctx context.Context, req dto.ReferralPreviewRe
 	response.DiscountedAttendeeCount = len(response.Allocations)
 	response.TotalDiscount = code.DiscountPerTicket.Mul(decimal.NewFromInt(int64(len(response.Allocations)))).StringFixed(2)
 	if !response.Applicable {
-		response.Reason = "Kode referral tidak dapat diterapkan. Order dapat dilanjutkan dengan harga normal."
+		response.ReasonCode = ClassifyPreviewFailure(attendees, claimed, remaining, code.DiscountPerTicket)
+		response.Reason = ReferralFailureMessage(response.ReasonCode)
 	}
 	return response, nil
+}
+
+func ReferralFailureMessage(reasonCode string) string {
+	switch reasonCode {
+	case dto.ReasonNotFound:
+		return "Kode referral tidak ditemukan."
+	case dto.ReasonInactive:
+		return "Kode referral sudah tidak aktif."
+	case dto.ReasonAlreadyUsed:
+		return "Kode referral telah digunakan."
+	case dto.ReasonQuotaExhausted:
+		return "Kuota kode referral sudah habis."
+	case dto.ReasonPriceIneligible:
+		return "Kode referral tidak berlaku untuk tiket ini."
+	default:
+		return "Kode referral tidak dapat diterapkan. Order dapat dilanjutkan dengan harga normal."
+	}
 }
 
 func NormalizeReferralCode(code string) string {
@@ -142,6 +166,39 @@ func NormalizeReferralCode(code string) string {
 
 func NormalizeAttendeeEmail(email string) string {
 	return strings.ToLower(strings.TrimSpace(email))
+}
+
+// ClassifyPreviewFailure explains why no ticket could receive the discount.
+// Empty result means the code is still usable for at least one attendee.
+func ClassifyPreviewFailure(attendees []dto.ReferralAttendeeInput, priorClaims map[string]bool, remainingQuota int, discount decimal.Decimal) string {
+	if remainingQuota <= 0 {
+		return dto.ReasonQuotaExhausted
+	}
+	seen := make(map[string]bool, len(attendees))
+	allClaimed := true
+	priceBlocked := false
+	for _, attendee := range attendees {
+		email := NormalizeAttendeeEmail(attendee.Email)
+		if email == "" {
+			continue
+		}
+		if !discount.LessThan(attendee.UnitPrice) {
+			priceBlocked = true
+			continue
+		}
+		if priorClaims[email] || seen[email] {
+			continue
+		}
+		seen[email] = true
+		allClaimed = false
+	}
+	if allClaimed && priceBlocked {
+		return dto.ReasonPriceIneligible
+	}
+	if allClaimed {
+		return dto.ReasonAlreadyUsed
+	}
+	return ""
 }
 
 func AllocateDiscount(attendees []dto.ReferralAttendeeInput, priorClaims map[string]bool, remainingQuota int, discount decimal.Decimal) []dto.ReferralAllocation {

@@ -12,6 +12,14 @@ var (
 	ErrInvalidReferralID = errors.New("invalid referral code id")
 )
 
+const (
+	ReasonNotFound        = "not_found"
+	ReasonInactive        = "inactive"
+	ReasonAlreadyUsed     = "already_used"
+	ReasonQuotaExhausted  = "quota_exhausted"
+	ReasonPriceIneligible = "price_ineligible"
+)
+
 type CreateReferralCodeRequest struct {
 	Code              string `json:"code" binding:"required,min=1,max=100"`
 	DiscountPerTicket string `json:"discount_per_ticket" binding:"required"`
@@ -47,6 +55,7 @@ type ReferralPreviewRequest struct {
 type ReferralPreviewResponse struct {
 	Applicable              bool                 `json:"applicable"`
 	Reason                  string               `json:"reason,omitempty"`
+	ReasonCode              string               `json:"reason_code,omitempty"`
 	ReferralCode            string               `json:"referral_code,omitempty"`
 	DiscountPerTicket       string               `json:"discount_per_ticket"`
 	DiscountedAttendeeCount int                  `json:"discounted_attendee_count"`

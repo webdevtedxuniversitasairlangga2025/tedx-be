@@ -185,6 +185,7 @@ func (s *orderService) Create(ctx context.Context, userID string, req dto.OrderC
 		return dto.OrderResponse{}, dto.ErrAttendeesCountMismatch
 	}
 	var created dto.OrderResponse
+	var referralNoticeCode string
 	err = s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		tier, err := s.repo.GetTierForUpdate(ctx, tx, tierID)
 		if err != nil {
@@ -238,6 +239,12 @@ func (s *orderService) Create(ctx context.Context, userID string, req dto.OrderC
 			if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 				return err
 			}
+			if err != nil {
+				referralNoticeCode = referralDTO.ReasonNotFound
+			}
+			if err == nil && !code.IsActive {
+				referralNoticeCode = referralDTO.ReasonInactive
+			}
 			if err == nil && code.IsActive {
 				redeemed, err := s.referralRepo.CountRedeemed(ctx, tx, code.ID)
 				if err != nil {
@@ -260,6 +267,8 @@ func (s *orderService) Create(ctx context.Context, userID string, req dto.OrderC
 					if err := tx.WithContext(ctx).Model(&entities.ReferralCode{}).Where("id = ?", code.ID).Update("quota_held", code.QuotaHeld).Error; err != nil {
 						return err
 					}
+				} else {
+					referralNoticeCode = referralService.ClassifyPreviewFailure(inputs, claimed, remaining, code.DiscountPerTicket)
 				}
 			}
 		}
@@ -383,6 +392,9 @@ func (s *orderService) Create(ctx context.Context, userID string, req dto.OrderC
 		created = toOrderResponse(full)
 	}
 	_ = full
+	if referralNoticeCode != "" {
+		created.ReferralNotice = referralService.ReferralFailureMessage(referralNoticeCode)
+	}
 	return created, nil
 }
 
