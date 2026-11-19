@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -16,7 +17,7 @@ type OrderRepository interface {
 	GetByIDForUpdate(ctx context.Context, tx *gorm.DB, id uuid.UUID) (entities.Order, error)
 	GetAllByUserID(ctx context.Context, tx *gorm.DB, userID uuid.UUID, limit, offset int) ([]entities.Order, int64, error)
 	GetAllForExport(ctx context.Context, tx *gorm.DB) ([]entities.Order, error)
-	GetAll(ctx context.Context, tx *gorm.DB, status *string, limit, offset int) ([]entities.Order, int64, error)
+	GetAll(ctx context.Context, tx *gorm.DB, status *string, search string, limit, offset int) ([]entities.Order, int64, error)
 	Update(ctx context.Context, tx *gorm.DB, order entities.Order) (entities.Order, error)
 	SoftDelete(ctx context.Context, tx *gorm.DB, id uuid.UUID) error
 	GetTierForUpdate(ctx context.Context, tx *gorm.DB, tierID uuid.UUID) (entities.TicketTier, error)
@@ -82,11 +83,18 @@ func (r *orderRepository) GetAllByUserID(ctx context.Context, tx *gorm.DB, userI
 	return orders, total, nil
 }
 
-func (r *orderRepository) GetAll(ctx context.Context, tx *gorm.DB, status *string, limit, offset int) ([]entities.Order, int64, error) {
+func (r *orderRepository) GetAll(ctx context.Context, tx *gorm.DB, status *string, search string, limit, offset int) ([]entities.Order, int64, error) {
 	db := r.dbOrTx(tx)
 	query := db.WithContext(ctx).Model(&entities.Order{})
 	if status != nil && *status != "" {
-		query = query.Where("status = ?", *status)
+		query = query.Where("orders.status = ?", *status)
+	}
+	if search = strings.TrimSpace(search); search != "" {
+		// Dicari di database (bukan per halaman) supaya hasil di halaman manapun ikut.
+		pattern := "%" + search + "%"
+		query = query.Where(`orders.order_number ILIKE ? OR orders.id::text ILIKE ? OR orders.buyer_email ILIKE ?
+			OR orders.user_id IN (SELECT id FROM users WHERE name ILIKE ? OR email ILIKE ? OR telp_number ILIKE ?)`,
+			pattern, pattern, pattern, pattern, pattern, pattern)
 	}
 	var total int64
 	if err := query.Count(&total).Error; err != nil {

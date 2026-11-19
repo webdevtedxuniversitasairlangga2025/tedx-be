@@ -192,6 +192,8 @@ Notes:
 
 | Method | Path | Body |
 |--------|------|------|
+| GET | `/tickets` | — (daftar tiket peserta lunas; query: `search`, `tier_id`, `status=all\|used\|unused`, `page`, `per_page`) |
+| GET | `/stats` | — (jumlah tiket lunas, sudah hadir, belum hadir; total, per tiket, per tier) |
 | GET | `/:ticket_code` | — (read-only lookup, tidak mengubah status tiket) |
 | POST | `/scan` | `ticket_code` |
 

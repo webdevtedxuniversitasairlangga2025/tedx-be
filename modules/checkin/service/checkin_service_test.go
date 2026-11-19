@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/webdevtedxuniversitasairlangga/database/entities"
 	"github.com/webdevtedxuniversitasairlangga/modules/checkin/dto"
+	"github.com/webdevtedxuniversitasairlangga/modules/checkin/repository"
 	"gorm.io/gorm"
 )
 
@@ -24,6 +25,18 @@ type fakeCheckInRepository struct {
 	detailTicket entities.AttendeeTicket
 	detailErr    error
 	detailCalls  int
+
+	statsRows  []repository.AttendanceRow
+	statsErr   error
+	statsCalls int
+
+	listRows   []repository.AttendeeRow
+	listTotal  int64
+	listErr    error
+	listFilter repository.AttendeeFilter
+	listLimit  int
+	listOffset int
+	listCalls  int
 }
 
 func (r *fakeCheckInRepository) MarkAsUsed(_ context.Context, _ *gorm.DB, _ string, _ uuid.UUID) (entities.AttendeeTicket, bool, error) {
@@ -39,6 +52,17 @@ func (r *fakeCheckInRepository) FindByTicketCode(_ context.Context, _ *gorm.DB, 
 func (r *fakeCheckInRepository) FindDetailByTicketCode(_ context.Context, _ *gorm.DB, _ string) (entities.AttendeeTicket, error) {
 	r.detailCalls++
 	return r.detailTicket, r.detailErr
+}
+
+func (r *fakeCheckInRepository) CountAttendanceByTier(_ context.Context, _ *gorm.DB) ([]repository.AttendanceRow, error) {
+	r.statsCalls++
+	return r.statsRows, r.statsErr
+}
+
+func (r *fakeCheckInRepository) ListAttendees(_ context.Context, _ *gorm.DB, filter repository.AttendeeFilter, limit, offset int) ([]repository.AttendeeRow, int64, error) {
+	r.listCalls++
+	r.listFilter, r.listLimit, r.listOffset = filter, limit, offset
+	return r.listRows, r.listTotal, r.listErr
 }
 
 func TestCheckIn(t *testing.T) {
@@ -257,4 +281,128 @@ func TestLookup(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestStats(t *testing.T) {
+	t.Run("aggregates per tier, per ticket and overall", func(t *testing.T) {
+		repo := &fakeCheckInRepository{statsRows: []repository.AttendanceRow{
+			{TicketID: "t1", TicketName: "Main Event", TierID: "a", TierName: "Early Bird", Total: 10, CheckedIn: 4},
+			{TicketID: "t1", TicketName: "Main Event", TierID: "b", TierName: "Regular", Total: 5, CheckedIn: 5},
+			{TicketID: "t2", TicketName: "Workshop", TierID: "c", TierName: "Regular", Total: 3, CheckedIn: 0},
+		}}
+		svc := &checkInService{repository: repo}
+
+		got, err := svc.Stats(context.Background())
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if got.Total != 18 || got.CheckedIn != 9 || got.NotCheckedIn != 9 {
+			t.Errorf("overall = %+v", got.AttendanceCount)
+		}
+		if len(got.Tickets) != 2 {
+			t.Fatalf("tickets = %d, want 2", len(got.Tickets))
+		}
+		main := got.Tickets[0]
+		if main.Total != 15 || main.CheckedIn != 9 || main.NotCheckedIn != 6 || len(main.Tiers) != 2 {
+			t.Errorf("main ticket = %+v", main)
+		}
+		if main.Tiers[0].NotCheckedIn != 6 || main.Tiers[1].NotCheckedIn != 0 {
+			t.Errorf("tiers = %+v", main.Tiers)
+		}
+	})
+
+	t.Run("empty data returns empty slices and zero counts", func(t *testing.T) {
+		svc := &checkInService{repository: &fakeCheckInRepository{}}
+		got, err := svc.Stats(context.Background())
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if got.Tickets == nil || len(got.Tickets) != 0 || got.Total != 0 {
+			t.Errorf("got %+v", got)
+		}
+	})
+
+	t.Run("propagates repository error", func(t *testing.T) {
+		boom := errors.New("db down")
+		svc := &checkInService{repository: &fakeCheckInRepository{statsErr: boom}}
+		if _, err := svc.Stats(context.Background()); !errors.Is(err, boom) {
+			t.Errorf("err = %v, want %v", err, boom)
+		}
+	})
+}
+
+func TestListAttendees(t *testing.T) {
+	tierID := uuid.New()
+
+	t.Run("passes filters and maps rows with pagination meta", func(t *testing.T) {
+		repo := &fakeCheckInRepository{
+			listRows:  []repository.AttendeeRow{{ID: "1", TicketCode: "K7P2QX", AttendeeName: "Ega", TierName: "Early Bird", IsUsed: true}},
+			listTotal: 45,
+		}
+		svc := &checkInService{repository: repo}
+
+		got, err := svc.ListAttendees(context.Background(), dto.AttendeeListRequest{
+			Search: "  ega ", TierID: tierID.String(), Status: "USED", Page: 3, PerPage: 20,
+		})
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if repo.listFilter.Search != "ega" || repo.listFilter.TierID == nil || *repo.listFilter.TierID != tierID {
+			t.Errorf("filter = %+v", repo.listFilter)
+		}
+		if repo.listFilter.Used == nil || !*repo.listFilter.Used {
+			t.Errorf("used filter = %v", repo.listFilter.Used)
+		}
+		if repo.listLimit != 20 || repo.listOffset != 40 {
+			t.Errorf("limit/offset = %d/%d", repo.listLimit, repo.listOffset)
+		}
+		if got.Meta.Page != 3 || got.Meta.MaxPage != 3 || got.Meta.Total != 45 {
+			t.Errorf("meta = %+v", got.Meta)
+		}
+		if len(got.Data) != 1 || got.Data[0].TicketCode != "K7P2QX" || !got.Data[0].IsUsed {
+			t.Errorf("data = %+v", got.Data)
+		}
+	})
+
+	t.Run("defaults, unused filter and per-page cap", func(t *testing.T) {
+		repo := &fakeCheckInRepository{}
+		svc := &checkInService{repository: repo}
+
+		got, err := svc.ListAttendees(context.Background(), dto.AttendeeListRequest{Status: "unused", PerPage: 1000})
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if repo.listFilter.Used == nil || *repo.listFilter.Used {
+			t.Errorf("used filter = %v, want false", repo.listFilter.Used)
+		}
+		if repo.listLimit != 100 || repo.listOffset != 0 {
+			t.Errorf("limit/offset = %d/%d", repo.listLimit, repo.listOffset)
+		}
+		if got.Data == nil || len(got.Data) != 0 || got.Meta.MaxPage != 1 || got.Meta.Page != 1 {
+			t.Errorf("got = %+v", got)
+		}
+	})
+
+	t.Run("rejects bad tier id and status without hitting the repository", func(t *testing.T) {
+		repo := &fakeCheckInRepository{}
+		svc := &checkInService{repository: repo}
+
+		if _, err := svc.ListAttendees(context.Background(), dto.AttendeeListRequest{TierID: "nope"}); !errors.Is(err, dto.ErrInvalidTierID) {
+			t.Errorf("tier err = %v", err)
+		}
+		if _, err := svc.ListAttendees(context.Background(), dto.AttendeeListRequest{Status: "maybe"}); !errors.Is(err, dto.ErrInvalidStatusFilter) {
+			t.Errorf("status err = %v", err)
+		}
+		if repo.listCalls != 0 {
+			t.Errorf("repository called %d times", repo.listCalls)
+		}
+	})
+
+	t.Run("propagates repository error", func(t *testing.T) {
+		boom := errors.New("db down")
+		svc := &checkInService{repository: &fakeCheckInRepository{listErr: boom}}
+		if _, err := svc.ListAttendees(context.Background(), dto.AttendeeListRequest{}); !errors.Is(err, boom) {
+			t.Errorf("err = %v", err)
+		}
+	})
 }

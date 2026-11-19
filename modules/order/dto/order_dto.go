@@ -143,4 +143,6 @@ type OrderPaginationResponse struct {
 
 type OrderFilter struct {
 	Status *string `form:"status"`
+	// Search mencocokkan order_number, id, email pembeli, nama & telepon user (ILIKE).
+	Search string `form:"search"`
 }

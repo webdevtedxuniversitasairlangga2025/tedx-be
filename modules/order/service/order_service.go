@@ -458,7 +458,7 @@ func (s *orderService) GetAll(ctx context.Context, filter dto.OrderFilter, req d
 		req.PerPage = 100
 	}
 	offset := (req.Page - 1) * req.PerPage
-	orders, total, err := s.repo.GetAll(ctx, nil, filter.Status, req.PerPage, offset)
+	orders, total, err := s.repo.GetAll(ctx, nil, filter.Status, filter.Search, req.PerPage, offset)
 	if err != nil {
 		return dto.OrderPaginationResponse{}, err
 	}

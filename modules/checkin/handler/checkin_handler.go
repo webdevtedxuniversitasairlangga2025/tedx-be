@@ -14,6 +14,8 @@ import (
 type CheckInHandler interface {
 	CheckIn(ctx *gin.Context)
 	Lookup(ctx *gin.Context)
+	Stats(ctx *gin.Context)
+	ListAttendees(ctx *gin.Context)
 }
 
 type checkInHandler struct {
@@ -74,5 +76,41 @@ func (h *checkInHandler) Lookup(ctx *gin.Context) {
 	}
 
 	res := utils.BuildResponseSuccess(dto.MESSAGE_SUCCESS_GET_TICKET_DETAIL, result)
+	ctx.JSON(http.StatusOK, res)
+}
+
+func (h *checkInHandler) Stats(ctx *gin.Context) {
+	result, err := h.service.Stats(ctx.Request.Context())
+	if err != nil {
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_ATTENDANCE_STATS, err.Error(), nil)
+		ctx.JSON(http.StatusInternalServerError, res)
+		return
+	}
+
+	res := utils.BuildResponseSuccess(dto.MESSAGE_SUCCESS_GET_ATTENDANCE_STATS, result)
+	ctx.JSON(http.StatusOK, res)
+}
+
+func (h *checkInHandler) ListAttendees(ctx *gin.Context) {
+	var req dto.AttendeeListRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_DATA_FROM_BODY, err.Error(), nil)
+		ctx.JSON(http.StatusBadRequest, res)
+		return
+	}
+
+	result, err := h.service.ListAttendees(ctx.Request.Context(), req)
+	if err != nil {
+		status := http.StatusInternalServerError
+		if errors.Is(err, dto.ErrInvalidTierID) || errors.Is(err, dto.ErrInvalidStatusFilter) {
+			status = http.StatusBadRequest
+		}
+
+		res := utils.BuildResponseFailed(dto.MESSAGE_FAILED_GET_ATTENDEE_LIST, err.Error(), nil)
+		ctx.JSON(status, res)
+		return
+	}
+
+	res := utils.BuildResponseSuccess(dto.MESSAGE_SUCCESS_GET_ATTENDEE_LIST, result)
 	ctx.JSON(http.StatusOK, res)
 }
